@@ -8,9 +8,10 @@ let
     ipv6 = false;
   };
   containerEnabled = config.personalConfig.linux.container.enable;
-  isDocker = config.personalConfig.linux.container.backend == "docker" || config.personalConfig.linux.container.backend == "docker-nvidia";
-in
-{
+  isDocker = config.personalConfig.linux.container.backend == "docker"
+    || config.personalConfig.linux.container.backend == "docker-nvidia";
+  isPodman = config.personalConfig.linux.container.backend == "podman";
+in {
   options.personalConfig.linux.container = {
     enable = mkOption {
       type = types.bool;
@@ -54,6 +55,20 @@ in
           it let's docker automatically choose preferred storage driver.
         '';
       };
+      podman = {
+        dockerCompat = mkOption {
+          type = types.bool;
+          description =
+            "Whether to have podman mimic docker with a compatibility layer and tools";
+          default = false;
+        };
+        storageDriver = mkOption {
+          type =
+            types.enum [ "overlay" "vfs" "devmapper" "aufs" "btrfs" "zfs" ];
+          default = "overlay";
+          description = "The podman storage driver to user.";
+        };
+      };
       cAdvisor = mkOption {
         default = false;
         type = types.bool;
@@ -62,28 +77,50 @@ in
     };
   };
   config = lib.mkMerge [
+    (lib.mkIf (containerEnabled && isDocker) {
+      virtualisation = {
+        oci-containers.backend = "docker";
+        docker = {
+          enable = true;
+          enableOnBoot = containerConfig.docker.onBoot;
+          rootless = { enable = false; };
+          daemon.settings = dockerDaemonSettings;
+          autoPrune = { enable = true; };
+        };
+      };
+      environment.systemPackages = [ pkgs.docker-compose pkgs.docker-buildx ];
+    })
+    (lib.mkIf (containerEnabled && isDocker
+      && config.personalConfig.linux.container.docker.storageDriver != null) {
+        virtualisation.docker.storageDriver =
+          config.personalConfig.linux.container.docker.storageDriver;
+      })
+    (lib.mkIf (containerEnabled && isPodman) {
+      virtualisation = {
+        podman = {
+          enable = true;
+          autoPrune.enable = true;
+        };
+      };
+      environment.systemPackages = with pkgs; [ podman-tui ];
+      environment.etc."containers/storage.conf" = {
+        text = ''
+          [storage]
+          driver = "${containerConfig.podman.storageDriver}"
+        '';
+      };
+    })
     (lib.mkIf
-      (containerEnabled && isDocker)
-      {
+      (containerEnabled && isPodman && containerConfig.podman.dockerCompat) {
+        environment.systemPackages = with pkgs; [ podman-compose ];
         virtualisation = {
-          oci-containers.backend = "docker";
-          docker = {
-            enable = true;
-            enableOnBoot = containerConfig.docker.onBoot;
-            rootless = {
-              enable = false;
-            };
-            daemon.settings = dockerDaemonSettings;
-            autoPrune = {
-              enable = true;
-            };
+          podman = {
+            dockerSocket.enable = true;
+            dockerCompat = true;
+
           };
         };
-        environment.systemPackages = [ pkgs.docker-compose pkgs.docker-buildx ];
       })
-    (lib.mkIf (containerEnabled && isDocker && config.personalConfig.linux.container.docker.storageDriver != null) {
-      virtualisation.docker.storageDriver = config.personalConfig.linux.container.docker.storageDriver;
-    })
     #    (lib.mkIf config.personalConfig.linux.container.backend == "docker-nvidia"
     #      (
     #        trace "Enabling Docker nvidia"
