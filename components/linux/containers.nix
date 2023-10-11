@@ -11,7 +11,8 @@ let
   isDocker = config.personalConfig.linux.container.backend == "docker"
     || config.personalConfig.linux.container.backend == "docker-nvidia";
   isPodman = config.personalConfig.linux.container.backend == "podman";
-in {
+in
+{
   options.personalConfig.linux.container = {
     enable = mkOption {
       type = types.bool;
@@ -22,6 +23,20 @@ in {
       type = types.enum [ "podman" "docker" "docker-nvidia" ];
       description = lib.mdDoc "The underlying Docker implementation to use.";
       default = "docker";
+    };
+    podman = {
+      dockerCompat = mkOption {
+        type = types.bool;
+        description =
+          "Whether to have podman mimic docker with a compatibility layer and tools";
+        default = false;
+      };
+      storageDriver = mkOption {
+        type =
+          types.enum [ "overlay" "vfs" "devmapper" "aufs" "btrfs" "zfs" ];
+        default = "overlay";
+        description = "The podman storage driver to user.";
+      };
     };
     docker = {
       onBoot = mkOption {
@@ -55,20 +70,6 @@ in {
           it let's docker automatically choose preferred storage driver.
         '';
       };
-      podman = {
-        dockerCompat = mkOption {
-          type = types.bool;
-          description =
-            "Whether to have podman mimic docker with a compatibility layer and tools";
-          default = false;
-        };
-        storageDriver = mkOption {
-          type =
-            types.enum [ "overlay" "vfs" "devmapper" "aufs" "btrfs" "zfs" ];
-          default = "overlay";
-          description = "The podman storage driver to user.";
-        };
-      };
       cAdvisor = mkOption {
         default = false;
         type = types.bool;
@@ -90,8 +91,10 @@ in {
       };
       environment.systemPackages = [ pkgs.docker-compose pkgs.docker-buildx ];
     })
-    (lib.mkIf (containerEnabled && isDocker
-      && config.personalConfig.linux.container.docker.storageDriver != null) {
+    (lib.mkIf
+      (containerEnabled && isDocker
+        && config.personalConfig.linux.container.docker.storageDriver != null)
+      {
         virtualisation.docker.storageDriver =
           config.personalConfig.linux.container.docker.storageDriver;
       })
@@ -111,7 +114,8 @@ in {
       };
     })
     (lib.mkIf
-      (containerEnabled && isPodman && containerConfig.podman.dockerCompat) {
+      (containerEnabled && isPodman && containerConfig.podman.dockerCompat)
+      {
         environment.systemPackages = with pkgs; [ podman-compose ];
         virtualisation = {
           podman = {

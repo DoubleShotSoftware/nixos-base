@@ -3,6 +3,7 @@
   imports = [
     ./linux
     ./general
+    ./base.nix
   ];
 }
 

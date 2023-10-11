@@ -4,8 +4,8 @@ with lib; {
     ./libvirt.nix
     ./containers.nix
     ./zfs.nix
-    ./vm-guest.nix
-    ./zrepl.nix
+    ./vfio.nix
+    ./persist-network.nix
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [

@@ -50,6 +50,11 @@ let
         default = [ ];
         description = lib.mdDoc "The user's auxiliary groups.";
       };
+      admin = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Give user sudo access.";
+      };
     };
   };
   nixStateVersion = config.personalConfig.system.nixStateVersion;
@@ -67,6 +72,10 @@ let
         })
     ))
     config.personalConfig.users);
+  nixBuilders = mapAttrsToList (user: userConfig: user)
+    (filterAttrs (user: userConfig: userConfig.nixBuilder) users);
+  adminUsers = mapAttrsToList (user: userConfig: user)
+    (filterAttrs (user: userConfig: userConfig.admin) users);
 in
 {
   options.personalConfig = {
@@ -81,7 +90,7 @@ in
       description = "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./fonts ./wezterm ./nvim ./kitty ];
+  imports = [ ./zsh ./nvim ];
   config = lib.mkMerge ([
     {
       users.users = mapAttrs
@@ -111,6 +120,18 @@ in
               members = [ user ];
             })
         users;
+    }
+    {
+      users.groups = [
+        {
+          name = "nix-builders";
+          members = nixBuilders;
+        }
+        {
+          name = "wheel";
+          members = adminUsers;
+        }
+      ];
     }
     {
       home-manager.users = mapAttrs

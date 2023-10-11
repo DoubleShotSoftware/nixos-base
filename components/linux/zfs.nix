@@ -12,6 +12,11 @@ with lib;
       description = "Configure mounts for an ephemeral system";
       default = false;
     };
+    rootPool = mkOption {
+      type = types.str;
+      description = "The name of the root zfs pool";
+      default = "zroot";
+    };
   };
   config = mkMerge [
     (lib.mkIf config.personalConfig.linux.zfs.enable
@@ -23,7 +28,10 @@ with lib;
               autoSnapshot = { enable = true; };
               autoScrub = { enable = true; };
             };
-            boot.zfs = { forceImportAll = true; };
+            boot = {
+              supportedFilesystems = [ "zfs" ];
+              extraModulePackages = with config.boot.kernelPackages; [ zfs ];
+            };
             systemd.services.zfs-mount.enable = false;
           }
       ))
@@ -31,6 +39,16 @@ with lib;
       (
         trace ''Enabling ZFS Ephemeral Mounts.''
           {
+            boot = {
+              zfs = {
+                forceImportRoot = false;
+              };
+              initrd = {
+                postDeviceCommands = ''
+                  zfs rollback -r zroot/root@empty || true
+                '';
+              };
+            };
             fileSystems = {
               "/" = {
                 device = "zroot/root";
