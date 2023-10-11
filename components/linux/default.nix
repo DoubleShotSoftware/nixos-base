@@ -6,6 +6,8 @@ with lib; {
     ./zfs.nix
     ./vfio.nix
     ./persist-network.nix
+    ./linger.nix
+    ./dnsmasq.nix
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [

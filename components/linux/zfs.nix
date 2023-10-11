@@ -40,9 +40,6 @@ with lib;
         trace ''Enabling ZFS Ephemeral Mounts.''
           {
             boot = {
-              zfs = {
-                forceImportRoot = false;
-              };
               initrd = {
                 postDeviceCommands = ''
                   zfs rollback -r zroot/root@empty || true

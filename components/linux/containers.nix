@@ -100,23 +100,26 @@ in
       })
     (lib.mkIf (containerEnabled && isPodman) {
       virtualisation = {
+        containers = {
+          enable = true;
+          storage.settings = {
+            storage = {
+              driver = containerConfig.podman.storageDriver;
+            };
+          };
+        };
         podman = {
           enable = true;
           autoPrune.enable = true;
         };
       };
       environment.systemPackages = with pkgs; [ podman-tui ];
-      environment.etc."containers/storage.conf" = {
-        text = ''
-          [storage]
-          driver = "${containerConfig.podman.storageDriver}"
-        '';
-      };
     })
     (lib.mkIf
       (containerEnabled && isPodman && containerConfig.podman.dockerCompat)
       {
-        environment.systemPackages = with pkgs; [ podman-compose ];
+        environment.systemPackages = with pkgs;
+          [ podman-compose ];
         virtualisation = {
           podman = {
             dockerSocket.enable = true;
