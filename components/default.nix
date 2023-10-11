@@ -1,7 +1,8 @@
 { config, lib, options, pkgs, ... }:
 {
-  environment.systemPackages = with pkgs; [
-    ruby
+  imports = [
+    ./linux
+    ./general
   ];
 }
 
