@@ -8,7 +8,7 @@ local module_filename = string.match(info.source, '/([^/]*)$')
 -- required, and apparently we get that argument with three dots.
 local module_name = ... or "init.d"
 
-local  languages =  {
+local languages =  {
 	"vim",
 	"lua",
 	"yaml",

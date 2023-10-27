@@ -62,6 +62,14 @@ let
         default = false;
         description = "Give user sudo access.";
       };
+      languages = mkOption {
+        type = types.listOf
+          (
+            types.enum [ "dotnet" ]
+          );
+        default = [ ];
+        description = "Which languages to configure for a user.";
+      };
     };
   };
   nixStateVersion = config.personalConfig.system.nixStateVersion;
@@ -98,7 +106,7 @@ in
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./nvim ];
+  imports = [ ./zsh ./nvim ./kitty ./wezterm ./fonts ];
   config = lib.mkMerge ([
     {
       users.users = mapAttrs

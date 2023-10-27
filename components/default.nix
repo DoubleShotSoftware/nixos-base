@@ -4,6 +4,7 @@
     ./linux
     ./general
     ./base.nix
+    ./languages
   ];
 }
 

@@ -93,6 +93,7 @@ local lsp_formatting = function(client, bufnr)
 end
 
 M.on_attach = function(client, bufnr)
+  client.server_capabilities.semanticTokensProvider = nil
   if client.name == "tsserver" then
     client.server_capabilities.document_formatting = false
   end
@@ -101,13 +102,11 @@ M.on_attach = function(client, bufnr)
   lsp_formatting(client, bufnr)
 end
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
 
 local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 if not status_ok then
   return
 end
 
-M.capabilities = cmp_nvim_lsp.default_capabilities()
 
 return M

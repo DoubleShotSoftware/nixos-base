@@ -8,7 +8,6 @@ let
     zig
     llvm
     libstdcxx5
-
   ];
   tokyonight-main = pkgs.vimUtils.buildVimPlugin {
     pname = "tokyonight-main";
@@ -23,23 +22,23 @@ let
   };
   nightfox = pkgs.vimUtils.buildVimPlugin {
     pname = "nightfox";
-    version = "2023-02-17";
+    version = "v3.6.1";
     src = pkgs.fetchFromGitHub {
       owner = "EdenEast";
       repo = "nightfox.nvim";
-      rev = "68db77db88bf997f060cf591f81813ccba97c5e6";
-      sha256 = "08gk1rga3w5fkjg37618g3mpkpba43rb0r5ckj9wpdgpvmm436y8";
+      rev = "v3.6.1";
+      sha256 = "0d7c74fip5xk81ypihl0yjb9mfcdry0spq7c8zs2zsrm6a9xbxzy";
     };
     meta.homepage = "https://github.com/EdenEast/nightfox.nvim";
   };
   plenary-main = pkgs.vimUtils.buildVimPlugin {
     pname = "plenary-main";
-    pkgs.version = "2023-02-19";
+    pkgs.version = "v0.1.4";
     src = pkgs.fetchFromGitHub {
       owner = "nvim-lua";
       repo = "plenary.nvim";
-      rev = "bda256fab0eb66a15e8190937e417e6a14ee5d72";
-      sha256 = "1qrdv9as2h591rgv47irz374rwndv0jgaia5a7x931j6j8zr0kkp";
+      rev = "v0.1.4";
+      sha256 = "14j8jf1pvvszm9v75ykgf355gagdpf1rxmc3y04j2fnk8rz897bh";
     };
     meta.homepage = "https://github.com/williamboman/plenary-main";
   };
@@ -58,12 +57,12 @@ let
       viAlias = true;
       vimAlias = true;
       vimdiffAlias = true;
+      package = pkgs.neovim-unwrapped;
       extraConfig = ''
         autocmd VimResized * wincmd =
         set laststatus=3
         set equalalways
-        set foldmethod=expr
-        set foldexpr=indent
+        set foldmethod=indent
         lua require('config_keymap')
         lua require('config_options')
         lua require('lsp')
@@ -71,6 +70,16 @@ let
       plugins = with pkgs.vimPlugins; [
         popup-nvim
         plenary-nvim
+        {
+          plugin = nvim-lightbulb;
+          type = "lua";
+          config = builtins.readFile (./config_lightbulb.lua);
+        }
+        {
+          plugin = lspkind-nvim;
+          type = "lua";
+          config = builtins.readFile (./config_lspkind.lua);
+        }
         {
           plugin = telescope-nvim;
           type = "lua";
@@ -89,7 +98,7 @@ let
           config = builtins.readFile (./config_nightfox.lua);
         }
         {
-          plugin = nvim-lspconfig;
+          plugin = pkgs.unstable.vimPlugins.nvim-lspconfig;
           type = "lua";
         }
         cmp-buffer
@@ -101,7 +110,6 @@ let
         cmp-emoji
         {
           plugin = nvim-treesitter;
-          #.withPlugins (_: pkgs.tree-sitter.allGrammars);
           type = "lua";
           config = builtins.readFile (./config_treesitter.lua);
         }
@@ -153,17 +161,22 @@ let
           plugin = vim-which-key;
           config = builtins.readFile (./config_whichkey.vim);
         }
+        neoformat
       ];
-      extraPackages = with pkgs; [
+      extraPackages = with pkgs.unstable; [
         ripgrep
+        fd
         nodePackages.vscode-json-languageserver
         tree-sitter
         fzf
-        rnix-lsp
         lua-language-server
+        nodejs_18
         nodePackages.bash-language-server
         nodePackages.yaml-language-server
+        nodePackages.eslint
+        stylua
         shfmt
+        nixd
       ] ++ compilers;
     };
     xdg.configFile."nvim/lua/config_options.lua".source = ./config_options.lua;
@@ -185,4 +198,11 @@ let
         ) else { })
     (filterAttrs (user: userConfig: userConfig.userType != "system") config.personalConfig.users);
 in
-{ config = { home-manager.users = nvim_configs; }; }
+{
+  imports = [
+    ./mason
+  ];
+  config = {
+    home-manager.users = nvim_configs;
+  };
+}

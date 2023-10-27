@@ -105,6 +105,8 @@ in
           storage.settings = {
             storage = {
               driver = containerConfig.podman.storageDriver;
+              runroot = "/run/containers/storage";
+              graphroot = "/var/lib/containers/storage";
             };
           };
         };

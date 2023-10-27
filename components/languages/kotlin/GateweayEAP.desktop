@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon[en_US]=/home/sobrien/.local/share/gateway-eap/bin/gateway.png
+Name[en_US]=Jetbrains Gateway
+Exec=/home/sobrien/.bin/gateway-wrapper.sh
+Name=Jetbrains Gateway
+Icon=/home/sobrien/.local/share/gateway-eap/bin/gateway.png
