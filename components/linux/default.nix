@@ -1,13 +1,19 @@
 { config, lib, options, sops, pkgs, ... }:
 with lib; {
   imports = [
-    ./libvirt.nix
+    ./acme.nix
     ./containers.nix
-    ./zfs.nix
-    ./vfio.nix
-    ./persist-network.nix
-    ./linger.nix
     ./dnsmasq.nix
+    ./qemu-guest
+    ./immersedvr.nix
+    ./libvirt.nix
+    ./persist-network.nix
+    ./pipewire.nix
+    ./desktop
+    ./linger.nix
+    ./vfio.nix
+    ./zfs.nix
+    ./zrepl.nix
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [

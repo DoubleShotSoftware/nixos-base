@@ -1,0 +1,82 @@
+" Reference
+" https://gist.github.com/dewaka/ef947e52767bf453eaf77c852051eb7e
+Plug 'preservim/nerdtree'
+Plug 'easymotion/vim-easymotion'
+
+set number
+set ideajoin
+set idearefactormode=keep
+set easymotion
+
+set clipboard+=unnamed
+set clipboard+=ideaput
+let mapleader=" "
+
+
+nnoremap <Leader>ie :e ~/.ideavimrc<CR>
+nnoremap <Leader>ir :action IdeaVim.ReloadVimRc.reload<CR>
+
+nnoremap <Leader>h :action ToggleDistractionFreeMode<CR>
+
+nnoremap <leader>t :action Terminal.OpenInTerminal<CR>
+
+sethandler <c-v> a:vim
+nnoremap <c-v> :action SplitVertically<CR>
+sethandler <c-x> a:vim
+nnoremap <c-x> :action SplitHorizontally<CR>
+
+sethandler <c-j> a:vim
+sethandler <c-k> a:vim
+sethandler <c-h> a:vim
+sethandler <c-l> a:vim
+
+nnoremap <c-m> :action MoveEditorToOppositeTabGroup<CR>
+
+sethandler <TAB> a:vim
+nnoremap <TAB> :action PreviousTab<CR>
+sethandler <s-TAB> a:vim
+nnoremap <s-TAB> :action NextTab<CR>
+
+nnoremap <Leader>q :action CloseContent<CR>
+nnoremap <Leader>qa :action CloseAllEditors<CR>
+
+nnoremap gc :action GotoClass<CR>
+nnoremap gi :action GotoImplementation<CR>
+nnoremap gd :action GotToDeclaration<CR>
+nnoremap gp :action GotToSuperMethod<CR>
+nnoremap gt :action GotoTest<CR>
+nnoremap gb :action Back<CR>
+nnoremap gf :action Forward<CR>
+nnoremap gr :action FindUsages<CR>
+
+map <Leader>m <Plug>(easymotion-f)
+map <Leader>M <Plug>(easymotion-s)n
+
+nnoremap <Leader>c : action CompileProject<CR>
+nnoremap <Leader>p : action ActivateProblemsViewToolWindow<CR>
+nnoremap <leader>po :action ManageRecentProjects<CR>
+nnoremap <leader>pc :action CloseProject<CR>
+
+" NERDTree
+map <leader>e :NERDTree<CR>
+map <leader>ef :NERDTreeFind<CR>
+
+" Useful Git actions
+nmap <leader>ggb :action Git.Branches<cr>
+nmap <leader>ggp :action Git.Pull<cr>
+nmap <leader>ggu :action Git.Push<cr>
+nmap <leader>ggr :action Git.Rebase<cr>
+nmap <leader>ggm :action Git.Merge<cr>
+
+" VCS operations
+nmap <leader>yy :action Vcs.Show.Local.Changes<cr>
+nmap <leader>yp :action Vcs.QuickListPopupAction<cr>
+nmap <leader>ya :action Annotate<cr>
+nmap <leader>yl :action Vcs.Show.Log<cr>
+nmap <leader>yd :action Compare.LastVersion<cr>
+nmap <leader>yP :action Git.Pull<cr>
+nmap <leader>yr :action Git.ResolveConflicts<cr>
+nmap <leader>yo :action Github.Open.In.Browser<cr>
+
+" Gradle
+nmap <leader>G :action ActivateGradleToolWindow<cr>
