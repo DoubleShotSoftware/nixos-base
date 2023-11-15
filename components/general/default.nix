@@ -106,7 +106,7 @@ in
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./kitty ./wezterm ./fonts ];
+  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ];
   config = lib.mkMerge ([
     {
       users.users = mapAttrs
