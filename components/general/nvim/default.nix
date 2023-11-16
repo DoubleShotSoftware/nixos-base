@@ -106,7 +106,7 @@ let
         persistence-nvim
         harpoon
         undotree
-	lightspeed-nvim
+        lightspeed-nvim
       ];
       extraPackages = with pkgs.unstable;
         [
@@ -137,6 +137,6 @@ let
       { }) (filterAttrs (user: userConfig: userConfig.userType != "system")
         config.personalConfig.users);
 in {
-  imports = [ ./mason ./git ./telescope ];
+  imports = [ ./mason.nix ./git.nix ./telescope.nix ./debug.nix ];
   config = { home-manager.users = nvim_configs; };
 }

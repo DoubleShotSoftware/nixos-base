@@ -31,8 +31,7 @@ let
       };
     })
   ];
-in
-{
+in {
   options.personalConfig.linux.guest = {
     enable = mkEnableOption "Whether instance is a guest type.";
     vmType = mkOption {
@@ -40,7 +39,8 @@ in
       type = types.enum [ "qemu" ];
       default = "qemu";
     };
-    graphical = mkEnableOption "Whether the instance is a graphical instance, installs things like spice vd agent";
+    graphical = mkEnableOption
+      "Whether the instance is a graphical instance, installs things like spice vd agent";
   };
   config = lib.mkIf cfg.enable implementation;
 }

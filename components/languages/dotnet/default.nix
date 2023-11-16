@@ -4,12 +4,12 @@ with builtins;
 let
   users = config.personalConfig.users;
   dotnetSDK =
-    (with pkgs.dotnetCorePackages; combinePackages [
+    (with pkgs.dotnet.dotnetCorePackages; combinePackages [
       sdk_6_0
       sdk_7_0
       sdk_8_0
     ]);
-  dotNetPackages = with pkgs; [
+  dotNetPackages = with pkgs.dotnet; [
     roslyn
     dotnetPackages.Nuget
     dotnetPackages.NUnit
@@ -53,6 +53,7 @@ let
             #omnisharp-roslyn
             uncrustify
             astyle
+            netcoredbg
           ];
         in
         {

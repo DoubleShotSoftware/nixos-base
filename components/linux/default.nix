@@ -11,6 +11,7 @@ with lib; {
     ./pipewire.nix
     ./desktop
     ./linger.nix
+    ./vm-guest.nix
     ./vfio.nix
     ./zfs.nix
     ./zrepl.nix

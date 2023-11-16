@@ -1,4 +1,5 @@
 {
+
   description = "Platform Craft Common Nix Config.";
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-23.05";
@@ -16,19 +17,10 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     deploy-rs.url = "github:serokell/deploy-rs";
     swayfx.url = "github:WillPower3309/swayfx";
+    dotnet.url = "github:mdarocha/nixpkgs/dotnet-update";
   };
-  outputs =
-    { self
-    , nixpkgs
-    , nixpkgs-unstable
-    , nixos-hardware
-    , home-manager
-    , nur
-    , microvm
-    , sops-nix
-    , swayfx
-    , ...
-    }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, dotnet, nixos-hardware
+    , home-manager, nur, microvm, sops-nix, swayfx, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -41,11 +33,12 @@
           config.allowUnfree = true;
         };
       };
-      lib = nixpkgs.lib;
-    in
-    {
-      nixosModules = {
-        personalConfig = import ./components;
+      overlay-dotnet = final: prev: {
+        dotnet = import dotnet {
+          inherit system;
+          config.allowUnfree = true;
+        };
       };
-    };
+      lib = nixpkgs.lib;
+    in { nixosModules = { personalConfig = import ./components; }; };
 }

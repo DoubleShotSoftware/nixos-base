@@ -28,5 +28,4 @@ mason_lspconfig.setup_handlers({
 })
 
 require("user.lsp.settings").setup(lsp_config)
-require("user.lsp.cmp")
 require("user.lsp.trouble")

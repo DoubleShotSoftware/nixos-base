@@ -47,6 +47,11 @@ let
         description = "Whether to enable nvim for user.";
         default = false;
       };
+      vscode = mkOption {
+        type = types.bool;
+        description = "Whether to enable vscode for user.";
+        default = false;
+      };
       userType = mkOption {
         type = types.enum [ "normal" "system" ];
         description = "Whether the user is a system or normal user.";
@@ -62,10 +67,15 @@ let
         default = false;
         description = "Give user sudo access.";
       };
+      zellij = mkOption {
+        type = types.bool;
+        default = false;
+        description = "install zellij for user.";
+      };
       languages = mkOption {
         type = types.listOf
           (
-            types.enum [ "dotnet" ]
+            types.enum [ "dotnet" "python" ]
           );
         default = [ ];
         description = "Which languages to configure for a user.";
@@ -106,7 +116,7 @@ in
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ];
+  imports = [ ./zsh ./kitty ./wezterm ./fonts ];
   config = lib.mkMerge ([
     {
       users.users = mapAttrs
