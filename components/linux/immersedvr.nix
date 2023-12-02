@@ -4,15 +4,15 @@ with builtins;
 let
   cfg = config.personalConfig.linux.immersedvr;
   immersedUrl = "https://static.immersed.com/dl/Immersed-x86_64.AppImage";
-  immersed = pkgs.appimageTools.wrapType2
-    {
-      # or wrapType1
-      name = "immersed";
-      src = pkgs.fetchurl {
-        url = immersedUrl;
-        hash = "sha512-SHrxURrVkYO9FpZd21sZVE8GXRuSCg+XhQrCWAOQTbXbQV5PvdGTcvG2aHQA6KJ+fLwckdWIKPT40Vw4KFYQVg==";
-      };
-      extraPkgs = pkgs: with pkgs; [
+  immersed = pkgs.appimageTools.wrapType2 {
+    # or wrapType1
+    name = "immersed";
+    src = pkgs.fetchurl {
+      url = immersedUrl;
+      hash = "sha256-o/3nVeOwSMFI9EhHBKeN3ss8Bfmse9LMIegrd9v7Uj4=";
+    };
+    extraPkgs = pkgs:
+      with pkgs; [
         avahi
         libdatrie
         cups
@@ -30,6 +30,7 @@ let
         gst_all_1.gst-plugins-ugly
         gst_all_1.gst-plugins-good
         gst_all_1.gst-plugins-base
+pipewire
         pango
         pcre
         pixman
@@ -44,12 +45,18 @@ let
         libwebp
         vaapiVdpau
         vaapiIntel
+        amdvlk
         libvdpau-va-gl
-        libva
         libva-utils
+        libva
+        mesa
         libva-minimal
         libva1-minimal
         libva1
+        intel-media-driver # LIBVA_DRIVER_NAME=iHD
+        vaapiIntel # LIBVA_DRIVER_NAME=i965 (older but works better for Firefox/Chromium)
+        vaapiVdpau
+        libvdpau-va-gl
         libdrm
         nss
         linuxPackages.v4l2loopback
@@ -58,6 +65,7 @@ let
         brotli
         android-tools
         wayland
+wayland-utils
         adb-sync
         libthai
         ibus
@@ -72,28 +80,23 @@ let
         libcanberra-gtk3
         libcanberra
       ];
-    };
-  bootModules = [
-    "v4l2loopback"
-  ];
-in
-{
+  };
+  bootModules = [ "v4l2loopback" "uinput" "evdi" ];
+in {
   options.personalConfig.linux.immersedvr.enable = mkOption {
     type = types.bool;
     default = false;
     description = "Enable the immersedvr desktop app image package.";
   };
   config = mkIf cfg.enable {
+    hardware.uinput.enable = true;
     boot = {
-      extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
+      extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback evdi ];
       initrd = {
         availableKernelModules = bootModules;
         kernelModules = bootModules;
       };
     };
-    environment.systemPackages = with pkgs;
-      [
-        immersed
-      ];
+    environment.systemPackages = with pkgs; [ immersed ];
   };
 }

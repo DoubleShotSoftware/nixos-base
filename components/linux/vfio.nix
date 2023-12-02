@@ -2,11 +2,8 @@
 with lib;
 let
   cfg = config.personalConfig.linux.vfio;
-  vfioModules = [
-    "vfio-pci"
-  ];
-in
-{
+  vfioModules = [ "vfio-pci" ];
+in {
   options.personalConfig.linux.vfio = with lib; {
     enable = mkOption {
       type = types.bool;
@@ -24,28 +21,25 @@ in
       default = false;
     };
   };
-  config = mkIf cfg.enable (
-    trace "Enabling vfio support"
-      mkMerge [
-      {
-        boot = {
-          initrd = {
-            availableKernelModules = vfioModules;
-            kernelModules = vfioModules;
-          };
-          kernelParams = [
-            "vfio_iommu_type1.allow_unsafe_interrupts=1"
-            ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)
-          ];
+  config = mkIf cfg.enable (trace "Enabling vfio support" mkMerge [
+    {
+      boot = {
+        initrd = {
+          availableKernelModules = vfioModules;
+          kernelModules = vfioModules;
         };
-      }
-      (mkIf cfg.preemptNvidia {
-        boot.kernelParams = [
-          "nouveau.driver.pre=vfio-pci"
-          "nvidia.driver.pre=vfio-pci"
-
+        kernelParams = [
+          "vfio_iommu_type1.allow_unsafe_interrupts=1"
+          ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)
         ];
-      })
-    ]
-  );
+      };
+    }
+    (mkIf cfg.preemptNvidia {
+      boot.kernelParams = [
+        "nouveau.driver.pre=vfio-pci"
+        "nvidia.driver.pre=vfio-pci"
+
+      ];
+    })
+  ]);
 }

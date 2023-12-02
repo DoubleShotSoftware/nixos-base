@@ -15,6 +15,7 @@ with lib; {
     ./vfio.nix
     ./zfs.nix
     ./zrepl.nix
+    ./usb-awake.nix
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [
