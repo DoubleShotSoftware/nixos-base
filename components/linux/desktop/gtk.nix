@@ -12,11 +12,11 @@ let
             gtk = {
 
               enable = true;
-              cursorTheme = {
-                package = pkgs.nordzy-cursor-theme;
-                size = 14;
-                name = "Nordzy-cursors";
-              };
+#              cursorTheme = {
+#                package = pkgs.nordzy-cursor-theme;
+#                size = 14;
+#                name = "Nordzy-cursors";
+#              };
               gtk2.extraConfig = ''
                 gtk-theme-name = "Materia-dark"
                 gtk-icon-theme-name="Arc"

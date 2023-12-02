@@ -11,7 +11,7 @@ let
 in {
   config = lib.mkIf desktopEnabled {
     fonts = {
-      fonts = with pkgs; [
+      packages = with pkgs; [
         hack-font
         fira
         fira-code
