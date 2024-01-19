@@ -30,7 +30,7 @@ vim.opt.guifont = "monospace:h17" -- the font used in graphical neovim applicati
 vim.opt.guicursor = ""
 vim.opt.shortmess:append("c")
 vim.opt.laststatus = 3
-vim.lsp.set_log_level("debug")
+-- vim.lsp.set_log_level("debug")
 vim.opt.tabstop = 4 -- insert 2 spaces for a tab
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4

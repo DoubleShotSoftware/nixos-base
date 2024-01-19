@@ -1,19 +1,7 @@
 {
   "msbuild": {
     "enabled": true,
-    "ToolsVersion": null,
-    "VisualStudioVersion": null,
-    "Configuration": null,
-    "Platform": null,
-    "EnablePackageAutoRestore": false,
-    "MSBuildExtensionsPath": null,
-    "TargetFrameworkRootPath": null,
-    "MSBuildSDKsPath": null,
-    "RoslynTargetsPath": null,
-    "CscToolPath": null,
-    "CscToolExe": null,
-    "loadProjectsOnDemand": false,
-    "GenerateBinaryLogs": false
+    "loadProjectsOnDemand": false
   },
   "RoslynExtensionsOptions": {
     "documentAnalysisTimeoutMs": 30000,
@@ -49,5 +37,10 @@
     "RenameInComments": true,
     "RenameOverloads": true,
     "RenameInStrings": true
+  },
+  "FormattingOptions": {
+    "EnableEditorConfigSupport": true,
+    "OrganizeImports": true,
+    "NewLine": "\n"
   }
 }

@@ -4,7 +4,7 @@ function M.setup()
 end
 
 function M.add_language(languages)
-  table.insert(languages, "c_sharp")
+	table.insert(languages, "c_sharp")
 end
 
 return M
