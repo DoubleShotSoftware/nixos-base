@@ -3,7 +3,7 @@ if not cmp_status_ok then
   return
 end
 
-local sources = require("user.lsp.cmp-sources").setup()
+local sources = require("lsp.cmp-sources").setup()
 local snip_status_ok, luasnip = pcall(require, "luasnip")
 if not snip_status_ok then
   return
