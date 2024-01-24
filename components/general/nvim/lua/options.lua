@@ -35,7 +35,6 @@ vim.opt.tabstop = 4 -- insert 2 spaces for a tab
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
-vim.opt.foldmethod = indent
 
 -- See Undotree.lua
 vim.opt.swapfile = false -- creates a swapfile
