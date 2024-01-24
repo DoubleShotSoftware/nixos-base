@@ -45,10 +45,6 @@ local on_attach = function(client, bufnr)
 	vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
 		vim.api.nvim_command("Neoformat")
 	end, { desc = "Format current buffer with LSP" })
-	-- nmap("<leader>cf", vim.api.nvim_command("Format"), "[c]ode [f]ormat")
-	vim.api.nvim_create_autocmd("BufWritePre", {
-		desc = "Format Before Save",
-		command = "silent! Format",
-	})
+	nmap("<leader>cf", vim.api.nvim_command("Format"), "[c]ode [f]ormat")
 end
 return on_attach

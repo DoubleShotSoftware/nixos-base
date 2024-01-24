@@ -5,11 +5,11 @@ let
   compilers = with pkgs; [ gcc clang zig llvm libstdcxx5 ];
   tokyonight-main = pkgs.vimUtils.buildVimPlugin {
     pname = "tokyonight-main";
-    version = "2023-03-14";
+    version = "v3.0.1";
     src = pkgs.fetchFromGitHub {
       owner = "folke";
       repo = "tokyonight.nvim";
-      rev = "a0a7bfbc4c54348b56880a162afac9d103c618c1";
+      rev = "v3.0.1";
       sha256 = "07l8x4za6j444dd7bwwllk1sadhvnlshmjwz01xlympqsb6j8hz9";
     };
     meta.homepage = "https://github.com/folke/tokyonight.nvim/";
@@ -31,7 +31,7 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "EdenEast";
       repo = "nightfox.nvim";
-      rev = "v3.6.1";
+      rev = "v3.9.0";
       sha256 = "0d7c74fip5xk81ypihl0yjb9mfcdry0spq7c8zs2zsrm6a9xbxzy";
     };
     meta.homepage = "https://github.com/EdenEast/nightfox.nvim";
@@ -42,7 +42,7 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "nvim-lua";
       repo = "plenary.nvim";
-      rev = "v0.1.4";
+      rev = "663246936325062427597964d81d30eaa42ab1e4";
       sha256 = "14j8jf1pvvszm9v75ykgf355gagdpf1rxmc3y04j2fnk8rz897bh";
     };
     meta.homepage = "https://github.com/williamboman/plenary-main";
@@ -65,6 +65,7 @@ let
       package = pkgs.unstable.neovim-unwrapped;
       extraLuaConfig = builtins.readFile (./init.lua);
       plugins = with pkgs.unstable.vimPlugins; [
+        tokyonight-nvim
         popup-nvim
         plenary-nvim
         whichkey
