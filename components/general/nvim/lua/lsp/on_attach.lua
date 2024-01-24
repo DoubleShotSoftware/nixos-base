@@ -16,7 +16,6 @@ local on_attach = function(client, bufnr)
 		if desc then
 			desc = "LSP: " .. desc
 		end
-
 		vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
 	end
 
@@ -45,6 +44,6 @@ local on_attach = function(client, bufnr)
 	vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
 		vim.api.nvim_command("Neoformat")
 	end, { desc = "Format current buffer with LSP" })
-	nmap("<leader>cf", vim.api.nvim_command("Format"), "[c]ode [f]ormat")
+	-- nmap("<leader>cf", vim.api.nvim_command("Format"), "[c]ode [f]ormat")
 end
 return on_attach

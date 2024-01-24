@@ -45,7 +45,6 @@ vim.opt.undofile = true -- enable persistent undo
 vim.opt.hlsearch = false -- highlight all matches on previous search pattern
 vim.opt.incsearch = true
 
-vim.opt.scrolloff = 16
 vim.opt.signcolumn = "yes"
 -- https://youtu.be/w7i4amO_zaE?si=dYxa4AR4jrZAqG0S&t=1458
 vim.opt.isfname:append("@-@")
@@ -53,3 +52,12 @@ vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "120"
+
+-- folding powered by treesitter
+-- https://github.com/nvim-treesitter/nvim-treesitter#folding
+-- look for foldenable: https://github.com/neovim/neovim/blob/master/src/nvim/options.lua
+-- Vim cheatsheet, look for folds keys: https://devhints.io/vim
+vim.opt.foldmethod = "expr" -- default is "normal"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- default is ""
+vim.opt.foldenable = false
+vim.opt.foldlevel = 4

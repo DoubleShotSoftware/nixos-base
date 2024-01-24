@@ -51,8 +51,15 @@ let
         };
       };
       xdg.configFile = {
-        "nvim/lua/lsp/settings/dotnet.lua".source = ./dotnet.lua;
-        "nvim/lua/lsp/treesitter/dotnet.lua".source = ./treesitter.lua;
+        "nvim/lua/user/lsp/settings/dotnetpaths.lua".text = ''
+          local M = {
+              OmniSharp = "${pkgs.omnisharp-roslyn}/bin/OmniSharp",
+              Root = "${dotnetSDK}"
+          }
+          return M
+        '';
+        "nvim/lua/user/lsp/settings/dotnet.lua".source = ./dotnet.lua;
+        "nvim/lua/lsp/user/treesitter/dotnet.lua".source = ./treesitter.lua;
       };
       programs = {
         neovim = {
