@@ -2,7 +2,7 @@
 with builtins;
 with lib;
 let
-  compilers = with pkgs; [ gcc clang zig llvm libstdcxx5 ];
+  compilers = with pkgs; [ clang zig llvm  ];
   tokyonight-main = pkgs.vimUtils.buildVimPlugin {
     pname = "tokyonight-main";
     version = "v3.0.1";

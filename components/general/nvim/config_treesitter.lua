@@ -1,4 +1,4 @@
-require("nvim-treesitter.install").compilers = { "gcc", "clang++", "clang" }
+require("nvim-treesitter.install").compilers = {  "clang++", "clang" }
 local languages = require("lsp.treesitter").setup()
 
 require('nvim-treesitter.configs').setup({
