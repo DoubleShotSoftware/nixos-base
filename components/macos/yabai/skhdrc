@@ -1,0 +1,74 @@
+#cmd - return : /Applications/kitty.app/Contents/MacOS/kitty --single-instance -d ~
+cmd + ctrl - return :  /Applications/WezTerm.app/Contents/MacOS/wezterm
+
+ctrl - e : yabai -m space --layout bsp
+ctrl - s : yabai -m space --layout stack
+
+# Stack Movement
+ctrl - down : yabai -m window --focus stack.next || yabai -m window --focus south
+ctrl - up : yabai -m window --focus stack.prev || yabai -m window --focus north
+
+cmd + shift - space : yabai -m window --toggle float --grid 4:4:1:1:2:2
+cmd + shift - r : yabai -m space --rotate 90hyper - r : yabai -m space --rotate 90
+
+# Make window native fullscreen
+cmd + shift - f         : yabai -m window --toggle zoom-fullscreen
+cmd - q : yabai -m window --close
+
+ctrl - 1 : $HOME/.bin/sketchybar/update_vdesktop.sh 1 switch
+ctrl - 2 : $HOME/.bin/sketchybar/update_vdesktop.sh 2 switch
+ctrl - 3 : $HOME/.bin/sketchybar/update_vdesktop.sh 3 switch
+ctrl - 4 : $HOME/.bin/sketchybar/update_vdesktop.sh 4 switch
+ctrl - 5 : $HOME/.bin/sketchybar/update_vdesktop.sh 5 switch
+ctrl - 6 : $HOME/.bin/sketchybar/update_vdesktop.sh 6 switch
+ctrl - 7 : $HOME/.bin/sketchybar/update_vdesktop.sh 7 switch
+ctrl - 8 : $HOME/.bin/sketchybar/update_vdesktop.sh 8 switch
+ctrl - 9 : $HOME/.bin/sketchybar/update_vdesktop.sh 9 switch
+ctrl - 0 : $HOME/.bin/sketchybar/update_vdesktop.sh 0 switch
+
+ctrl + shift - 1: $HOME/.bin/sketchybar/update_vdesktop.sh 1 move
+ctrl + shift - 2: $HOME/.bin/sketchybar/update_vdesktop.sh 2 move
+ctrl + shift - 3: $HOME/.bin/sketchybar/update_vdesktop.sh 3 move
+ctrl + shift - 4: $HOME/.bin/sketchybar/update_vdesktop.sh 4 move
+ctrl + shift - 5: $HOME/.bin/sketchybar/update_vdesktop.sh 5 move
+ctrl + shift - 6: $HOME/.bin/sketchybar/update_vdesktop.sh 6 move
+ctrl + shift - 7: $HOME/.bin/sketchybar/update_vdesktop.sh 7 move
+ctrl + shift - 8: $HOME/.bin/sketchybar/update_vdesktop.sh 8 move
+ctrl + shift - 9: $HOME/.bin/sketchybar/update_vdesktop.sh 9 move
+ctrl + shift - 0: $HOME/.bin/sketchybar/update_vdesktop.sh 0 move
+
+# Navigation
+cmd - h : yabai -m window --focus west
+cmd - j : yabai -m window --focus south
+cmd - k : yabai -m window --focus north
+cmd - l : yabai -m window --focus east
+ctrl + shift - x : yabai -m window --focus recent
+
+# Moving windows
+shift + cmd - h : yabai -m window --warp west
+shift + cmd - j : yabai -m window --warp south
+shift + cmd - k : yabai -m window --warp north
+shift + cmd - l : yabai -m window --warp east
+
+# Resize windows
+lctrl + cmd - h : yabai -m window --resize left:-50:0; \
+                  yabai -m window --resize right:-50:0
+lctrl + cmd - j : yabai -m window --resize bottom:0:50; \
+                  yabai -m window --resize top:0:50
+lctrl + cmd - k : yabai -m window --resize top:0:-50; \
+                  yabai -m window --resize bottom:0:-50
+lctrl + cmd - l : yabai -m window --resize right:50:0; \
+                  yabai -m window --resize left:50:0
+
+# set insertion point in focused container
+shift + ctrl - h : yabai -m window --insert west
+shift + ctrl - j : yabai -m window --insert south
+shift + ctrl - k : yabai -m window --insert north
+shift + ctrl - l : yabai -m window --insert east
+
+# send window to monitor and follow focus
+ctrl + cmd - left  : chunkc tiling::window --send-to-monitor prev; chunkc tiling::monitor -f prev
+ctrl + cmd - right  : chunkc tiling::window --send-to-monitor next; chunkc tiling::monitor -f next
+
+
+

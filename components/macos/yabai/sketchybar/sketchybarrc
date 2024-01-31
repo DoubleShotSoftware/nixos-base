@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+
+source "$HOME/.config/sketchybar/theme.sh" # Loads all defined colors
+source "$HOME/.config/sketchybar/icons.sh" # Loads all defined icons
+
+ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are configured
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins" # Directory where all the plugin scripts are stored
+
+
+PADDINGS=3 # All paddings use this value (icon, label, background and bar paddings)
+SEGMENT_SPACING=13 # The spacing between segments
+
+# Setting up the general bar appearance and default values
+BAR_CONFIG=(
+   corner_radius=0                                   
+   border_width=0                                    
+   margin=0                                          
+   blur_radius=0                                     
+   position=$BAR_POSITION
+   padding_left=4                                    
+   padding_right=4                                   
+   color=0x0d00ffff                                  
+   topmost=off                                       
+   sticky=on                                         
+   font_smoothing=off                                
+   y_offset=0                                        
+   notch_width=0                                     
+   height=32
+)
+BAR_DEFAULT=(
+  drawing=on                                          
+  updates=when_shown                                  
+  label.font="$FONT:Bold:13.0"                         
+  icon.font="$FONT:Bold:14.0"                         
+  icon.color=$ICON_COLOR                              
+  label.color=$LABEL_COLOR                            
+  icon.padding_left=$PADDINGS                         
+  icon.padding_right=$PADDINGS                        
+  label.padding_left=$PADDINGS                        
+  label.padding_right=$PADDINGS                       
+  background.padding_right=$PADDINGS                  
+  background.padding_left=$PADDINGS                   
+)
+
+sketchybar --bar "${BAR_CONFIG[@]}" --default "${BAR_DEFAULT[@]}"
+
+source $HOME/.config/sketchybar/center.sh
+source $HOME/.config/sketchybar/right.sh
+
+# Template for the segment labels, i.e. space name, active app, date, ...
+sketchybar --add item           label_template left                          \
+           --set label_template icon.drawing=off                             \
+                                label.font="$FONT:Black:12.0"                \
+                                label.padding_right=5                        \
+                                click_script="$PLUGIN_DIR/toggle_bracket.sh" \
+                                background.padding_left=$SEGMENT_SPACING     \
+                                drawing=off
+
+# Spaces themselves are this
+source "$ITEM_DIR/spaces.sh"
+
+
+# BSP/float/stack/fullscreen textocus mouse.clicked        \
+
+# Widgets by Locations
+
+# If an update is avalible, update sketchybar when launched
+sketchybar --update
+
+# Finalize animations
+# sketchybar --animate sin 30 --bar notch_width=200
+
+# Notify when sketchybarrc is finished loading
+echo "sketchybar configuation loaded.."
