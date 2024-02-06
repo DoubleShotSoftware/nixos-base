@@ -2,6 +2,28 @@
 with lib;
 with builtins;
 let
+  csharp-nvim = pkgs.vimUtils.buildVimPlugin {
+    pname = "csharp-nvim";
+    version = "02-03-2024";
+    src = pkgs.fetchFromGitHub {
+      owner = "iabdelkareem";
+      repo = "csharp.nvim";
+      rev = "f3c2158b4b6f055382dcf62c60695e1812e8d59f";
+      sha256 = "sha256-Ozsv5BsaqAT9U0oRTD/Q98T/vFlls00HYzWGKkyNfPs=";
+    };
+    meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
+  };
+  structlog-nvim = pkgs.vimUtils.buildVimPlugin {
+    pname = "structlog-nvim";
+    version = "0.2";
+    src = pkgs.fetchFromGitHub {
+      owner = "Tastyep";
+      repo = "structlog.nvim";
+      rev = "v0.2";
+      sha256 = "sha256-Bq4YNpLQ1+iSBuN5MG4OBmI5r3DGWyDou4kRCMnked0=";
+    };
+    meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
+  };
   users = config.personalConfig.users;
   dotnetSDK =
     (with pkgs.dotnetCorePackages; combinePackages [ sdk_6_0 sdk_7_0 sdk_8_0 ]);
@@ -34,20 +56,19 @@ let
   dotnetNVIMDevelopers = mapAttrs (user: config:
     trace "Enabling dotnet nvim development support for user: ${user}" (let
       inherit dotNetPackages;
-      lspPackages = with pkgs.unstable; [ uncrustify netcoredbg ];
+      lspPackages = with pkgs.unstable; [ uncrustify netcoredbg fd ];
     in {
       home = {
         packages = lspPackages;
         file = {
           ".omnisharp/omnisharp.json" = { source = ./omnisharp.json; };
-          # ".bin/omnisharp.sh" = {
-          #   executable = true;
-          #   text = ''
-          #     #!${pkgs.bash}/bin/bash
-          #     export DOTNET_ROOT=${dotnetSDK}
-          #     DOTNET_ROOT=${dotnetSDK} ${dotnetSDK}/bin/dotnet "${pkgs.omnisharp-roslyn}/lib/omnisharp-roslyn/OmniSharp.dll" "$@"
-          #   '';
-          # };
+          ".bin/omnisharp" = {
+            executable = true;
+            text = ''
+              #!${pkgs.bash}/bin/bash
+              ${pkgs.omnisharp-roslyn}/bin/OmniSharp "$@"
+            '';
+          };
         };
       };
       xdg.configFile = {
@@ -63,9 +84,11 @@ let
       };
       programs = {
         neovim = {
-          plugins = with pkgs.unstable.vimPlugins; [{
-            plugin = omnisharp-extended-lsp-nvim;
-          }];
+          plugins = with pkgs.unstable.vimPlugins; [
+            { plugin = omnisharp-extended-lsp-nvim; }
+            { plugin = csharp-nvim; }
+            { plugin = structlog-nvim; }
+          ];
           extraPackages = lspPackages ++ dotNetPackages;
         };
       };
