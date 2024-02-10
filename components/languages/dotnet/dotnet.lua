@@ -50,27 +50,27 @@ local config = {
 	analyze_open_documents_only = false,
 }
 
-require("lspconfig")["omnisharp"].setup(config)
-local home = os.getenv("HOME")
-require("csharp").setup({
-	lsp = {
-		-- When set to true, csharp.nvim won't install omnisharp automatically and use it via mason.
-		-- Instead, the omnisharp instance in the cmd_path will be used.
-		cmd_path = home .. "/.bin",
-		-- The default timeout when communicating with omnisharp
-		default_timeout = 1000,
-		-- Settings that'll be passed to the omnisharp server
-		enable_editor_config_support = true,
-		organize_imports = true,
-		load_projects_on_demand = false,
-		enable_analyzers_support = true,
-		enable_import_completion = true,
-		include_prerelease_sdks = true,
-		analyze_open_documents_only = false,
-		enable_package_auto_restore = true,
-	},
-	logging = {
-		-- The minimum log level.
-		level = "DEBUG",
-	},
-})
+-- require("lspconfig")["omnisharp"].setup(config)
+-- local home = os.getenv("HOME")
+-- require("csharp").setup({
+-- 	lsp = {
+-- 		-- When set to true, csharp.nvim won't install omnisharp automatically and use it via mason.
+-- 		-- Instead, the omnisharp instance in the cmd_path will be used.
+-- 		cmd_path = home .. "/.bin",
+-- 		-- The default timeout when communicating with omnisharp
+-- 		default_timeout = 1000,
+-- 		-- Settings that'll be passed to the omnisharp server
+-- 		enable_editor_config_support = true,
+-- 		organize_imports = true,
+-- 		load_projects_on_demand = false,
+-- 		enable_analyzers_support = true,
+-- 		enable_import_completion = true,
+-- 		include_prerelease_sdks = true,
+-- 		analyze_open_documents_only = false,
+-- 		enable_package_auto_restore = true,
+-- 	},
+-- 	logging = {
+-- 		-- The minimum log level.
+-- 		level = "DEBUG",
+-- 	},
+-- })
