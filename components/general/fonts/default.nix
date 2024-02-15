@@ -17,6 +17,7 @@ in {
         fira-code
         fira-mono
         fira-code-symbols
+        font-awesome_5
         font-awesome
         powerline-fonts
         powerline-symbols

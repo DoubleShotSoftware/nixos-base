@@ -49,7 +49,7 @@ let
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
 in {
-  imports = [ ./gtk.nix ./gnome ];
+  imports = [ ./gtk.nix ./gnome ./i3 ];
   config = lib.mkMerge ([
     (lib.mkIf desktopEnabled (trace "Adding Udev Rules for desktop devices" {
       services.udev.extraRules = ''
@@ -57,17 +57,18 @@ in {
         ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="0265",  ATTR{power/autosuspend}="500", ATTR{power/autosuspend}="500000"
       '';
     }))
-    (lib.mkIf desktopEnabled (trace "Enabling Display Manager" {
+    (lib.mkIf desktopEnabled (trace "Enabling Desktop Support" {
+      programs.dconf = { enable = true; };
       environment.systemPackages = with pkgs; [
         xorg.xorgserver
         xorg.xf86inputevdev
         xorg.xf86inputlibinput
         xorg.xinit
       ];
-      #          xdg.portal = {
-      #            enable = true;
-      #            xdgOpenUsePortal = true;
-      #          };
+      xdg.portal = {
+        enable = true;
+        xdgOpenUsePortal = true;
+      };
       services = {
         flatpak.enable = true;
         xserver = {

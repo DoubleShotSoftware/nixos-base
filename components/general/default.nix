@@ -11,7 +11,7 @@ let
         };
       };
       desktop = mkOption {
-        type = types.enum [ "disabled" "sway" "gnome" ];
+        type = types.enum [ "disabled" "sway" "gnome" "i3" ];
         default = "disabled";
         description = "Enable desktop environment for user.";
       };
