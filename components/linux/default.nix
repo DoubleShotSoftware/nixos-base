@@ -5,7 +5,7 @@ with lib; {
     ./containers.nix
     ./dnsmasq.nix
     ./qemu-guest
-    #./immersedvr.nix
+    ./immersedvr.nix
     ./libvirt.nix
     ./persist-network.nix
     ./pipewire.nix
