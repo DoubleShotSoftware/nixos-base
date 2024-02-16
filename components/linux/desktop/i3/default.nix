@@ -9,6 +9,7 @@ let
     (trace "Enabling i3 for user: ${user}" {
       xdg.configFile."i3status-rust/config.toml".source = ../i3status-rust.toml;
       home.packages = with pkgs; [
+        gnome.gnome-software
         arandr
         nitrogen
         i3status-rust
@@ -35,6 +36,11 @@ let
       };
       xsession = {
         enable = true;
+        profileExtra = ''
+        eval $(${pkgs.gnome3.gnome-keyring}/bin/gnome-keyring-daemon --daemonize --components=ssh,secrets)
+        export SSH_AUTH_SOCK
+        export DESKTOP_SESSION=gnome
+        '';
         windowManager.i3 = {
           enable = true;
           package = pkgs.i3;
@@ -148,12 +154,6 @@ let
 in {
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
-      xdg.portal = {
-        extraPortals = with pkgs; [
-          xdg-desktop-portal-xapp
-          xdg-desktop-portal-gtk
-        ];
-      };
       services = {
         xserver = {
           layout = "us";
@@ -162,9 +162,21 @@ in {
           videoDrivers = [ "amdgpu" ];
           desktopManager = { xterm.enable = false; };
           windowManager.i3.enable = true;
-          displayManager = {
-            defaultSession = "none+i3";
-            lightdm = { enable = true; };
+        };
+      };
+      systemd = {
+        user.services.polkit-gnome-authentication-agent-1 = {
+          description = "polkit-gnome-authentication-agent-1";
+          wantedBy = [ "graphical-session.target" ];
+          wants = [ "graphical-session.target" ];
+          after = [ "graphical-session.target" ];
+          serviceConfig = {
+            Type = "simple";
+            ExecStart =
+              "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+            Restart = "on-failure";
+            RestartSec = 1;
+            TimeoutStopSec = 10;
           };
         };
       };
