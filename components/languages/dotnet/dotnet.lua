@@ -1,4 +1,5 @@
 local status_ok, _ = pcall(require, "lspconfig")
+local home = os.getenv("HOME")
 if not status_ok then
 	vim.notify("Couldn't load LSP-Config" .. lspconfig, "error")
 	return
@@ -50,27 +51,38 @@ local config = {
 	analyze_open_documents_only = false,
 }
 
--- require("lspconfig")["omnisharp"].setup(config)
--- local home = os.getenv("HOME")
--- require("csharp").setup({
--- 	lsp = {
--- 		-- When set to true, csharp.nvim won't install omnisharp automatically and use it via mason.
--- 		-- Instead, the omnisharp instance in the cmd_path will be used.
--- 		cmd_path = home .. "/.bin",
--- 		-- The default timeout when communicating with omnisharp
--- 		default_timeout = 1000,
--- 		-- Settings that'll be passed to the omnisharp server
--- 		enable_editor_config_support = true,
--- 		organize_imports = true,
--- 		load_projects_on_demand = false,
--- 		enable_analyzers_support = true,
--- 		enable_import_completion = true,
--- 		include_prerelease_sdks = true,
--- 		analyze_open_documents_only = false,
--- 		enable_package_auto_restore = true,
--- 	},
--- 	logging = {
--- 		-- The minimum log level.
--- 		level = "DEBUG",
--- 	},
--- })
+require("lspconfig")["omnisharp"].setup(config)
+require("csharp").setup({
+	lsp = {
+            -- When set to false, csharp.nvim won't launch omnisharp automatically.
+        enable = true,
+        -- When set, csharp.nvim won't install omnisharp automatically. Instead, the omnisharp instance in the cmd_path will be used.
+        cmd_path = nil,
+        -- The default timeout when communicating with omnisharp
+        default_timeout = 1000,
+        -- Settings that'll be passed to the omnisharp server
+        enable_editor_config_support = true,
+        organize_imports = true,
+        load_projects_on_demand = false,
+        enable_analyzers_support = true,
+        enable_import_completion = true,
+        include_prerelease_sdks = true,
+        analyze_open_documents_only = false,
+        enable_package_auto_restore = true,
+        -- Launches omnisharp in debug mode
+        debug = false,
+        -- The capabilities to pass to the omnisharp server
+        capabilities = nil,
+        -- on_attach function that'll be called when the LSP is attached to a buffer
+        on_attach = nil
+	},
+	logging = {
+		-- The minimum log level.
+		level = "DEBUG",
+	},
+      dap = {
+        -- When set, csharp.nvim won't launch install and debugger automatically. Instead, it'll use the debug adapter specified.
+        --- @type string?
+        adapter_name = nil,
+    }
+})
