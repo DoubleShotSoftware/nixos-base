@@ -73,7 +73,9 @@ let
         description = "install zellij for user.";
       };
       languages = mkOption {
-        type = types.listOf (types.enum [ "dotnet" "python" ]);
+        type = types.listOf
+          (types.enum [
+          "rust" "dotnet" "python" "postgres" "typescript" ]);
         default = [ ];
         description = "Which languages to configure for a user.";
       };
@@ -82,23 +84,18 @@ let
   nixStateVersion = config.personalConfig.system.nixStateVersion;
   users = config.personalConfig.users;
   zshEnabled = config.personalConfig.users.zsh.enable;
-  nixOSBuilders = (lib.attrsets.mapAttrs'
-    (user: userConfig:
-      (trace "Enabling bind for /etc/nixos to /home/${user}/.nixos"
-        lib.attrsets.nameValuePair
-        ("/home/${user}/.nixos")
-        ({
-          device = "/etc/nixos";
-          fsType = "none";
-          options = [ "bind" "X-mount.mkdir" ];
-        })))
-    (filterAttrs (user: userConfig: userConfig.nixBuilder) users));
+  nixOSBuilders = (lib.attrsets.mapAttrs' (user: userConfig:
+    (trace "Enabling bind for /etc/nixos to /home/${user}/.nixos"
+      lib.attrsets.nameValuePair ("/home/${user}/.nixos") ({
+        device = "/etc/nixos";
+        fsType = "none";
+        options = [ "bind" "X-mount.mkdir" ];
+      }))) (filterAttrs (user: userConfig: userConfig.nixBuilder) users));
   nixBuilders = mapAttrsToList (user: userConfig: user)
     (filterAttrs (user: userConfig: userConfig.nixBuilder) users);
   adminUsers = mapAttrsToList (user: userConfig: user)
     (filterAttrs (user: userConfig: userConfig.admin) users);
-in
-{
+in {
   options.personalConfig = {
     users = mkOption {
       default = { };
@@ -112,35 +109,30 @@ in
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ./vscode.nix ];
+  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ./vscode.nix ./zellij.nix ];
   config = lib.mkMerge ([
     {
-      users.users = mapAttrs
-        (user: userConfig:
-          trace "Creating user: ${user}" {
-            name = user;
-            home =
-              if (pkgs.system == "aarch64-darwin") then
-                "/Users/${user}"
-              else
-                "/home/${user}";
-            shell = if (userConfig.zsh.enable) then pkgs.zsh else pkgs.bash;
-            group = user;
-            isNormalUser = userConfig.userType == "normal";
-            isSystemUser = userConfig.userType == "system";
-            extraGroups = userConfig.extraGroups;
-            openssh.authorizedKeys.keyFiles = userConfig.keys.ssh;
-          })
-        users;
+      users.users = mapAttrs (user: userConfig:
+        trace "Creating user: ${user}" {
+          name = user;
+          home = if (pkgs.system == "aarch64-darwin") then
+            "/Users/${user}"
+          else
+            "/home/${user}";
+          shell = if (userConfig.zsh.enable) then pkgs.zsh else pkgs.bash;
+          group = user;
+          isNormalUser = userConfig.userType == "normal";
+          isSystemUser = userConfig.userType == "system";
+          extraGroups = userConfig.extraGroups;
+          openssh.authorizedKeys.keyFiles = userConfig.keys.ssh;
+        }) users;
     }
     {
-      users.groups = mapAttrs
-        (user: userConfig:
-          trace "Creating group for user: ${user} named: ${user}" {
-            name = user;
-            members = [ user ];
-          })
-        users;
+      users.groups = mapAttrs (user: userConfig:
+        trace "Creating group for user: ${user} named: ${user}" {
+          name = user;
+          members = [ user ];
+        }) users;
     }
     {
       users.groups = {
@@ -149,17 +141,16 @@ in
       };
     }
     {
-      home-manager.users = mapAttrs
-        (user: userConfig:
-          trace "Enabling Home Manager For: ${user}" {
-            home = {
-              stateVersion = nixStateVersion;
-              username = user;
-            };
-            programs.home-manager = { enable = true; };
-            programs.direnv.enable = true;
-            programs.direnv.nix-direnv.enable = true;
-          })
+      home-manager.users = mapAttrs (user: userConfig:
+        trace "Enabling Home Manager For: ${user}" {
+          home = {
+            stateVersion = nixStateVersion;
+            username = user;
+          };
+          programs.home-manager = { enable = true; };
+          programs.direnv.enable = true;
+          programs.direnv.nix-direnv.enable = true;
+        })
         (filterAttrs (user: userConfig: userConfig.userType != "system") users);
     }
     { fileSystems = nixOSBuilders; }

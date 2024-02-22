@@ -1,4 +1,6 @@
 local opts = { noremap = true, silent = true }
+local helpers = require("user.helpers")
+local find_git_root = helpers.find_get_root
 require("telescope").setup({
 	defaults = {
 		file_ignore_patterns = {
@@ -6,6 +8,8 @@ require("telescope").setup({
 			"dist",
 			"out",
 			"target",
+            "obj",
+            "bin"
 		},
 		vimgrep_arguments = {
 			"rg",
@@ -35,28 +39,6 @@ pcall(require("telescope").load_extension, "fzf")
 require("telescope").load_extension("media_files")
 
 -- Telescope live_grep in git root
--- Function to find the git root directory based on the current buffer's path
-local function find_git_root()
-	-- Use the current buffer's path as the starting point for the git search
-	local current_file = vim.api.nvim_buf_get_name(0)
-	local current_dir
-	local cwd = vim.fn.getcwd()
-	-- If the buffer is not associated with a file, return nil
-	if current_file == "" then
-		current_dir = cwd
-	else
-		-- Extract the directory from the current file's path
-		current_dir = vim.fn.fnamemodify(current_file, ":h")
-	end
-
-	-- Find the Git root directory from the current file's path
-	local git_root = vim.fn.systemlist("git -C " .. vim.fn.escape(current_dir, " ") .. " rev-parse --show-toplevel")[1]
-	if vim.v.shell_error ~= 0 then
-		print("Not a git repository. Searching on current working directory")
-		return cwd
-	end
-	return git_root
-end
 
 -- Custom live_grep function to search in git root
 local function live_grep_git_root()
@@ -80,8 +62,14 @@ vim.keymap.set("n", "<leader>sb", "<cmd>Telescope buffers<cr>", { desc = "[s]ear
 vim.keymap.set(
 	"n",
 	"<leader>sf",
-	"<cmd>lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({ previewer = false }))<cr>",
+	"<cmd>Telescope find_files<cr>",
 	{ desc = "[s]earch [f]iles" }
+)
+vim.keymap.set(
+	"n",
+	"<leader>sc",
+	"<cmd>Telescope commands<cr>",
+	{ desc = "[s]earch [c]ommands" }
 )
 vim.keymap.set(
 	"n",
@@ -89,7 +77,24 @@ vim.keymap.set(
 	"<cmd>lua require'telescope.builtin'.lsp_document_symbols(require('telescope.themes').get_cursor({ previewer = false }))<cr>",
 	{ desc = "[s]earch [d]ocument symbols" }
 )
-
+vim.keymap.set(
+	"n",
+	"<leader>sgb",
+	"<cmd>Telescope git_branches<cr>",
+	{ desc = "[s]earch [g]it [b]ranches" }
+)
+vim.keymap.set(
+	"n",
+	"<leader>sgs",
+	"<cmd>Telescope git_status<cr>",
+	{ desc = "[s]earch [g]it [s]tatus" }
+)
+vim.keymap.set(
+	"n",
+	"<leader>ss",
+	"<cmd>Telescope lsp_workspace_symbols<cr>",
+	{ desc = "[s]earch workspace [s]ymbols" }
+)
 vim.keymap.set(
 	"n",
 	"<leader>sGB",

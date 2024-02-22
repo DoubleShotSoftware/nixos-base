@@ -3,5 +3,7 @@
   imports = [
     ./dotnet
     ./python
+    ./sql
+    ./typescript
   ];
 }

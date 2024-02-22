@@ -6,15 +6,10 @@ if not status_ok then
 end
 
 local lsp_handler = require("user.lsp.handlers")
-if not status_ok then
-	print("LSP Is not ok in omnisharp")
-	return
-end
-
 local dotnetPaths = require("user.lsp.settings.dotnetpaths")
 local pid = vim.fn.getpid()
 local config = {
-	on_attach = on_attach,
+	on_attach = lsp_handler.on_attach,
 	cmd = {
 		dotnetPaths.OmniSharp,
 	},

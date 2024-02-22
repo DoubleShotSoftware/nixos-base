@@ -57,7 +57,7 @@ vim.opt.colorcolumn = "120"
 -- https://github.com/nvim-treesitter/nvim-treesitter#folding
 -- look for foldenable: https://github.com/neovim/neovim/blob/master/src/nvim/options.lua
 -- Vim cheatsheet, look for folds keys: https://devhints.io/vim
-vim.opt.foldmethod = "expr" -- default is "normal"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- default is ""
+vim.opt.foldmethod = "indent" -- default is "normal"
+-- vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- default is ""
 vim.opt.foldenable = false
 vim.opt.foldlevel = 4
