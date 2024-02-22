@@ -68,6 +68,8 @@ let
       package = pkgs.unstable.neovim-unwrapped;
       extraLuaConfig = builtins.readFile (./init.lua);
       plugins = with pkgs.unstable.vimPlugins; [
+        diffview-nvim
+        catppuccin-nvim
         neogit
         tokyonight-nvim
         popup-nvim
