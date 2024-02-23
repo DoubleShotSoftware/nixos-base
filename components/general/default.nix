@@ -75,7 +75,7 @@ let
       languages = mkOption {
         type = types.listOf
           (types.enum [
-          "rust" "dotnet" "python" "postgres" "typescript" ]);
+          "rust" "dotnet" "python" "postgres" "typescript" "json"]);
         default = [ ];
         description = "Which languages to configure for a user.";
       };

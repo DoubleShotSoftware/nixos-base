@@ -5,5 +5,6 @@
     ./python
     ./sql
     ./typescript
+    ./json
   ];
 }
