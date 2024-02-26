@@ -3,6 +3,12 @@ with lib;
 let
   cfg = config.personalConfig.linux.vfio;
   vfioModules = [ "vfio-pci" ];
+  modProbeConfig = lib.concatStringsSep "\n"
+    (map (module: "softdep ${module} pre: vfio-pci") cfg.modProbe);
+  kernelPreempt =  
+    (map (module: "${module}.driver.pre=vfio-pci") cfg.modProbe);
+  kernelBind = ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds);
+
 in {
   options.personalConfig.linux.vfio = with lib; {
     enable = mkOption {
@@ -15,10 +21,20 @@ in {
       description = "A list of pci ids to bind via vfio.";
       default = [ ];
     };
-    preemptNvidia = mkOption {
-      type = types.bool;
-      description = "Whether to preempt nvidia with vfio.";
+    preemptModules = mkOption {
+      type = types.listOf types.str;
+      description = "Modules to pre-empt with vfio";
       default = false;
+    };
+    modProbe = mkOption {
+      type = types.bool;
+      description = "Whether to amend vfio args to modprobe.";
+      default = false;
+    };
+    bootCommand = mkOption {
+      type = types.bool;
+      description = "Whether to amend vfio to to the boot args.";
+      default = config.personalConfig.linu.vfio.enable;
     };
   };
   config = mkIf cfg.enable (trace "Enabling vfio support" mkMerge [
@@ -34,12 +50,11 @@ in {
         ];
       };
     }
-    (mkIf cfg.preemptNvidia {
-      boot.kernelParams = [
-        "nouveau.driver.pre=vfio-pci"
-        "nvidia.driver.pre=vfio-pci"
-
-      ];
+    (mkIf cfg.modProbe {
+        boot.kernelParams = kernelPreempt ++ kernelBind;
+    })
+    (mkIf cfg.modProbe {
+        boot.extraModprobeConfig = modProbeConfig;
     })
   ]);
 }
