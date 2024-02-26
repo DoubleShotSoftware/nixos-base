@@ -4,9 +4,9 @@ let
   cfg = config.personalConfig.linux.vfio;
   vfioModules = [ "vfio-pci" ];
   modProbeConfig = lib.concatStringsSep "\n"
-    (map (module: "softdep ${module} pre: vfio-pci") cfg.modProbe);
-  kernelPreempt = (map (module: "${module}.driver.pre=vfio-pci") cfg.modProbe);
-  kernelPreemptSafe = (map (module: "${module}.pre=vfio-pci") cfg.modProbe);
+    (map (module: "softdep ${module} pre: vfio-pci") cfg.preemptModules);
+  kernelPreempt = (map (module: "${module}.driver.pre=vfio-pci") cfg.preemptModules);
+  kernelPreemptSafe = (map (module: "${module}.pre=vfio-pci") cfg.preemptModules);
   kernelBind = ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds);
 
 in {
