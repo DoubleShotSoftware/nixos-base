@@ -3,6 +3,12 @@ with lib;
 let
   cfg = config.personalConfig.linux.vfio;
   vfioModules = [ "vfio-pci" ];
+  modProbeConfig = lib.concatStringsSep "\n"
+    (map (module: "softdep ${module} pre: vfio-pci") cfg.preemptModules);
+  kernelPreempt = (map (module: "${module}.driver.pre=vfio-pci") cfg.preemptModules);
+  kernelPreemptSafe = (map (module: "${module}.pre=vfio-pci") cfg.preemptModules);
+  kernelBind = [("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)];
+
 in {
   options.personalConfig.linux.vfio = with lib; {
     enable = mkOption {
@@ -15,9 +21,19 @@ in {
       description = "A list of pci ids to bind via vfio.";
       default = [ ];
     };
-    preemptNvidia = mkOption {
+    preemptModules = mkOption {
+      type = types.listOf types.str;
+      description = "Modules to pre-empt with vfio";
+      default = false;
+    };
+    modProbe = mkOption {
       type = types.bool;
-      description = "Whether to preempt nvidia with vfio.";
+      description = "Whether to amend vfio args to modprobe.";
+      default = false;
+    };
+    bootCommand = mkOption {
+      type = types.bool;
+      description = "Whether to amend vfio to to the boot args.";
       default = false;
     };
   };
@@ -30,16 +46,15 @@ in {
         };
         kernelParams = [
           "vfio_iommu_type1.allow_unsafe_interrupts=1"
-          ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)
         ];
       };
     }
-    (mkIf cfg.preemptNvidia {
-      boot.kernelParams = [
-        "nouveau.driver.pre=vfio-pci"
-        "nvidia.driver.pre=vfio-pci"
-
-      ];
+    (mkIf cfg.bootCommand { boot.kernelParams = kernelPreempt ++ kernelBind ++ kernelPreemptSafe; })
+    (mkIf cfg.modProbe {
+      boot.extraModprobeConfig = ''
+        ${modProbeConfig}
+        ${("options vfio-pci ids=" + lib.concatStringsSep "," cfg.pciIds)}
+      '';
     })
   ]);
 }
