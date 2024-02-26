@@ -64,4 +64,7 @@ keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
 keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", term_opts)
 keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
 keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
+
 vim.keymap.set("n", "<leader>bf", ":Format<cr>", { desc = "[b]uffer [f]ormat" })
+vim.keymap.set("n", "<leader>bs", ":write<cr>", { desc = "[b]uffer [s]ave" })
+vim.keymap.set("n", "<leader>bc", ":bd<cr>", { desc = "[b]uffer [c]lose" })
