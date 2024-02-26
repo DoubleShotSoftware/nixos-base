@@ -127,7 +127,7 @@ in {
           layout = "us";
           libinput = {
             enable = true;
-            naturalScrolling = true;
+            touchpad = { naturalScrolling = true; };
           };
           desktopManager = { xterm.enable = false; };
           displayManager = {
