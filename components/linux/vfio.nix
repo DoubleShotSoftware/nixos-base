@@ -34,7 +34,7 @@ in {
     bootCommand = mkOption {
       type = types.bool;
       description = "Whether to amend vfio to to the boot args.";
-      default = config.personalConfig.linu.vfio.enable;
+      default = false;
     };
   };
   config = mkIf cfg.enable (trace "Enabling vfio support" mkMerge [
@@ -50,11 +50,11 @@ in {
         ];
       };
     }
-    (mkIf cfg.modProbe { boot.kernelParams = kernelPreempt ++ kernelBind ++ kernelPreemptSafe; })
+    (mkIf cfg.bootCommand { boot.kernelParams = kernelPreempt ++ kernelBind ++ kernelPreemptSafe; })
     (mkIf cfg.modProbe {
       boot.extraModprobeConfig = ''
         ${modProbeConfig}
-        ${("options vfio-pci ids=" + lib.concatStringsSep "," vfioIds)}
+        ${("options vfio-pci ids=" + lib.concatStringsSep "," cfg.pciIds)}
       '';
     })
   ]);
