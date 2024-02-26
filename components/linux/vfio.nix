@@ -5,8 +5,8 @@ let
   vfioModules = [ "vfio-pci" ];
   modProbeConfig = lib.concatStringsSep "\n"
     (map (module: "softdep ${module} pre: vfio-pci") cfg.modProbe);
-  kernelPreempt =  
-    (map (module: "${module}.driver.pre=vfio-pci") cfg.modProbe);
+  kernelPreempt = (map (module: "${module}.driver.pre=vfio-pci") cfg.modProbe);
+  kernelPreemptSafe = (map (module: "${module}.pre=vfio-pci") cfg.modProbe);
   kernelBind = ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds);
 
 in {
@@ -50,11 +50,12 @@ in {
         ];
       };
     }
+    (mkIf cfg.modProbe { boot.kernelParams = kernelPreempt ++ kernelBind ++ kernelPreemptSafe; })
     (mkIf cfg.modProbe {
-        boot.kernelParams = kernelPreempt ++ kernelBind;
-    })
-    (mkIf cfg.modProbe {
-        boot.extraModprobeConfig = modProbeConfig;
+      boot.extraModprobeConfig = ''
+        ${modProbeConfig}
+        ${("options vfio-pci ids=" + lib.concatStringsSep "," vfioIds)}
+      '';
     })
   ]);
 }
