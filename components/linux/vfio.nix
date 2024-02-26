@@ -7,7 +7,7 @@ let
     (map (module: "softdep ${module} pre: vfio-pci") cfg.preemptModules);
   kernelPreempt = (map (module: "${module}.driver.pre=vfio-pci") cfg.preemptModules);
   kernelPreemptSafe = (map (module: "${module}.pre=vfio-pci") cfg.preemptModules);
-  kernelBind = ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds);
+  kernelBind = [("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)];
 
 in {
   options.personalConfig.linux.vfio = with lib; {
@@ -46,7 +46,6 @@ in {
         };
         kernelParams = [
           "vfio_iommu_type1.allow_unsafe_interrupts=1"
-          ("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)
         ];
       };
     }
