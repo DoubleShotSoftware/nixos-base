@@ -9,10 +9,10 @@ let
         gtk = {
 
           enable = true;
-          cursorTheme = {
-            package = pkgs.catppuccin-cursors;
-            size = 14;
-          };
+          # cursorTheme = {
+          #   package = pkgs.catppuccin-cursors;
+          #   size = 14;
+          # };
           gtk2.extraConfig = ''
             gtk-theme-name = "Materia-dark"
             gtk-icon-theme-name="Arc"
