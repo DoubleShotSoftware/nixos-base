@@ -14,7 +14,9 @@ let
         chafa
         imagemagick
         poppler_utils
+        fontpreview
       ];
+
     };
   };
   nvim_configs = mapAttrs (user: config:

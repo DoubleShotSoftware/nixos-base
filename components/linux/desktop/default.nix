@@ -2,6 +2,13 @@
 with lib;
 with builtins;
 let
+  portals = with pkgs; [
+    xdg-desktop-portal
+    xdg-desktop-portal-wlr
+    xdg-desktop-portal-gtk
+    xdg-desktop-portal-gnome
+    xdg-desktop-portal-hyprland
+  ];
   users = config.personalConfig.users;
   personalPackages = if (config.personalConfig.machineType == "personal") then
     with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt calibre ]
@@ -24,7 +31,7 @@ let
       home = {
         packages = desktopPackages;
         sessionVariables = {
-          MOZ_ENABLE_WAYLAND = 1;
+          MOZ_ENABLE_WAYLAND = if config.desktop == "gnome" then 1 else 0;
           MOZ_USE_XINPUT2 = "1";
         };
         file = {
@@ -49,7 +56,7 @@ let
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
 in {
-  imports = [ ./gtk.nix ./gnome ];
+  imports = [ ./gtk.nix ./gnome ./i3 ];
   config = lib.mkMerge ([
     (lib.mkIf desktopEnabled (trace "Adding Udev Rules for desktop devices" {
       services.udev.extraRules = ''
@@ -57,22 +64,72 @@ in {
         ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="0265",  ATTR{power/autosuspend}="500", ATTR{power/autosuspend}="500000"
       '';
     }))
-    (lib.mkIf desktopEnabled (trace "Enabling Display Manager" {
-      environment.systemPackages = with pkgs; [
-        xorg.xorgserver
-        xorg.xf86inputevdev
-        xorg.xf86inputlibinput
-        xorg.xinit
-      ];
-      #          xdg.portal = {
-      #            enable = true;
-      #            xdgOpenUsePortal = true;
-      #          };
+    (lib.mkIf desktopEnabled (trace "Enabling Desktop Support" {
+      hardware = {
+        bluetooth = {
+          enable = true;
+          powerOnBoot = true;
+          settings = {
+            General = {
+              Experimental = true;
+              Enable = "Source,Sink,Media,Socket";
+            };
+          };
+        };
+      };
+      programs = {
+        dconf = { enable = true; };
+        seahorse.enable = true;
+      };
+      environment = {
+        systemPackages = with pkgs; [
+          gcr
+          libsecret
+          xorg.xorgserver
+          xorg.xf86inputevdev
+          xorg.xf86inputlibinput
+          xorg.xinit
+        ];
+        etc = {
+          "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text =
+            "	bluez_monitor.properties = {\n		[\"bluez5.enable-sbc-xq\"] = true,\n		[\"bluez5.enable-msbc\"] = true,\n		[\"bluez5.enable-hw-volume\"] = true,\n		[\"bluez5.headset-roles\"] = \"[ hsp_hs hsp_ag hfp_hf hfp_ag ]\"\n	}\n";
+        };
+      };
+      xdg.portal = {
+        enable = true;
+        xdgOpenUsePortal = false;
+        config = {
+          common = {
+            default = [ "gtk" "xapp" ];
+            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+          };
+          "i3" = {
+            default = [ "gtk" "xapp" ];
+            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+          };
+        };
+      };
+      security.rtkit.enable = true;
       services = {
+        gvfs.enable = true;
+        packagekit.enable = true;
         flatpak.enable = true;
+        blueman.enable = true;
+        gnome.gnome-keyring.enable = true;
+        pipewire = {
+          enable = true;
+          systemWide = false;
+          pulse.enable = true;
+          wireplumber.enable = true;
+        };
         xserver = {
           enable = true;
           layout = "us";
+          libinput = {
+            enable = true;
+            touchpad = { naturalScrolling = true; };
+          };
+          desktopManager = { xterm.enable = false; };
           displayManager = {
             session = [{
               manage = "desktop";

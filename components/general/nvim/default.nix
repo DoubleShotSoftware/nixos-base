@@ -2,7 +2,7 @@
 with builtins;
 with lib;
 let
-  compilers = with pkgs; [ clang zig llvm  ];
+  compilers = with pkgs; [ clang zig llvm ];
   tokyonight-main = pkgs.vimUtils.buildVimPlugin {
     pname = "tokyonight-main";
     version = "v3.0.1";
@@ -27,12 +27,12 @@ let
   };
   nightfox = pkgs.vimUtils.buildVimPlugin {
     pname = "nightfox";
-    version = "v3.6.1";
+    version = "v3.9.3";
     src = pkgs.fetchFromGitHub {
       owner = "EdenEast";
       repo = "nightfox.nvim";
-      rev = "v3.9.0";
-      sha256 = "0d7c74fip5xk81ypihl0yjb9mfcdry0spq7c8zs2zsrm6a9xbxzy";
+      rev = "v3.9.3";
+      sha256 = "";
     };
     meta.homepage = "https://github.com/EdenEast/nightfox.nvim";
   };
@@ -49,6 +49,9 @@ let
   };
   mkUserNvimConfig = user: {
     home = {
+      packages = with pkgs; [
+        github-copilot-cli
+      ];
       shellAliases = {
         e = "nvim";
         vim = "nvim";
@@ -65,6 +68,9 @@ let
       package = pkgs.unstable.neovim-unwrapped;
       extraLuaConfig = builtins.readFile (./init.lua);
       plugins = with pkgs.unstable.vimPlugins; [
+        diffview-nvim
+        catppuccin-nvim
+        neogit
         tokyonight-nvim
         popup-nvim
         plenary-nvim
@@ -131,13 +137,16 @@ let
       source = ./lua;
     };
   };
-  nvim_configs = mapAttrs (user: config:
-    if (config.nvim) then
-      (trace "Enabling nvim for user: ${user}" mkUserNvimConfig user)
-    else
-      { }) (filterAttrs (user: userConfig: userConfig.userType != "system")
-        config.personalConfig.users);
-in {
+  nvim_configs = mapAttrs
+    (user: config:
+      if (config.nvim) then
+        (trace "Enabling nvim for user: ${user}" mkUserNvimConfig user)
+      else
+        { })
+    (filterAttrs (user: userConfig: userConfig.userType != "system")
+      config.personalConfig.users);
+in
+{
   imports = [ ./mason.nix ./git.nix ./telescope.nix ./debug.nix ];
   config = { home-manager.users = nvim_configs; };
 }

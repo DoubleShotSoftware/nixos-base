@@ -11,7 +11,7 @@ let
         };
       };
       desktop = mkOption {
-        type = types.enum [ "disabled" "sway" "gnome" ];
+        type = types.enum [ "disabled" "sway" "gnome" "i3" ];
         default = "disabled";
         description = "Enable desktop environment for user.";
       };
@@ -73,7 +73,9 @@ let
         description = "install zellij for user.";
       };
       languages = mkOption {
-        type = types.listOf (types.enum [ "dotnet" "python" ]);
+        type = types.listOf
+          (types.enum [
+          "rust" "dotnet" "python" "postgres" "typescript" "json"]);
         default = [ ];
         description = "Which languages to configure for a user.";
       };
@@ -82,6 +84,17 @@ let
   nixStateVersion = config.personalConfig.system.nixStateVersion;
   users = config.personalConfig.users;
   zshEnabled = config.personalConfig.users.zsh.enable;
+  nixOSBuilders = (lib.attrsets.mapAttrs' (user: userConfig:
+    (trace "Enabling bind for /etc/nixos to /home/${user}/.nixos"
+      lib.attrsets.nameValuePair ("/home/${user}/.nixos") ({
+        device = "/etc/nixos";
+        fsType = "none";
+        options = [ "bind" "X-mount.mkdir" ];
+      }))) (filterAttrs (user: userConfig: userConfig.nixBuilder) users));
+  nixBuilders = mapAttrsToList (user: userConfig: user)
+    (filterAttrs (user: userConfig: userConfig.nixBuilder) users);
+  adminUsers = mapAttrsToList (user: userConfig: user)
+    (filterAttrs (user: userConfig: userConfig.admin) users);
 in {
   options.personalConfig = {
     users = mkOption {
@@ -96,7 +109,7 @@ in {
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./base.nix ./zsh ./kitty ./wezterm ./nvim ];
+  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ./vscode.nix ./zellij.nix ];
   config = lib.mkMerge ([
     {
       users.users = mapAttrs (user: userConfig:
@@ -107,24 +120,26 @@ in {
           else
             "/home/${user}";
           shell = if (userConfig.zsh.enable) then pkgs.zsh else pkgs.bash;
+          group = user;
+          isNormalUser = userConfig.userType == "normal";
+          isSystemUser = userConfig.userType == "system";
+          extraGroups = userConfig.extraGroups;
           openssh.authorizedKeys.keyFiles = userConfig.keys.ssh;
         }) users;
     }
-    (lib.mkIf (pkgs.system != "aarch64-darwin") {
-      users.users = mapAttrs (user: userConfig: {
-        group = user;
-        isNormalUser = userConfig.userType == "normal";
-        isSystemUser = userConfig.userType == "system";
-        extraGroups = userConfig.extraGroups;
-      }) users;
-    })
-    (lib.mkIf (pkgs.system != "aarch64-darwin") {
+    {
       users.groups = mapAttrs (user: userConfig:
         trace "Creating group for user: ${user} named: ${user}" {
           name = user;
           members = [ user ];
         }) users;
-    })
+    }
+    {
+      users.groups = {
+        "nix-builders" = { members = nixBuilders; };
+        "wheel" = { members = adminUsers; };
+      };
+    }
     {
       home-manager.users = mapAttrs (user: userConfig:
         trace "Enabling Home Manager For: ${user}" {
@@ -138,5 +153,6 @@ in {
         })
         (filterAttrs (user: userConfig: userConfig.userType != "system") users);
     }
+    { fileSystems = nixOSBuilders; }
   ]);
 }

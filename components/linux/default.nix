@@ -5,8 +5,7 @@ with lib; {
     ./containers.nix
     ./dnsmasq.nix
     ./qemu-guest
-    ./fonts
-    #./immersedvr.nix
+    ./immersedvr.nix
     ./libvirt.nix
     ./persist-network.nix
     ./pipewire.nix
@@ -17,7 +16,6 @@ with lib; {
     ./zfs.nix
     ./zrepl.nix
     ./usb-awake.nix
-    ./nix-builder.nix
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [

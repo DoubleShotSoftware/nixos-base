@@ -3,13 +3,14 @@ with lib;
 with builtins;
 let
   cfg = config.personalConfig.linux.immersedvr;
+  evdiUnstable = pkgs.unstable.linuxKernel.packages.linux_6_6.evdi;
   immersedUrl = "https://static.immersed.com/dl/Immersed-x86_64.AppImage";
   immersed = pkgs.appimageTools.wrapType2 {
     # or wrapType1
     name = "immersed";
     src = pkgs.fetchurl {
       url = immersedUrl;
-      hash = "sha256-o/3nVeOwSMFI9EhHBKeN3ss8Bfmse9LMIegrd9v7Uj4=";
+      hash = "sha256-nRctCUd7kQqYHQkZjzx6/2V1TtbC3J/rBtBtK14EeeY=";
     };
     extraPkgs = pkgs:
       with pkgs; [
@@ -30,7 +31,7 @@ let
         gst_all_1.gst-plugins-ugly
         gst_all_1.gst-plugins-good
         gst_all_1.gst-plugins-base
-pipewire
+        pipewire
         pango
         pcre
         pixman
@@ -65,7 +66,7 @@ pipewire
         brotli
         android-tools
         wayland
-wayland-utils
+        wayland-utils
         adb-sync
         libthai
         ibus
@@ -91,7 +92,10 @@ in {
   config = mkIf cfg.enable {
     hardware.uinput.enable = true;
     boot = {
-      extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback evdi ];
+      extraModulePackages = with config.boot.kernelPackages; [
+        v4l2loopback
+        evdiUnstable
+      ];
       initrd = {
         availableKernelModules = bootModules;
         kernelModules = bootModules;

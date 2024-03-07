@@ -1,4 +1,5 @@
 {
+
   description = "Platform Craft Common Nix Config.";
   inputs = {
      nixpkgs.url = "nixpkgs/nixos-23.11";
@@ -34,9 +35,7 @@
     in {
       nixosModules = {
         Common = import ./components/general;
-        # Linux = import ./components/linux;
+        Linux = import ./components/linux;
         MacOs = import ./components/macos;
-        # Languages = import ./components/languages;
-      };
-    };
+        Languages = import ./components/languages; }; };
 }

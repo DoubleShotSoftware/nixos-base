@@ -1,5 +1,6 @@
 [theme]
-theme = "solarized-dark"
+theme = "ctp-mocha"
+
 [icons]
 icons = "awesome6"
 
@@ -28,14 +29,10 @@ block = "load"
 interval = 1
 format = "{1m}"
 
-
 [[block]]
-block = "battery"
-interval = 10
-format = "{percentage} {time}"
-
-[[block]]
-block = "backlight"
+block = "custom"
+command = "echo `uname` `uname -r | tr - . | cut -d. -f1-2`"
+interval = "once"
 
 [[block]]
 block = "sound"
@@ -47,5 +44,7 @@ buttons = ["play", "next"]
 
 [[block]]
 block = "time"
-interval = 5
-format = "%a %d/%m %R"
+interval = 60
+[block.format]
+full = " $icon $timestamp.datetime(f:'%a %Y-%m-%d %R %Z', l:fr_BE) "
+short = " $icon $timestamp.datetime(f:%R) "

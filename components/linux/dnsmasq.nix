@@ -56,7 +56,7 @@ let
   listenAddresses = map (interfaceConfig: interfaceConfig.listenOn) dnsMasqConfig;
   interfaceConfigs = map
     (interfaceConfig:
-      "${interfaceConfig.interface},${interfaceConfig.lowerRange},${interfaceConfig.upperRange},${interfaceConfig.leaseTime}"
+      "interface:${interfaceConfig.interface},${interfaceConfig.lowerRange},${interfaceConfig.upperRange},${interfaceConfig.leaseTime}"
     )
     (filter (c: c.dhcp) dnsMasqConfig);
   hosts = builtins.listToAttrs (
