@@ -159,7 +159,6 @@ in {
           layout = "us";
           xkbVariant = "";
           enable = true;
-          videoDrivers = [ "amdgpu" ];
           desktopManager = { xterm.enable = false; };
           windowManager.i3.enable = true;
         };

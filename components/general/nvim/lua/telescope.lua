@@ -1,6 +1,5 @@
 local opts = { noremap = true, silent = true }
 local helpers = require("user.helpers")
-local find_git_root = helpers.find_get_root
 require("telescope").setup({
 	defaults = {
 		file_ignore_patterns = {
@@ -42,7 +41,7 @@ require("telescope").load_extension("media_files")
 
 -- Custom live_grep function to search in git root
 local function live_grep_git_root()
-	local git_root = find_git_root()
+	local git_root = helpers.find_git_root()
 	if git_root then
 		require("telescope.builtin").live_grep({
 			search_dirs = { git_root },
@@ -79,15 +78,15 @@ vim.keymap.set(
 )
 vim.keymap.set(
 	"n",
-	"<leader>sgb",
+	"<leader>sB",
 	"<cmd>Telescope git_branches<cr>",
-	{ desc = "[s]earch [g]it [b]ranches" }
+	{ desc = "[s]earch git [B]ranches" }
 )
 vim.keymap.set(
 	"n",
-	"<leader>sgs",
+	"<leader>sS",
 	"<cmd>Telescope git_status<cr>",
-	{ desc = "[s]earch [g]it [s]tatus" }
+	{ desc = "[s]earch git [S]tatus" }
 )
 vim.keymap.set(
 	"n",
