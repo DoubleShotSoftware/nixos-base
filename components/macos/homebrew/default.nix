@@ -13,7 +13,7 @@ in
     };
     brews = [
       "qemu"
-      "koekeishiya/formulae/yabai"
+      "yabai"
       "skhd"
       "sketchybar"
       "firefox-profile-switcher-connector"
