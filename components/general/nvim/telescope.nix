@@ -14,7 +14,6 @@ let
         chafa
         imagemagick
         poppler_utils
-        fontpreview
       ];
 
     };
