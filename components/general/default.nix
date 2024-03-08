@@ -105,7 +105,7 @@ in {
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./kitty ./wezterm ./nvim ./vscode.nix ./zellij.nix ];
+  imports = [ ./base.nix ./zsh ./kitty ./wezterm ./nvim ./vscode.nix ./zellij.nix ];
   config = lib.mkMerge ([
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       users.users = mapAttrs (user: userConfig:
