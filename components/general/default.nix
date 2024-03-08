@@ -107,6 +107,11 @@ in {
   };
   imports = [ ./base.nix ./zsh ./kitty ./wezterm ./nvim ./vscode.nix ./zellij.nix ];
   config = lib.mkMerge ([
+    (lib.mkIf (pkgs.system == "aarch64-darwin") {
+      users.users = mapAttrs (user: userConfig: {
+          home = "/Users/${user}";
+        }) users;
+    })
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       users.users = mapAttrs (user: userConfig:
         trace "Creating user: ${user}" {
