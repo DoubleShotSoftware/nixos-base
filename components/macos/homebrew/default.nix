@@ -9,7 +9,6 @@ in
       Xcode = 497799835;
       "Unsplash Wallpapers" = 1284863847;
       "Microsoft Remote Desktop" = 1295203466;
-      "Immersed" = 1555332053;
     };
     brews = [
       "qemu"
