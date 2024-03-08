@@ -3,17 +3,6 @@ with lib;
 with builtins;
 let
   users = config.personalConfig.users;
-  cmp-npm = pkgs.vimUtils.buildVimPlugin {
-    pname = "cmp-npm";
-    version = "2023-06-12";
-    src = pkgs.fetchFromGitHub {
-      owner = "David-Kunz";
-      repo = "cmp-npm";
-      rev = "2337f109f51a09297596dd6b538b70ccba92b4e4";
-      sha256 = "sha256-6o0eO4uuHNBbo6pqWgRtleOxd8rYaYbrl+dTjhB6M8Q=";
-    };
-    meta.homepage = "https://github.com/David-Kunz/cmp-npm";
-  };
   typescriptPackages = with pkgs; [
     nodejs
     yarn
@@ -55,7 +44,7 @@ let
         "nvim/lua/lsp/user/treesitter/typescript.lua".source = ./treesitter.lua;
       };
       programs.neovim = {
-        plugins = with pkgs.vimPlugins; [ cmp-npm ];
+        plugins = with pkgs.vimPlugins; [  ];
         extraPackages = with pkgs; [
           tree-sitter-grammars.tree-sitter-tsx
           tree-sitter-grammars.tree-sitter-typescript
