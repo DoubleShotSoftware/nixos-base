@@ -44,7 +44,7 @@ in {
                 executable = true;
                 text = ''
                   sudo yabai --load-sa
-                  yabai -V
+                  yabai --verbose
                 '';
               };
               ".bin/launch-desktop.sh" = {
