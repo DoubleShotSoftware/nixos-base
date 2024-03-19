@@ -129,7 +129,6 @@ let
           nodePackages.eslint
           stylua
           shfmt
-          nixd
         ] ++ compilers;
     };
     xdg.configFile."nvim/lua/user" = {
