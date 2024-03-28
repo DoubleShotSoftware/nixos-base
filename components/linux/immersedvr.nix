@@ -3,6 +3,8 @@ with lib;
 with builtins;
 let
   cfg = config.personalConfig.linux.immersedvr;
+  evdiUnstable = pkgs.unstable.linuxKernel.packages.linux_6_7.evdi;
+        v4l2loopbackUnstable = pkgs.unstable.linuxKernel.packages.linux_6_7.v4l2loopback;
   immersedUrl = "https://static.immersed.com/dl/Immersed-x86_64.AppImage";
   immersed = pkgs.appimageTools.wrapType2 {
     # or wrapType1
@@ -59,6 +61,7 @@ let
         libvdpau-va-gl
         libdrm
         nss
+        linuxPackages.v4l2loopback
         v4l-utils
         libv4l
         brotli
@@ -80,7 +83,7 @@ let
         libcanberra
       ];
   };
-  bootModules = [  "uinput" ];
+  bootModules = [ "v4l2loopback" "uinput" "evdi" ];
 in {
   options.personalConfig.linux.immersedvr.enable = mkOption {
     type = types.bool;
@@ -91,6 +94,8 @@ in {
     hardware.uinput.enable = true;
     boot = {
       extraModulePackages = with config.boot.kernelPackages; [
+        v4l2loopbackUnstable
+        evdiUnstable
       ];
       initrd = {
         availableKernelModules = bootModules;

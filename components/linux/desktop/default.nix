@@ -56,7 +56,7 @@ let
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
 in {
-  imports = [ ./gtk.nix ./gnome ./i3 ];
+  imports = [ ./kde.nix ./gtk.nix ./gnome ./i3 ];
   config = lib.mkMerge ([
     (lib.mkIf desktopEnabled (trace "Adding Udev Rules for desktop devices" {
       services.udev.extraRules = ''
@@ -79,7 +79,6 @@ in {
       };
       programs = {
         dconf = { enable = true; };
-        seahorse.enable = true;
       };
       environment = {
         systemPackages = with pkgs; [
