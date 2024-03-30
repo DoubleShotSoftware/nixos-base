@@ -3,8 +3,9 @@ with lib;
 with builtins;
 let
   cfg = config.personalConfig.linux.immersedvr;
-  evdiUnstable = pkgs.unstable.linuxKernel.packages.linux_6_7.evdi;
-        v4l2loopbackUnstable = pkgs.unstable.linuxKernel.packages.linux_6_7.v4l2loopback;
+  # evdiUnstable = pkgs.unstable.linuxKernel.packages.linux_6_8.evdi;
+  # v4l2loopbackUnstable =
+  #   pkgs.unstable.linuxKernel.packages.linux_6_8.v4l2loopback;
   immersedUrl = "https://static.immersed.com/dl/Immersed-x86_64.AppImage";
   immersed = pkgs.appimageTools.wrapType2 {
     # or wrapType1
@@ -83,25 +84,24 @@ let
         libcanberra
       ];
   };
-  bootModules = [ "v4l2loopback" "uinput" "evdi" ];
+  bootModules = [ "uinput" ];
 in {
-  options.personalConfig.linux.immersedvr.enable = mkOption {
-    type = types.bool;
-    default = false;
-    description = "Enable the immersedvr desktop app image package.";
+  options.personalConfig.linux.immersedvr = {
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable the immersedvr desktop app image package.";
+    };
   };
   config = mkIf cfg.enable {
     hardware.uinput.enable = true;
     boot = {
-      extraModulePackages = with config.boot.kernelPackages; [
-        v4l2loopbackUnstable
-        evdiUnstable
-      ];
+      extraModulePackages = with config.boot.kernelPackages; [ ];
       initrd = {
         availableKernelModules = bootModules;
         kernelModules = bootModules;
       };
     };
-    environment.systemPackages = with pkgs; [ immersed ];
+    environment.systemPackages = [ immersed ];
   };
 }
