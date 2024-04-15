@@ -16,6 +16,7 @@ with lib; {
     ./zfs.nix
     ./zrepl.nix
     ./usb-awake.nix
+    ./nvidia_vgpu
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [
