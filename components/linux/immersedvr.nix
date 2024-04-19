@@ -3,7 +3,6 @@ with lib;
 with builtins;
 let
   cfg = config.personalConfig.linux.immersedvr;
-  evdiUnstable = pkgs.unstable.linuxKernel.packages.linux_6_6.evdi;
   immersedUrl = "https://static.immersed.com/dl/Immersed-x86_64.AppImage";
   immersed = pkgs.appimageTools.wrapType2 {
     # or wrapType1
@@ -94,7 +93,6 @@ in {
     boot = {
       extraModulePackages = with config.boot.kernelPackages; [
         v4l2loopback
-        evdiUnstable
       ];
       initrd = {
         availableKernelModules = bootModules;
