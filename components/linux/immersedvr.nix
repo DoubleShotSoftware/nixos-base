@@ -81,7 +81,7 @@ let
         libcanberra
       ];
   };
-  bootModules = [ "v4l2loopback" "uinput" "evdi" ];
+  bootModules = [ "v4l2loopback" "uinput" ];
 in {
   options.personalConfig.linux.immersedvr.enable = mkOption {
     type = types.bool;
