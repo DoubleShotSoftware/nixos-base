@@ -130,13 +130,6 @@ in {
             touchpad = { naturalScrolling = true; };
           };
           desktopManager = { xterm.enable = false; };
-          displayManager = {
-            session = [{
-              manage = "desktop";
-              name = "xsession";
-              start = "exec $HOME/.xsession";
-            }];
-          };
         };
       };
       programs.xwayland.enable = true;

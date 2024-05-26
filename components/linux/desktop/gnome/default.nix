@@ -40,7 +40,10 @@ in {
     (lib.mkIf (gnomeEnabled) (trace "Enabling Gnome & GDM" {
       services = {
         dbus.packages = with pkgs; [ gnome2.GConf ];
-        xserver = { desktopManager.gnome.enable = true; };
+        xserver = {
+          displayManager.gdm.enable = true;
+          desktopManager.gnome.enable = true;
+        };
         udev.packages = with pkgs; [ gnome.gnome-settings-daemon ];
       };
       environment.gnome.excludePackages =
