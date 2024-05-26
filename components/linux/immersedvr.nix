@@ -9,7 +9,7 @@ let
     name = "immersed";
     src = pkgs.fetchurl {
       url = immersedUrl;
-      hash = "sha256-1azrvEv9df5SItlQObSzYth+/pgfnwfcKxEuWEgGp3s=";
+      hash = "sha256-baor2NPCxHnBuPCaXy8eLQDXawEz480Z4LzjGflsCq0=";
     };
     extraPkgs = pkgs:
       with pkgs; [
