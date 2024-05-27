@@ -123,8 +123,8 @@ let
           tree-sitter
           fzf
           lua-language-server
-          nodejs_18
-          nodePackages.bash-language-server
+          nodePackages.nodejs
+          bash-language-server
           nodePackages.yaml-language-server
           nodePackages.eslint
           stylua
