@@ -3,18 +3,27 @@ with lib;
 with builtins;
 let
   mod = "Mod4";
+  i3ExtraConfig = config.personalConfig.linux.i3;
   i3Enabled = any (userConfig: userConfig.desktop == "i3")
     (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
   i3Configs = mapAttrs (user: config:
     (trace "Enabling i3 for user: ${user}" {
       xdg.configFile."i3status-rust/config.toml".source = ../i3status-rust.toml;
-      home.packages = with pkgs; [
-        gnome.gnome-software
-        arandr
-        nitrogen
-        i3status-rust
-        blueman
-      ];
+      home = {
+        file = {
+            ".bin/i3-post-start.sh" = {
+                executable = true;
+                text = i3ExtraConfig.startupScript;
+            };
+        };
+        packages = with pkgs; [
+          gnome.gnome-software
+          arandr
+          nitrogen
+          i3status-rust
+          blueman
+        ];
+      };
       programs.rofi = {
         enable = true;
         plugins = with pkgs; [
@@ -37,9 +46,9 @@ let
       xsession = {
         enable = true;
         profileExtra = ''
-        eval $(${pkgs.gnome3.gnome-keyring}/bin/gnome-keyring-daemon --daemonize --components=ssh,secrets)
-        export SSH_AUTH_SOCK
-        export DESKTOP_SESSION=gnome
+          eval $(${pkgs.gnome3.gnome-keyring}/bin/gnome-keyring-daemon --daemonize --components=ssh,secrets)
+          export SSH_AUTH_SOCK
+          export DESKTOP_SESSION=gnome
         '';
         windowManager.i3 = {
           enable = true;
@@ -52,6 +61,7 @@ let
             font pango:Fira Code 12
             exec blueman-applet
             exec nitrogen --restore
+            exec ~/.bin/i3-post-start.sh
           '';
           config = {
             modifier = mod;
@@ -134,24 +144,35 @@ let
           package = pkgs.arc-icon-theme;
         };
       };
-      services.picom = {
-        enable = true;
-        package = pkgs.picom-next;
-        fade = true;
-        fadeDelta = 5;
-        shadow = true;
-        shadowOffsets = [ (-7) (-7) ];
-        shadowOpacity = 0.7;
-        shadowExclude = [ "window_type *= 'normal' && ! name ~= ''" ];
-        activeOpacity = 1.0;
-        inactiveOpacity = 0.8;
-        menuOpacity = 0.75;
-        backend = "glx";
-        vSync = true;
-      };
+      # services.picom = {
+      #   enable = true;
+      #   package = pkgs.picom-next;
+      #   fade = true;
+      #   fadeDelta = 5;
+      #   shadow = true;
+      #   shadowOffsets = [ (-7) (-7) ];
+      #   shadowOpacity = 0.7;
+      #   shadowExclude = [ "window_type *= 'normal' && ! name ~= ''" ];
+      #   activeOpacity = 1.0;
+      #   inactiveOpacity = 0.8;
+      #   menuOpacity = 0.75;
+      #   backend = "glx";
+      #   vSync = true;
+      # };
     })) (filterAttrs (user: userConfig: userConfig.desktop == "i3")
       config.personalConfig.users);
 in {
+  options.personalConfig.linux.i3 = {
+    startupScript = mkOption {
+      type = types.str;
+      default = ''
+        #!${pkgs.bash}/bin/bash
+        echo "" > /dev/null
+      '';
+      description =
+        "A script file that will be executed at the end of i3 startup placed in $HOME/.bin";
+    };
+  };
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
       services = {
