@@ -50,7 +50,7 @@ require("lspconfig")["omnisharp"].setup(config)
 require("lspconfig")["csharp_ls"].setup({
 	{
 		cmd = {
-			dotnetpaths.CSharpLS,
+			dotnetPaths.CSharpLS,
 		},
 		handlers = {
 			["textDocument/definition"] = require("csharpls_extended").handler,
