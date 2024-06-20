@@ -49,9 +49,7 @@ let
   };
   mkUserNvimConfig = user: {
     home = {
-      packages = with pkgs; [
-        github-copilot-cli
-      ];
+      packages = with pkgs; [ github-copilot-cli ];
       shellAliases = {
         e = "nvim";
         vim = "nvim";
@@ -129,6 +127,10 @@ let
           nodePackages.eslint
           stylua
           shfmt
+          nixd
+          alejandra
+          deadnix
+          statix
         ] ++ compilers;
     };
     xdg.configFile."nvim/lua/user" = {
@@ -136,16 +138,13 @@ let
       source = ./lua;
     };
   };
-  nvim_configs = mapAttrs
-    (user: config:
-      if (config.nvim) then
-        (trace "Enabling nvim for user: ${user}" mkUserNvimConfig user)
-      else
-        { })
-    (filterAttrs (user: userConfig: userConfig.userType != "system")
-      config.personalConfig.users);
-in
-{
+  nvim_configs = mapAttrs (user: config:
+    if (config.nvim) then
+      (trace "Enabling nvim for user: ${user}" mkUserNvimConfig user)
+    else
+      { }) (filterAttrs (user: userConfig: userConfig.userType != "system")
+        config.personalConfig.users);
+in {
   imports = [ ./mason.nix ./git.nix ./telescope.nix ./debug.nix ];
   config = { home-manager.users = nvim_configs; };
 }

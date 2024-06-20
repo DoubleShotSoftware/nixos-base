@@ -8,7 +8,7 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "iabdelkareem";
       repo = "csharp.nvim";
-      rev = "24cb02f1a1fd22cd759f3b923d375366240c2329";
+      rev = "48d72dfad26177295744d6da958f1dc08046a9d9";
       sha256 = "sha256-bULc9btnVwdXKX3NEsMez699DifvKDeVLdQ9tCpbZsg=";
     };
     meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
@@ -82,6 +82,7 @@ let
             "nvim/lua/user/lsp/settings/dotnetpaths.lua".text = ''
               local M = {
                   OmniSharp = "${pkgs.omnisharp-roslyn}/bin/OmniSharp",
+                  CSharpLS = "${pkgs.unstable.csharp-ls}/bin/csharp-ls",
                   Root = "${dotnetSDK}"
               }
               return M
@@ -93,6 +94,7 @@ let
             neovim = {
               plugins = with pkgs.unstable.vimPlugins; [
                 { plugin = omnisharp-extended-lsp-nvim; }
+                { plugin = csharpls-extended-lsp-nvim}
                 { plugin = csharp-nvim; }
                 { plugin = structlog-nvim; }
               ];
