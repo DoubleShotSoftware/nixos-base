@@ -1,14 +1,11 @@
 local wezterm = require("wezterm")
--- The filled in variant of the < symbol
-local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
-
--- The filled in variant of the > symbol
-local SOLID_RIGHT_ARROW = utf8.char(0xe0b0)
-
+local wezterm = require("wezterm")
+local SOLID_LEFT_ARROW = wezterm.nerdfonts.pl_right_hard_divider
+local SOLID_RIGHT_ARROW = wezterm.nerdfonts.pl_left_hard_divider
 return {
-	font = wezterm.font("Fira Code"),
+	font = wezterm.font("VictorMono Nerd Font"),
 	automatically_reload_config = true,
-	font_size = 12,
+	font_size = 14,
 	line_height = 1.25,
 	hide_tab_bar_if_only_one_tab = true,
 	window_decorations = "RESIZE",
@@ -22,16 +19,22 @@ return {
 		saturation = 0.9,
 		brightness = 0.8,
 	},
+	window_frame = {
+		font = wezterm.font("Fira Code"),
+		font_size = 14,
+		inactive_titlebar_bg = "#1e1e2e",
+		active_titlebar_bg = "#2b2042",
+	},
 	colors = {
 		tab_bar = {
-			background = "#b4f9f8",
+			background = "#1e1e2e",
 			active_tab = {
-				bg_color = "#16161e",
-				fg_color = "#3d59a1",
+				bg_color = "#24283b",
+				fg_color = "#cdd6f4",
 			},
 			inactive_tab = {
-				bg_color = "#16161e",
-				fg_color = "#787c99",
+				fg_color = "#bac2de",
+				bg_color = "#414868",
 				italic = true,
 			},
 		},
