@@ -43,73 +43,61 @@ let
     DOTNET_ADD_GLOBAL_TOOLS_TO_PATH = "true";
     DOTNET_HOST_PATH = "${dotnetSDK}/bin/dotnet";
   };
-  dotnetDevelopers = mapAttrs
-    (user: config:
-      trace "Enabling dotnet development for user: ${user}" {
-        home = {
-          packages = dotNetPackages;
-          sessionVariables = dotnetEnvVars;
-        };
-        systemd.user = { sessionVariables = dotnetEnvVars; };
-        programs = { zsh = { oh-my-zsh = { plugins = [ "dotnet" ]; }; }; };
-      })
-    (filterAttrs
-      (user: userConfig:
-        (any (language: language == "dotnet") userConfig.languages))
-      users);
-  dotnetNVIMDevelopers = mapAttrs
-    (user: config:
-      trace "Enabling dotnet nvim development support for user: ${user}" (
-        let
-          inherit dotNetPackages;
-          lspPackages = with pkgs.unstable; [ uncrustify netcoredbg fd ];
-        in
-        {
-          home = {
-            packages = lspPackages;
-            file = {
-              ".omnisharp/omnisharp.json" = { source = ./omnisharp.json; };
-              ".bin/omnisharp" = {
-                executable = true;
-                text = ''
-                  #!${pkgs.bash}/bin/bash
-                  ${pkgs.omnisharp-roslyn}/bin/OmniSharp "$@"
-                '';
-              };
-            };
-          };
-          xdg.configFile = {
-            "nvim/lua/user/lsp/settings/dotnetpaths.lua".text = ''
-              local M = {
-                  OmniSharp = "${pkgs.omnisharp-roslyn}/bin/OmniSharp",
-                  CSharpLS = "${pkgs.unstable.csharp-ls}/bin/csharp-ls",
-                  Root = "${dotnetSDK}"
-              }
-              return M
+  dotnetDevelopers = mapAttrs (user: config:
+    trace "Enabling dotnet development for user: ${user}" {
+      home = {
+        packages = dotNetPackages;
+        sessionVariables = dotnetEnvVars;
+      };
+      systemd.user = { sessionVariables = dotnetEnvVars; };
+      programs = { zsh = { oh-my-zsh = { plugins = [ "dotnet" ]; }; }; };
+    }) (filterAttrs (user: userConfig:
+      (any (language: language == "dotnet") userConfig.languages)) users);
+  dotnetNVIMDevelopers = mapAttrs (user: config:
+    trace "Enabling dotnet nvim development support for user: ${user}" (let
+      inherit dotNetPackages;
+      lspPackages = with pkgs.unstable; [ uncrustify netcoredbg fd ];
+    in {
+      home = {
+        packages = lspPackages;
+        file = {
+          ".omnisharp/omnisharp.json" = { source = ./omnisharp.json; };
+          ".bin/omnisharp" = {
+            executable = true;
+            text = ''
+              #!${pkgs.bash}/bin/bash
+              ${pkgs.omnisharp-roslyn}/bin/OmniSharp "$@"
             '';
-            "nvim/lua/user/lsp/settings/dotnet.lua".source = ./dotnet.lua;
-            "nvim/lua/lsp/user/treesitter/dotnet.lua".source = ./treesitter.lua;
           };
-          programs = {
-            neovim = {
-              plugins = with pkgs.unstable.vimPlugins; [
-                { plugin = omnisharp-extended-lsp-nvim; }
-                { plugin = csharpls-extended-lsp-nvim}
-                { plugin = csharp-nvim; }
-                { plugin = structlog-nvim; }
-              ];
-              extraPackages = lspPackages ++ dotNetPackages;
-            };
-          };
-        }
-      ))
-    (filterAttrs
-      (user: userConfig:
-        ((any (language: language == "dotnet") userConfig.languages)
-          && userConfig.nvim))
-      users);
-in
-{
+        };
+      };
+      xdg.configFile = {
+        "nvim/lua/user/lsp/settings/dotnetpaths.lua".text = ''
+          local M = {
+              OmniSharp = "${pkgs.omnisharp-roslyn}/bin/OmniSharp",
+              CSharpLS = "${pkgs.unstable.csharp-ls}/bin/csharp-ls",
+              Root = "${dotnetSDK}"
+          }
+          return M
+        '';
+        "nvim/lua/user/lsp/settings/dotnet.lua".source = ./dotnet.lua;
+        "nvim/lua/lsp/user/treesitter/dotnet.lua".source = ./treesitter.lua;
+      };
+      programs = {
+        neovim = {
+          plugins = with pkgs.unstable.vimPlugins; [
+            { plugin = omnisharp-extended-lsp-nvim; }
+            { plugin = csharpls-extended-lsp-nvim; }
+            { plugin = csharp-nvim; }
+            { plugin = structlog-nvim; }
+          ];
+          extraPackages = lspPackages ++ dotNetPackages;
+        };
+      };
+    })) (filterAttrs (user: userConfig:
+      ((any (language: language == "dotnet") userConfig.languages)
+        && userConfig.nvim)) users);
+in {
   config = lib.mkMerge [
     { home-manager.users = dotnetDevelopers; }
     { home-manager.users = dotnetNVIMDevelopers; }
