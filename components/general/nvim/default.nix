@@ -131,6 +131,7 @@ let
           alejandra
           deadnix
           statix
+          lua-language-server
         ] ++ compilers;
     };
     xdg.configFile."nvim/lua/user" = {
