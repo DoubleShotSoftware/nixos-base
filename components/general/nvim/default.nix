@@ -115,6 +115,9 @@ let
       ];
       extraPackages = with pkgs.unstable;
         [
+          xclip
+          xsel
+          lemonade
           ripgrep
           fd
           nodePackages.vscode-json-languageserver

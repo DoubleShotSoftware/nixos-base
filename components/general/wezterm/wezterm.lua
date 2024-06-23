@@ -20,8 +20,8 @@ return {
 		brightness = 0.8,
 	},
 	window_frame = {
-		font = wezterm.font("Fira Code"),
-		font_size = 14,
+		font = wezterm.font("VictorMono Nerd Font"),
+		font_size = 12,
 		inactive_titlebar_bg = "#1e1e2e",
 		active_titlebar_bg = "#2b2042",
 	},
