@@ -56,7 +56,7 @@ let
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
 in {
-  imports = [  ./gnome ./i3 ];
+  imports = [ ./gnome ./i3 ];
   config = lib.mkMerge ([
     (lib.mkIf desktopEnabled (trace "Adding Udev Rules for desktop devices" {
       services.udev.extraRules = ''
@@ -91,8 +91,12 @@ in {
           xorg.xinit
         ];
         etc = {
-          "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text =
-            "	bluez_monitor.properties = {\n		[\"bluez5.enable-sbc-xq\"] = true,\n		[\"bluez5.enable-msbc\"] = true,\n		[\"bluez5.enable-hw-volume\"] = true,\n		[\"bluez5.headset-roles\"] = \"[ hsp_hs hsp_ag hfp_hf hfp_ag ]\"\n	}\n";
+          "wireplumber/wireplumber.conf.d/80-bluez-properties.conf".text = ''
+          monitor.bluez.properties = {
+              bluez5.roles = [ a2dp_sink a2dp_source bap_sink bap_source hsp_hs hsp_ag hfp_hf hfp_ag ]
+              bluez5.hfphsp-backend = "native"
+            }
+          '';
         };
       };
       xdg.portal = {
