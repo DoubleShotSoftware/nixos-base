@@ -25,7 +25,6 @@ let
         gnomeExtensions.settingscenter
         gnomeExtensions.appindicator
         gnomeExtensions.pop-shell
-        gnomeExtensions.battery-time
         gnomeExtensions.caffeine
         gnomeExtensions.freon
         gnomeExtensions.vitals
