@@ -2,28 +2,28 @@
 with lib;
 with builtins;
 let
-  csharp-nvim = pkgs.vimUtils.buildVimPlugin {
-    pname = "csharp-nvim";
-    version = "02-19-2024";
-    src = pkgs.fetchFromGitHub {
-      owner = "iabdelkareem";
-      repo = "csharp.nvim";
-      rev = "48d72dfad26177295744d6da958f1dc08046a9d9";
-      sha256 = "sha256-bULc9btnVwdXKX3NEsMez699DifvKDeVLdQ9tCpbZsg=";
-    };
-    meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
-  };
-  structlog-nvim = pkgs.vimUtils.buildVimPlugin {
-    pname = "structlog-nvim";
-    version = "0.2";
-    src = pkgs.fetchFromGitHub {
-      owner = "Tastyep";
-      repo = "structlog.nvim";
-      rev = "v0.2";
-      sha256 = "sha256-Bq4YNpLQ1+iSBuN5MG4OBmI5r3DGWyDou4kRCMnked0=";
-    };
-    meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
-  };
+  # csharp-nvim = pkgs.vimUtils.buildVimPlugin {
+  #   pname = "csharp-nvim";
+  #   version = "02-19-2024";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "iabdelkareem";
+  #     repo = "csharp.nvim";
+  #     rev = "48d72dfad26177295744d6da958f1dc08046a9d9";
+  #     sha256 = "sha256-bULc9btnVwdXKX3NEsMez699DifvKDeVLdQ9tCpbZsg=";
+  #   };
+  #   meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
+  # };
+  # structlog-nvim = pkgs.vimUtils.buildVimPlugin {
+  #   pname = "structlog-nvim";
+  #   version = "0.2";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "Tastyep";
+  #     repo = "structlog.nvim";
+  #     rev = "v0.2";
+  #     sha256 = "sha256-Bq4YNpLQ1+iSBuN5MG4OBmI5r3DGWyDou4kRCMnked0=";
+  #   };
+  #   meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
+  # };
   users = config.personalConfig.users;
   dotnetSDK =
     (with pkgs.dotnetCorePackages; combinePackages [ sdk_6_0 sdk_7_0 sdk_8_0 ]);
@@ -88,8 +88,6 @@ let
           plugins = with pkgs.unstable.vimPlugins; [
             { plugin = omnisharp-extended-lsp-nvim; }
             { plugin = csharpls-extended-lsp-nvim; }
-            { plugin = csharp-nvim; }
-            { plugin = structlog-nvim; }
           ];
           extraPackages = lspPackages ++ dotNetPackages;
         };
