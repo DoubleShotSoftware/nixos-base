@@ -6,7 +6,7 @@ let
     (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
   gnomeConfigs = mapAttrs (user: config:
     (trace "Enabling Gnome for user: ${user}" {
-      imports = [ ./dconf ];
+      #imports = [ ./dconf ];
       home.packages = with pkgs; [
         polkit_gnome
         libqalculate
