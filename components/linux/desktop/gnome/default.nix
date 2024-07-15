@@ -8,6 +8,24 @@ let
     (trace "Enabling Gnome for user: ${user}" {
       #imports = [ ./dconf ];
       home.packages = with pkgs; [
+        gnomeExtensions.open-bar
+        mission-center
+        system-config-printer
+        tokyonight-gtk-theme
+        palenight-theme
+        nightfox-gtk-theme
+        catppuccin
+        catppuccin-gtk
+        catppuccin-cursors
+        arc-icon-theme
+        nordzy-icon-theme
+        gnomeExtensions.wallpaper-slideshow
+        gruvbox-gtk-theme
+        graphite-gtk-theme
+        arc-theme
+        nordic
+        materia-theme
+        numix-gtk-theme
         polkit_gnome
         libqalculate
         qalculate-gtk
