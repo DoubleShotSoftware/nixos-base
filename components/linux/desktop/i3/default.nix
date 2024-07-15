@@ -218,6 +218,20 @@ in {
   };
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
+      xdg.portal = {
+        enable = true;
+        xdgOpenUsePortal = false;
+        config = {
+          common = {
+            default = [ "gtk" "xapp" ];
+            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+          };
+          "i3" = {
+            default = [ "gtk" "xapp" ];
+            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+          };
+        };
+      };
       services = {
         xserver = {
           layout = "us";

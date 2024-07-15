@@ -2,13 +2,6 @@
 with lib;
 with builtins;
 let
-  portals = with pkgs; [
-    xdg-desktop-portal
-    xdg-desktop-portal-wlr
-    xdg-desktop-portal-gtk
-    xdg-desktop-portal-gnome
-    xdg-desktop-portal-hyprland
-  ];
   users = config.personalConfig.users;
   personalPackages = if (config.personalConfig.machineType == "personal") then
     with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt calibre ]
@@ -90,20 +83,6 @@ in {
           xorg.xf86inputlibinput
           xorg.xinit
         ];
-      };
-      xdg.portal = {
-        enable = true;
-        xdgOpenUsePortal = false;
-        config = {
-          common = {
-            default = [ "gtk" "xapp" ];
-            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-          };
-          "i3" = {
-            default = [ "gtk" "xapp" ];
-            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-          };
-        };
       };
       security.rtkit.enable = true;
       services = {
