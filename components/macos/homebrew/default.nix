@@ -8,6 +8,7 @@ in {
       Xcode = 497799835;
       "Unsplash Wallpapers" = 1284863847;
       "Microsoft Remote Desktop" = 1295203466;
+      "WireGuard" = 1451685025;
     };
     brews = [
       "null-dev/firefox-profile-switcher/firefox-profile-switcher-connector"
@@ -19,6 +20,9 @@ in {
       "gnu-getopt"
     ];
     casks = [
+      { name = "spotify"; }
+      { name = "tidal"; }
+      { name = "nikitabobko/tap/aerospace"; }
       { name = "nikitabobko/tap/aerospace"; }
       { name = "gpg-suite"; }
       { name = "postman"; }
