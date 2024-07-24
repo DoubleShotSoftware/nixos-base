@@ -1,7 +1,6 @@
 { config, pkgs, inputs, desktop, ... }:
 let unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
-in
-{
+in {
   homebrew = {
     enable = true;
     global = { lockfiles = true; };
@@ -11,11 +10,8 @@ in
       "Microsoft Remote Desktop" = 1295203466;
     };
     brews = [
-      "qemu"
-      "yabai"
-      "skhd"
+      "null-dev/firefox-profile-switcher/firefox-profile-switcher-connector"
       "sketchybar"
-      "firefox-profile-switcher-connector"
       "ical-buddy"
       "docker"
       "docker-compose"
@@ -98,8 +94,8 @@ in
     taps = [
       "FelixKratz/formulae"
       "null-dev/firefox-profile-switcher"
-      "homebrew/cask-fonts"
       "homebrew/bundle"
+      "nikitabobko/tap/aerospace"
     ];
   };
 }
