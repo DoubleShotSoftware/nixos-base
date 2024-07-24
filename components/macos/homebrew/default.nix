@@ -19,6 +19,7 @@ in {
       "gnu-getopt"
     ];
     casks = [
+      { name = "nikitabobko/tap/aerospace"; }
       { name = "gpg-suite"; }
       { name = "postman"; }
       { name = "kitty"; }
@@ -95,7 +96,6 @@ in {
       "FelixKratz/formulae"
       "null-dev/firefox-profile-switcher"
       "homebrew/bundle"
-      "nikitabobko/tap/aerospace"
     ];
   };
 }
