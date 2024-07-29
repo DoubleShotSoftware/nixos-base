@@ -47,7 +47,7 @@ in
       rootless = mkOption {
         type = types.bool;
         description = "Enable rootless mode";
-        default = true;
+        default = false;
       };
       broadcastIp = mkOption {
         type = types.str;
@@ -84,7 +84,6 @@ in
         docker = {
           enable = true;
           enableOnBoot = containerConfig.docker.onBoot;
-          rootless = { enable = false; };
           daemon.settings = dockerDaemonSettings;
           autoPrune = { enable = true; };
         };

@@ -6,8 +6,26 @@ let
     (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
   gnomeConfigs = mapAttrs (user: config:
     (trace "Enabling Gnome for user: ${user}" {
-      imports = [ ./dconf ];
+      #imports = [ ./dconf ];
       home.packages = with pkgs; [
+        gnomeExtensions.open-bar
+        mission-center
+        system-config-printer
+        tokyonight-gtk-theme
+        palenight-theme
+        nightfox-gtk-theme
+        catppuccin
+        catppuccin-gtk
+        catppuccin-cursors
+        arc-icon-theme
+        nordzy-icon-theme
+        gnomeExtensions.wallpaper-slideshow
+        gruvbox-gtk-theme
+        graphite-gtk-theme
+        arc-theme
+        nordic
+        materia-theme
+        numix-gtk-theme
         polkit_gnome
         libqalculate
         qalculate-gtk
@@ -25,7 +43,6 @@ let
         gnomeExtensions.settingscenter
         gnomeExtensions.appindicator
         gnomeExtensions.pop-shell
-        gnomeExtensions.battery-time
         gnomeExtensions.caffeine
         gnomeExtensions.freon
         gnomeExtensions.vitals
@@ -40,7 +57,10 @@ in {
     (lib.mkIf (gnomeEnabled) (trace "Enabling Gnome & GDM" {
       services = {
         dbus.packages = with pkgs; [ gnome2.GConf ];
-        xserver = { desktopManager.gnome.enable = true; };
+        xserver = {
+          displayManager.gdm.enable = true;
+          desktopManager.gnome.enable = true;
+        };
         udev.packages = with pkgs; [ gnome.gnome-settings-daemon ];
       };
       environment.gnome.excludePackages =
@@ -48,7 +68,6 @@ in {
           cheese # webcam tool
           gnome-music
           gnome-terminal
-          gedit # text editor
           epiphany # web browser
           geary # email reader
           evince # document viewer
