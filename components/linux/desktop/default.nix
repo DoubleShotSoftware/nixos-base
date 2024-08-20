@@ -92,7 +92,6 @@ in {
       services = {
         gvfs.enable = true;
         packagekit.enable = true;
-        flatpak.enable = true;
         blueman.enable = true;
         gnome.gnome-keyring.enable = true;
         pipewire = {
