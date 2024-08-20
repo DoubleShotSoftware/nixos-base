@@ -2,16 +2,9 @@
 with lib;
 with builtins;
 let
-  portals = with pkgs; [
-    xdg-desktop-portal
-    xdg-desktop-portal-wlr
-    xdg-desktop-portal-gtk
-    xdg-desktop-portal-gnome
-    xdg-desktop-portal-hyprland
-  ];
   users = config.personalConfig.users;
   personalPackages = if (config.personalConfig.machineType == "personal") then
-    with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt calibre ]
+    with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt  ]
   else
     [ ];
   desktopPackages = (with pkgs; [
@@ -56,7 +49,7 @@ let
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
 in {
-  imports = [ ./gtk.nix ./gnome ./i3 ];
+  imports = [ ./gnome ./i3 ];
   config = lib.mkMerge ([
     (lib.mkIf desktopEnabled (trace "Adding Udev Rules for desktop devices" {
       services.udev.extraRules = ''
@@ -93,20 +86,6 @@ in {
         etc = {
           "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text =
             "	bluez_monitor.properties = {\n		[\"bluez5.enable-sbc-xq\"] = true,\n		[\"bluez5.enable-msbc\"] = true,\n		[\"bluez5.enable-hw-volume\"] = true,\n		[\"bluez5.headset-roles\"] = \"[ hsp_hs hsp_ag hfp_hf hfp_ag ]\"\n	}\n";
-        };
-      };
-      xdg.portal = {
-        enable = true;
-        xdgOpenUsePortal = false;
-        config = {
-          common = {
-            default = [ "gtk" "xapp" ];
-            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-          };
-          "i3" = {
-            default = [ "gtk" "xapp" ];
-            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-          };
         };
       };
       security.rtkit.enable = true;

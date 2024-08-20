@@ -175,6 +175,7 @@ in {
   };
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
+      imports = [ ../gtk.nix ];
       services = {
         xserver = {
           layout = "us";

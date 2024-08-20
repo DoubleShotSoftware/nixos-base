@@ -6,7 +6,7 @@ let
     (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
   gnomeConfigs = mapAttrs (user: config:
     (trace "Enabling Gnome for user: ${user}" {
-      imports = [ ./dconf ];
+      imports = [  ];
       home.packages = with pkgs; [
         polkit_gnome
         libqalculate
@@ -51,7 +51,6 @@ in {
           cheese # webcam tool
           gnome-music
           gnome-terminal
-          gedit # text editor
           epiphany # web browser
           geary # email reader
           evince # document viewer

@@ -28,7 +28,6 @@ with lib; {
     ];
     programs.gnupg = {
       agent = {
-        pinentryFlavor = "curses";
         enable = true;
         enableSSHSupport = true;
       };
