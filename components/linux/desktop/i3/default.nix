@@ -37,9 +37,9 @@ let
       xsession = {
         enable = true;
         profileExtra = ''
-        eval $(${pkgs.gnome3.gnome-keyring}/bin/gnome-keyring-daemon --daemonize --components=ssh,secrets)
-        export SSH_AUTH_SOCK
-        export DESKTOP_SESSION=gnome
+          eval $(${pkgs.gnome3.gnome-keyring}/bin/gnome-keyring-daemon --daemonize --components=ssh,secrets)
+          export SSH_AUTH_SOCK
+          export DESKTOP_SESSION=gnome
         '';
         windowManager.i3 = {
           enable = true;
@@ -154,6 +154,7 @@ let
 in {
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
+      imports = [ ../gtk.nix ];
       services = {
         xserver = {
           layout = "us";
