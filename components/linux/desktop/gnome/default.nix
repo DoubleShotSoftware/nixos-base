@@ -95,6 +95,7 @@ let
             close = [ "<Super>q" "<Alt>F4" ];
             toggle-fullscreen = [ "<Super>f" ];
             toggle-maximized = [ "<Super>m" ];
+            minimize = [ "" ];
             "move-to-workspace-1" = [ "<Shift><Super>1" ];
             "move-to-workspace-2" = [ "<Shift><Super>2" ];
             "move-to-workspace-3" = [ "<Shift><Super>3" ];
