@@ -83,10 +83,6 @@ in {
           xorg.xf86inputlibinput
           xorg.xinit
         ];
-        etc = {
-          "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text =
-            "	bluez_monitor.properties = {\n		[\"bluez5.enable-sbc-xq\"] = true,\n		[\"bluez5.enable-msbc\"] = true,\n		[\"bluez5.enable-hw-volume\"] = true,\n		[\"bluez5.headset-roles\"] = \"[ hsp_hs hsp_ag hfp_hf hfp_ag ]\"\n	}\n";
-        };
       };
       security.rtkit.enable = true;
       services = {
@@ -98,7 +94,17 @@ in {
           enable = true;
           systemWide = false;
           pulse.enable = true;
-          wireplumber.enable = true;
+          wireplumber = {
+            enable = true;
+            extraConfig = {
+              "monitor.bluez.properties" = {
+                "bluez5.enable-sbc-xq" = true;
+                "bluez5.enable-msbc" = true;
+                "bluez5.enable-hw-volume" = true;
+                "bluez5.roles" = [ "hsp_hs" "hsp_ag" "hfp_hf" "hfp_ag" ];
+              };
+            };
+          };
         };
         xserver = {
           enable = true;

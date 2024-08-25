@@ -3,18 +3,46 @@ with lib;
 with builtins;
 let
   mod = "Mod4";
+  i3ExtraConfig = config.personalConfig.linux.i3;
   i3Enabled = any (userConfig: userConfig.desktop == "i3")
     (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
   i3Configs = mapAttrs (user: config:
     (trace "Enabling i3 for user: ${user}" {
-      xdg.configFile."i3status-rust/config.toml".source = ../i3status-rust.toml;
-      home.packages = with pkgs; [
-        gnome.gnome-software
-        arandr
-        nitrogen
-        i3status-rust
-        blueman
-      ];
+      xdg.configFile."i3status-rust/config.toml".source =
+        i3ExtraConfig.statusBar;
+      home = {
+        file = {
+          ".bin/i3-post-start.sh" = {
+            executable = true;
+            text = i3ExtraConfig.startupScript;
+          };
+          ".local/share/rofi/themes/catppuccin-mocha.rasi" = {
+            source = ./assets/catppuccin-mocha.rasi;
+          };
+          ".local/share/rofi/themes/catppuccin-latte.rasi" = {
+            source = ./assets/catppuccin-latte.rasi;
+          };
+          ".local/share/rofi/themes/catppuccin-macchiato.rasi" = {
+            source = ./assets/catppuccin-macchiato.rasi;
+          };
+          ".local/share/rofi/themes/catppuccin-frappe.rasi" = {
+            source = ./assets/catppuccin-frappe.rasi;
+          };
+        };
+        packages = with pkgs; [
+          font-awesome
+          font-awesome_4
+          font-awesome_5
+          catppuccin
+          catppuccin-gtk
+          catppuccin-cursors
+          gnome.gnome-software
+          arandr
+          nitrogen
+          i3status-rust
+          blueman
+        ];
+      };
       programs.rofi = {
         enable = true;
         plugins = with pkgs; [
@@ -52,19 +80,20 @@ let
             font pango:Fira Code 12
             exec blueman-applet
             exec nitrogen --restore
+            exec ~/.bin/i3-post-start.sh
           '';
           config = {
             modifier = mod;
             fonts = [ "DejaVu Sans Mono, FontAwesome 6" ];
             keybindings = lib.mkOptionDefault {
               "${mod}+d" = ''
-                exec ${pkgs.rofi}/bin/rofi -show combi -show-icons -icon-theme "bloom-dark" 
+                exec ${pkgs.rofi}/bin/rofi -show combi -show-icons -theme catppuccin-mocha -icon-theme Arc 
               '';
               "${mod}+x" =
                 "exec sh -c '${pkgs.maim}/bin/maim -s | xclip -selection clipboard -t image/png'";
               "${mod}+Shift+x" =
                 "exec sh -c '${pkgs.i3lock}/bin/i3lock -c 222222 & sleep 5 && xset dpms force of'";
-              "${mod}+Return" = "exec ${pkgs.kitty}/bin/kitty";
+              "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm";
               "${mod}+Shift+f" = "exec ${pkgs.firefox}/bin/firefox -p";
               "${mod}+Shift+q" = "kill";
               "XF86MonBrightnessUp" = "exec brightnessctl s +10%";
@@ -133,6 +162,25 @@ let
           name = "Arc";
           package = pkgs.arc-icon-theme;
         };
+        settings = {
+          global = {
+            frame_color = "#89b4fa";
+            separator_color = "frame";
+          };
+          urgency_low = {
+            background = "#1e1e2e";
+            foreground = "#cdd6f4";
+          };
+          urgency_normal = {
+            background = "#1e1e2e";
+            foreground = "#cdd6f4";
+          };
+          urgency_critical = {
+            background = "#1e1e2e";
+            foreground = "#cdd6f4";
+            frame_color = "#fab387";
+          };
+        };
       };
       services.picom = {
         enable = true;
@@ -152,6 +200,22 @@ let
     })) (filterAttrs (user: userConfig: userConfig.desktop == "i3")
       config.personalConfig.users);
 in {
+  options.personalConfig.linux.i3 = {
+    startupScript = mkOption {
+      type = types.str;
+      default = ''
+        #!${pkgs.bash}/bin/bash
+        echo "" > /dev/null
+      '';
+      description =
+        "A script file that will be executed at the end of i3 startup placed in $HOME/.bin";
+    };
+    statusBar = mkOption {
+      type = types.path;
+      default = ../i3status-rust.toml;
+      description = "The path to the i3 status rust toml.";
+    };
+  };
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
       services = {
