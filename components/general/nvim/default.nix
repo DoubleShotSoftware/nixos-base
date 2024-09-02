@@ -125,7 +125,7 @@ let
           fzf
           lua-language-server
           nodePackages.nodejs
-          bash-language-server
+          nodePackages.bash-language-server
           nodePackages.yaml-language-server
           stylua
           shfmt
