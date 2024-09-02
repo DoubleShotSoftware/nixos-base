@@ -127,7 +127,6 @@ let
           nodePackages.nodejs
           bash-language-server
           nodePackages.yaml-language-server
-          nodePackages.eslint
           stylua
           shfmt
           nixd
