@@ -78,7 +78,7 @@ let
             attach-modal-dialogs = true;
             dynamic-workspaces = false;
             edge-tiling = false;
-            experimental-features = [ "scale-monitor-framebuffer" ];
+            experimental-features = [ "scale-monitor-framebuffer" "variable-refresh-rate" ];
             focus-change-on-pointer-rest = true;
             overlay-key = "Super_L";
             workspaces-only-on-primary = true;
