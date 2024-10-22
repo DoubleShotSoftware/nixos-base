@@ -120,7 +120,7 @@ let
           lemonade
           ripgrep
           fd
-          nodePackages.vscode-json-languageserver
+          # nodePackages.vscode-json-languageserver
           tree-sitter
           fzf
           lua-language-server
