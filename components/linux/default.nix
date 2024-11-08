@@ -20,11 +20,7 @@ with lib; {
   config = mkMerge [{
     environment.systemPackages = with pkgs; [
       inetutils
-      linux-firmware
-      sof-firmware
-      alsa-firmware
-      pinentry
-      pinentry-curses
+      jq  
     ];
     programs.gnupg = {
       agent = {
