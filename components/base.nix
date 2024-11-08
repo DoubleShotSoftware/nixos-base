@@ -66,11 +66,8 @@ in
         p7zip
         jq
         nixfmt
-        deploy-rs
         gnupg
         tree
-        pinentry
-        pinentry-curses
       ];
       nix = {
         #settings.auto-optimise-store = true;

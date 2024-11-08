@@ -2,7 +2,7 @@
 with builtins;
 with lib;
 let
-  compilers = with pkgs; [ clang zig llvm ];
+  compilers = with pkgs; [ llvm ];
   tokyonight-main = pkgs.vimUtils.buildVimPlugin {
     pname = "tokyonight-main";
     version = "v3.0.1";
@@ -87,7 +87,7 @@ let
         cmp-nvim-lsp
         cmp-calc
         cmp-emoji
-        nvim-treesitter.withAllGrammars
+        nvim-treesitter
         fidget-nvim
         nvim-treesitter-refactor
         nvim-treesitter-context
@@ -115,9 +115,6 @@ let
       ];
       extraPackages = with pkgs.unstable;
         [
-          xclip
-          xsel
-          lemonade
           ripgrep
           fd
           # nodePackages.vscode-json-languageserver
@@ -125,7 +122,7 @@ let
           fzf
           lua-language-server
           nodePackages.nodejs
-        nodePackages.bash-language-server
+          nodePackages.bash-language-server
           nodePackages.yaml-language-server
           nodePackages.eslint
           stylua
