@@ -40,7 +40,7 @@ in {
   config = lib.mkMerge [
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.nixStateVersion;
-      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils ];
+      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils cryptsetup ];
       programs.nix-ld = {
         enable = true;
         libraries = with pkgs; [
@@ -65,6 +65,7 @@ in {
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs; [
+        nix-output-monitor
         sops
         age
         gnumake
@@ -84,6 +85,7 @@ in {
         nixfmt
         gnupg
         tree
+        pwgen
       ];
       nix = {
         #settings.auto-optimise-store = true;

@@ -26,21 +26,11 @@ let
   # };
   users = config.personalConfig.users;
   dotnetSDK = (with pkgs.dotnetCorePackages;
-    combinePackages [
-      dotnet_8.sdk
-      dotnet_8.runtime
-      dotnet_8.aspnetcore
-      dotnet_9.sdk
-      dotnet_9.runtime
-      dotnet_9.aspnetcore
-    ]);
+    combinePackages [ sdk_7_0_3xx dotnet_8.sdk dotnet_9.sdk ]);
   dotNetPackages = with pkgs; [
-    roslyn
     dotnetPackages.Nuget
     dotnetPackages.NUnit
-    msbuild
     dotnetSDK
-    ilspycmd
   ];
   dotnetEnvVars = {
     DOTNET_ROOT = "${dotnetSDK}";
@@ -65,19 +55,7 @@ let
       inherit dotNetPackages;
       lspPackages = with pkgs.unstable; [ uncrustify netcoredbg fd ];
     in {
-      home = {
-        packages = lspPackages;
-        file = {
-          ".omnisharp/omnisharp.json" = { source = ./omnisharp.json; };
-          ".bin/omnisharp" = {
-            executable = true;
-            text = ''
-              #!${pkgs.bash}/bin/bash
-              ${pkgs.omnisharp-roslyn}/bin/OmniSharp "$@"
-            '';
-          };
-        };
-      };
+      home = { packages = lspPackages; };
       xdg.configFile = {
         "nvim/lua/user/lsp/settings/dotnetpaths.lua".text = ''
           local M = {
@@ -92,10 +70,9 @@ let
       };
       programs = {
         neovim = {
-          plugins = with pkgs.unstable.vimPlugins; [
-            { plugin = omnisharp-extended-lsp-nvim; }
-            { plugin = csharpls-extended-lsp-nvim; }
-          ];
+          plugins = with pkgs.unstable.vimPlugins; [{
+            plugin = csharpls-extended-lsp-nvim;
+          }];
           extraPackages = lspPackages ++ dotNetPackages;
         };
       };
@@ -104,6 +81,10 @@ let
         && userConfig.nvim)) users);
 in {
   config = lib.mkMerge [
+    {
+      nixpkgs.config.permittedInsecurePackages =
+        [ "dotnet-sdk-7.0.317" "dotnetCorePackages.sdk_7_0_3xx" ];
+    }
     { home-manager.users = dotnetDevelopers; }
     { home-manager.users = dotnetNVIMDevelopers; }
   ];
