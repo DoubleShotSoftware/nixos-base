@@ -25,8 +25,15 @@ let
   #   meta.homepage = "https://github.com/iabdelkareem/csharp.nvim";
   # };
   users = config.personalConfig.users;
-  dotnetSDK =
-    (with pkgs.dotnetCorePackages; combinePackages [ sdk_6_0 sdk_7_0 sdk_8_0 ]);
+  dotnetSDK = (with pkgs.dotnetCorePackages;
+    combinePackages [
+      dotnet_8.sdk
+      dotnet_8.runtime
+      dotnet_8.aspnetcore
+      dotnet_9.sdk
+      dotnet_9.runtime
+      dotnet_9.aspnetcore
+    ]);
   dotNetPackages = with pkgs; [
     roslyn
     dotnetPackages.Nuget

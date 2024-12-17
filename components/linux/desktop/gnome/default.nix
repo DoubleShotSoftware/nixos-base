@@ -31,13 +31,10 @@ let
         gnomeExtensions.caffeine
         gnomeExtensions.freon
         gnomeExtensions.vitals
-        catppuccin-gtk
-        catppuccin
+        gnomeExtensions.wallpaper-slideshow
+        gnomeExtensions.open-bar
         catppuccin-cursors
-        tokyonight-gtk-theme
         nordic
-        nightfox-gtk-theme
-        kanagawa-gtk-theme
         material-cursors
       ];
       ## Dark mode breaks by default with xdg-desktop-portal-gtk
@@ -78,19 +75,17 @@ let
             attach-modal-dialogs = true;
             dynamic-workspaces = false;
             edge-tiling = false;
-            experimental-features = [ "scale-monitor-framebuffer" "variable-refresh-rate" ];
+            experimental-features =
+              [ "scale-monitor-framebuffer" "variable-refresh-rate" ];
             focus-change-on-pointer-rest = true;
-            overlay-key = "Super_L";
+            overlay-key = "";
             workspaces-only-on-primary = true;
           };
-
           "org/gnome/mutter/keybindings" = {
             toggle-tiled-left = [ ];
             toggle-tiled-right = [ ];
           };
-
           "org/gnome/mutter/wayland/keybindings" = { restore-shortcuts = [ ]; };
-
           "org/gnome/desktop/wm/keybindings" = {
             close = [ "<Super>q" "<Alt>F4" ];
             toggle-fullscreen = [ "<Super>f" ];
@@ -118,11 +113,10 @@ let
             "switch-to-workspace-9" = [ "<Super>9" ];
             "switch-to-workspace-0" = [ "<Super>0" ];
           };
-
           "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" =
             {
               binding = "<Control><Super>Return";
-              command = "${pkgs.wezterm}/bin/wezterm";
+              command = "${pkgs.kitty}/bin/kitty";
               name = "Terminal";
             };
         };

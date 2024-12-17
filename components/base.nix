@@ -3,11 +3,11 @@ with lib;
 let
   tzdir = "${pkgs.tzdata}/share/zoneinfo";
   nospace = str: filter (c: c == " ") (stringToCharacters str) == [ ];
-  timezone = types.nullOr (types.addCheck types.str nospace)
-    // { description = "null or string without spaces"; };
+  timezone = types.nullOr (types.addCheck types.str nospace) // {
+    description = "null or string without spaces";
+  };
 
-in
-{
+in {
   imports = [ ];
   options.personalConfig = with lib; {
     system = {
@@ -41,6 +41,22 @@ in
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.nixStateVersion;
       environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils ];
+      programs.nix-ld = {
+        enable = true;
+        libraries = with pkgs; [
+          stdenv.cc.cc
+          zlib
+          fuse3
+          icu
+          nss
+          openssl
+          curl
+          expat
+          libgcc
+          libllvm
+        ];
+
+      };
     })
     (lib.mkIf (pkgs.system == "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.darwinStateVersion;
@@ -72,7 +88,6 @@ in
       nix = {
         #settings.auto-optimise-store = true;
         gc = { automatic = true; };
-        package = pkgs.nixFlakes;
         extraOptions = ''
           experimental-features = nix-command flakes
           keep-outputs = true
