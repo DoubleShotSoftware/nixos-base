@@ -10,7 +10,6 @@ return {
 	hide_tab_bar_if_only_one_tab = true,
 	window_decorations = "RESIZE",
 	window_close_confirmation = "NeverPrompt",
-	show_update_window = false,
 	enable_scroll_bar = false,
 	color_scheme = "Catppuccin Mocha",
 	window_background_opacity = 0.85,
