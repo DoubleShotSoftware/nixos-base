@@ -9,8 +9,6 @@ let
     (trace "Enabling Gnome for user: ${user}" {
       imports = [ ];
       home.packages = with pkgs; [
-        flatpak
-        gnome.gnome-software
         polkit_gnome
         libqalculate
         qalculate-gtk
@@ -19,10 +17,6 @@ let
         gnome.nautilus
         gnome.gvfs
         gtk_engines
-        arc-theme
-        materia-theme
-        material-icons
-        lxappearance
         gnome.dconf-editor
         gnome.gnome-tweaks
         gnomeExtensions.settingscenter
@@ -33,9 +27,9 @@ let
         gnomeExtensions.vitals
         gnomeExtensions.wallpaper-slideshow
         gnomeExtensions.open-bar
+        gnomeExtensions.tiling-shell
         catppuccin-cursors
         nordic
-        material-cursors
       ];
       ## Dark mode breaks by default with xdg-desktop-portal-gtk
       ## https://github.com/NixOS/nixpkgs/issues/274554#issuecomment-2211307799
@@ -116,7 +110,7 @@ let
           "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" =
             {
               binding = "<Control><Super>Return";
-              command = "${pkgs.kitty}/bin/kitty";
+              command = "${pkgs.wezterm}/bin/wezterm";
               name = "Terminal";
             };
         };
