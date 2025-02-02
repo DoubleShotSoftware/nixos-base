@@ -5,7 +5,7 @@ with lib; {
     ./containers.nix
     ./dnsmasq.nix
     ./qemu-guest
-    ./immersedvr.nix
+    # ./immersedvr.nix
     ./libvirt.nix
     ./persist-network.nix
     ./pipewire.nix
@@ -20,15 +20,10 @@ with lib; {
   config = mkMerge [{
     environment.systemPackages = with pkgs; [
       inetutils
-      linux-firmware
-      sof-firmware
-      alsa-firmware
-      pinentry
-      pinentry-curses
+      jq  
     ];
     programs.gnupg = {
       agent = {
-        pinentryFlavor = "curses";
         enable = true;
         enableSSHSupport = true;
       };

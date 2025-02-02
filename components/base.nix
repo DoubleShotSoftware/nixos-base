@@ -3,11 +3,11 @@ with lib;
 let
   tzdir = "${pkgs.tzdata}/share/zoneinfo";
   nospace = str: filter (c: c == " ") (stringToCharacters str) == [ ];
-  timezone = types.nullOr (types.addCheck types.str nospace)
-    // { description = "null or string without spaces"; };
+  timezone = types.nullOr (types.addCheck types.str nospace) // {
+    description = "null or string without spaces";
+  };
 
-in
-{
+in {
   imports = [ ];
   options.personalConfig = with lib; {
     system = {
@@ -40,7 +40,23 @@ in
   config = lib.mkMerge [
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.nixStateVersion;
-      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils ];
+      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils cryptsetup openssl ];
+      programs.nix-ld = {
+        enable = true;
+        libraries = with pkgs; [
+          stdenv.cc.cc
+          zlib
+          fuse3
+          icu
+          nss
+          openssl
+          curl
+          expat
+          libgcc
+          libllvm
+        ];
+
+      };
     })
     (lib.mkIf (pkgs.system == "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.darwinStateVersion;
@@ -49,6 +65,7 @@ in
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs; [
+        nix-output-monitor
         sops
         age
         gnumake
@@ -66,16 +83,13 @@ in
         p7zip
         jq
         nixfmt
-        deploy-rs
         gnupg
         tree
-        pinentry
-        pinentry-curses
+        pwgen
       ];
       nix = {
         #settings.auto-optimise-store = true;
         gc = { automatic = true; };
-        package = pkgs.nixFlakes;
         extraOptions = ''
           experimental-features = nix-command flakes
           keep-outputs = true

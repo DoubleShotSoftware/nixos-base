@@ -68,13 +68,13 @@ let
             fonts = [ "DejaVu Sans Mono, FontAwesome 6" ];
             keybindings = lib.mkOptionDefault {
               "${mod}+d" = ''
-                exec ${pkgs.rofi}/bin/rofi -show combi -show-icons -icon-theme "bloom-dark" 
+                exec ${pkgs.rofi}/bin/rofi -show combi -show-icons -theme catppuccin-mocha -icon-theme Arc 
               '';
               "${mod}+x" =
                 "exec sh -c '${pkgs.maim}/bin/maim -s | xclip -selection clipboard -t image/png'";
               "${mod}+Shift+x" =
                 "exec sh -c '${pkgs.i3lock}/bin/i3lock -c 222222 & sleep 5 && xset dpms force of'";
-              "${mod}+Return" = "exec ${pkgs.kitty}/bin/kitty";
+              "${mod}+Return" = "exec ${pkgs.wezterm}/bin/wezterm";
               "${mod}+Shift+f" = "exec ${pkgs.firefox}/bin/firefox -p";
               "${mod}+Shift+q" = "kill";
               "XF86MonBrightnessUp" = "exec brightnessctl s +10%";
@@ -143,6 +143,25 @@ let
           name = "Arc";
           package = pkgs.arc-icon-theme;
         };
+        settings = {
+          global = {
+            frame_color = "#89b4fa";
+            separator_color = "frame";
+          };
+          urgency_low = {
+            background = "#1e1e2e";
+            foreground = "#cdd6f4";
+          };
+          urgency_normal = {
+            background = "#1e1e2e";
+            foreground = "#cdd6f4";
+          };
+          urgency_critical = {
+            background = "#1e1e2e";
+            foreground = "#cdd6f4";
+            frame_color = "#fab387";
+          };
+        };
       };
       # services.picom = {
       #   enable = true;
@@ -171,6 +190,11 @@ in {
       '';
       description =
         "A script file that will be executed at the end of i3 startup placed in $HOME/.bin";
+    };
+    statusBar = mkOption {
+      type = types.path;
+      default = ../i3status-rust.toml;
+      description = "The path to the i3 status rust toml.";
     };
   };
   config = lib.mkMerge ([
