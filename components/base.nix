@@ -40,7 +40,7 @@ in {
   config = lib.mkMerge [
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.nixStateVersion;
-      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils cryptsetup ];
+      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils cryptsetup openssl ];
       programs.nix-ld = {
         enable = true;
         libraries = with pkgs; [
