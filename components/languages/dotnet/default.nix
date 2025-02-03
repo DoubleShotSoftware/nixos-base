@@ -26,7 +26,7 @@ let
   # };
   users = config.personalConfig.users;
   dotnetSDK = (with pkgs.dotnetCorePackages;
-    combinePackages [ sdk_7_0_3xx dotnet_8.sdk dotnet_9.sdk ]);
+    combinePackages [ sdk_6_0_1xx sdk_7_0_3xx dotnet_8.sdk dotnet_9.sdk ]);
   dotNetPackages = with pkgs; [
     dotnetPackages.Nuget
     dotnetPackages.NUnit
