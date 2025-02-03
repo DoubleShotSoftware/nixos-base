@@ -83,7 +83,7 @@ in {
   config = lib.mkMerge [
     {
       nixpkgs.config.permittedInsecurePackages =
-        [ "dotnet-sdk-7.0.317" "dotnetCorePackages.sdk_7_0_3xx" ];
+        ["dotnet-sdk-6.0.136" "dotnet-sdk-7.0.317" "dotnetCorePackages.sdk_7_0_3xx" ];
     }
     { home-manager.users = dotnetDevelopers; }
     { home-manager.users = dotnetNVIMDevelopers; }
