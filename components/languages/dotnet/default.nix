@@ -26,7 +26,7 @@ let
   # };
   users = config.personalConfig.users;
   dotnetSDK = (with pkgs.dotnetCorePackages;
-    combinePackages [ sdk_7_0_3xx dotnet_8.sdk dotnet_9.sdk ]);
+    combinePackages [ sdk_6_0_1xx sdk_7_0_3xx dotnet_8.sdk dotnet_9.sdk ]);
   dotNetPackages = with pkgs; [
     dotnetPackages.Nuget
     dotnetPackages.NUnit
@@ -83,7 +83,7 @@ in {
   config = lib.mkMerge [
     {
       nixpkgs.config.permittedInsecurePackages =
-        [ "dotnet-sdk-7.0.317" "dotnetCorePackages.sdk_7_0_3xx" ];
+        ["dotnet-sdk-6.0.136" "dotnet-sdk-7.0.317" "dotnetCorePackages.sdk_7_0_3xx" ];
     }
     { home-manager.users = dotnetDevelopers; }
     { home-manager.users = dotnetNVIMDevelopers; }

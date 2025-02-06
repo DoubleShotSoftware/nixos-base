@@ -53,28 +53,6 @@ return {
 			action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
 		},
 		-- End pane Management
-		-- Pane Movement
-		{
-			mods = "ALT",
-			key = "h",
-			action = wezterm.action.ActivatePaneDirection("Left"),
-		},
-		{
-			mods = "ALT",
-			key = "j",
-			action = wezterm.action.ActivatePaneDirection("Down"),
-		},
-		{
-			mods = "ALT",
-			key = "k",
-			action = wezterm.action.ActivatePaneDirection("Up"),
-		},
-		{
-			mods = "ALT",
-			key = "l",
-			action = wezterm.action.ActivatePaneDirection("Right"),
-		},
-		-- End pane Movement
 		-- Pane Sizing
 		{
 			mods = "LEADER",

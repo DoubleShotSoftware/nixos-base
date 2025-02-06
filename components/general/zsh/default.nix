@@ -32,6 +32,7 @@ in {
               };
               initExtra = ''
                   alias ls="ls -l --color"
+                  alias e=$EDITOR
                   if [[ "$(uname -a |awk '{print $1}')" == "Darwin" ]]
                   then 
                 	  ${pkgs.freshfetch}/bin/freshfetch --ascii_distro mac
