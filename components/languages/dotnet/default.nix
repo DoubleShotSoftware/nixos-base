@@ -33,7 +33,7 @@ let
     dotnetSDK
   ];
   dotnetEnvVars = {
-    DOTNET_ROOT = "${dotnetSDK}";
+    DOTNET_ROOT = "${dotnetSDK}/share/dotnet";
     DOTNET_CLI_TELEMETRY_OPTOUT = 1;
     PATH = "${dotnetSDK}/bin:$HOME/.dotnet/tools:$HOME/.bin:$PATH";
     DOTNET_NOLOGO = "true";
