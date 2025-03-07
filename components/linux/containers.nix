@@ -11,8 +11,7 @@ let
   isDocker = config.personalConfig.linux.container.backend == "docker"
     || config.personalConfig.linux.container.backend == "docker-nvidia";
   isPodman = config.personalConfig.linux.container.backend == "podman";
-in
-{
+in {
   options.personalConfig.linux.container = {
     enable = mkOption {
       type = types.bool;
@@ -32,8 +31,7 @@ in
         default = false;
       };
       storageDriver = mkOption {
-        type =
-          types.enum [ "overlay" "vfs" "devmapper" "aufs" "btrfs" "zfs" ];
+        type = types.enum [ "overlay" "vfs" "devmapper" "aufs" "btrfs" "zfs" ];
         default = "overlay";
         description = "The podman storage driver to user.";
       };
@@ -80,7 +78,14 @@ in
   config = lib.mkMerge [
     (lib.mkIf (containerEnabled && isDocker) {
       virtualisation = {
-        oci-containers.backend = "docker";
+        oci-containers = {
+          backend = "docker";
+          containers.watchtower = {
+            image = "containrrr/watchtower";
+            volumes = [ "/var/run/docker.sock:/var/run/docker.sock" ];
+            autoStart = true;
+          };
+        };
         docker = {
           enable = true;
           enableOnBoot = containerConfig.docker.onBoot;
@@ -90,10 +95,8 @@ in
       };
       environment.systemPackages = [ pkgs.docker-compose pkgs.docker-buildx ];
     })
-    (lib.mkIf
-      (containerEnabled && isDocker
-        && config.personalConfig.linux.container.docker.storageDriver != null)
-      {
+    (lib.mkIf (containerEnabled && isDocker
+      && config.personalConfig.linux.container.docker.storageDriver != null) {
         virtualisation.docker.storageDriver =
           config.personalConfig.linux.container.docker.storageDriver;
       })
@@ -117,10 +120,8 @@ in
       environment.systemPackages = with pkgs; [ podman-tui ];
     })
     (lib.mkIf
-      (containerEnabled && isPodman && containerConfig.podman.dockerCompat)
-      {
-        environment.systemPackages = with pkgs;
-          [ podman-compose ];
+      (containerEnabled && isPodman && containerConfig.podman.dockerCompat) {
+        environment.systemPackages = with pkgs; [ podman-compose ];
         virtualisation = {
           podman = {
             dockerSocket.enable = true;
@@ -129,28 +130,5 @@ in
           };
         };
       })
-    #    (lib.mkIf config.personalConfig.linux.container.backend == "docker-nvidia"
-    #      (
-    #        trace "Enabling Docker nvidia"
-    #          {
-    #            virtualisation.docker = {
-    #              enableNvidia = true;
-    #              daemon.settings = {
-    #                bip = containerConfig.docker.broadcastIp;
-    #                ipv6 = false;
-    #                runtimes = {
-    #                  nvidia = {
-    #                    path = "${pkgs.nvidia-docker}/bin/nvidia-container-runtime";
-    #                  };
-    #                };
-    #              };
-    #            };
-    #            environment.systemPackages = with pkgs; [
-    #              nvidia-docker
-    #              unstable.nvidia-container-toolkit
-    #              unstable.nvidia-container-runtime
-    #            ];
-    #          }
-    #      ))
   ];
 }
