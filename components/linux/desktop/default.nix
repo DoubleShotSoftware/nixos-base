@@ -4,7 +4,7 @@ with builtins;
 let
   users = config.personalConfig.users;
   personalPackages = if (config.personalConfig.machineType == "personal") then
-    with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt calibre ]
+    with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt  ]
   else
     [ ];
   desktopPackages = (with pkgs; [
@@ -88,7 +88,6 @@ in {
       services = {
         gvfs.enable = true;
         packagekit.enable = true;
-        flatpak.enable = true;
         blueman.enable = true;
         gnome.gnome-keyring.enable = true;
         pipewire = {

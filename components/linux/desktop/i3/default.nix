@@ -8,34 +8,15 @@ let
     (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
   i3Configs = mapAttrs (user: config:
     (trace "Enabling i3 for user: ${user}" {
-      xdg.configFile."i3status-rust/config.toml".source =
-        i3ExtraConfig.statusBar;
+      xdg.configFile."i3status-rust/config.toml".source = ../i3status-rust.toml;
       home = {
         file = {
-          ".bin/i3-post-start.sh" = {
-            executable = true;
-            text = i3ExtraConfig.startupScript;
-          };
-          ".local/share/rofi/themes/catppuccin-mocha.rasi" = {
-            source = ./assets/catppuccin-mocha.rasi;
-          };
-          ".local/share/rofi/themes/catppuccin-latte.rasi" = {
-            source = ./assets/catppuccin-latte.rasi;
-          };
-          ".local/share/rofi/themes/catppuccin-macchiato.rasi" = {
-            source = ./assets/catppuccin-macchiato.rasi;
-          };
-          ".local/share/rofi/themes/catppuccin-frappe.rasi" = {
-            source = ./assets/catppuccin-frappe.rasi;
-          };
+            ".bin/i3-post-start.sh" = {
+                executable = true;
+                text = i3ExtraConfig.startupScript;
+            };
         };
         packages = with pkgs; [
-          font-awesome
-          font-awesome_4
-          font-awesome_5
-          catppuccin
-          catppuccin-gtk
-          catppuccin-cursors
           gnome.gnome-software
           arandr
           nitrogen
@@ -182,21 +163,21 @@ let
           };
         };
       };
-      services.picom = {
-        enable = true;
-        package = pkgs.picom-next;
-        fade = true;
-        fadeDelta = 5;
-        shadow = true;
-        shadowOffsets = [ (-7) (-7) ];
-        shadowOpacity = 0.7;
-        shadowExclude = [ "window_type *= 'normal' && ! name ~= ''" ];
-        activeOpacity = 1.0;
-        inactiveOpacity = 0.8;
-        menuOpacity = 0.75;
-        backend = "glx";
-        vSync = true;
-      };
+      # services.picom = {
+      #   enable = true;
+      #   package = pkgs.picom-next;
+      #   fade = true;
+      #   fadeDelta = 5;
+      #   shadow = true;
+      #   shadowOffsets = [ (-7) (-7) ];
+      #   shadowOpacity = 0.7;
+      #   shadowExclude = [ "window_type *= 'normal' && ! name ~= ''" ];
+      #   activeOpacity = 1.0;
+      #   inactiveOpacity = 0.8;
+      #   menuOpacity = 0.75;
+      #   backend = "glx";
+      #   vSync = true;
+      # };
     })) (filterAttrs (user: userConfig: userConfig.desktop == "i3")
       config.personalConfig.users);
 in {
@@ -218,20 +199,6 @@ in {
   };
   config = lib.mkMerge ([
     (lib.mkIf (i3Enabled) (trace "Enabling i3 & LightDM" {
-      xdg.portal = {
-        enable = true;
-        xdgOpenUsePortal = false;
-        config = {
-          common = {
-            default = [ "gtk" "xapp" ];
-            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-          };
-          "i3" = {
-            default = [ "gtk" "xapp" ];
-            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-          };
-        };
-      };
       services = {
         xserver = {
           layout = "us";
