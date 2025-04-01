@@ -13,7 +13,7 @@ in {
     system = {
       nixStateVersion = mkOption {
         type = types.str;
-        default = "23.05";
+        default = "24.11";
         description =
           "The nixos state version to use, also used for home-manager";
       };

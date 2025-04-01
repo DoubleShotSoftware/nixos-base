@@ -71,9 +71,8 @@ in
         tree
       ];
       nix = {
-        #settings.auto-optimise-store = true;
+        settings.auto-optimise-store = true;
         gc = { automatic = true; };
-        package = pkgs.nixFlakes;
         extraOptions = ''
           experimental-features = nix-command flakes
           keep-outputs = true
