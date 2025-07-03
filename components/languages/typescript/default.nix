@@ -28,7 +28,14 @@ let
             set prefix '$HOME/.npm-global' || true
         '';
         oh-my-zsh = { plugins = [ "npm" "node" "yarn" ]; };
-
+      };
+      # TypeScript developers often want these additional ignore patterns
+      # These will be merged with the user's git.exclude patterns
+      programs.git = {
+        extraConfig = {
+          # Additional TypeScript/Node.js specific patterns can be configured here
+          # The user's git.exclude patterns from personalConfig will still apply
+        };
       };
     }) (filterAttrs (user: userConfig:
       (any (language: language == "typescript") userConfig.languages)) users);

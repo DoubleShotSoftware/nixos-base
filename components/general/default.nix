@@ -79,6 +79,18 @@ let
         default = [ ];
         description = "Which languages to configure for a user.";
       };
+      git = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Enable git configuration for user.";
+        };
+        exclude = mkOption {
+          type = types.str;
+          default = "";
+          description = "Git ignore patterns to exclude globally for this user.";
+        };
+      };
     };
   };
   nixStateVersion = config.personalConfig.system.nixStateVersion;
