@@ -24,18 +24,50 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
   };
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware, home-manager, nur
-    , sops-nix, nix-darwin, ... }:
+    , sops-nix, nix-darwin, nixvim, flake-parts, ... }:
     let
       system = (builtins.readFile ./system.ignore);
       hostPlatform = nixpkgs.lib.mkDefault system;
+      forAllSystems = nixpkgs.lib.genAttrs [
+        "aarch64-linux"
+        "i686-linux"
+        "x86_64-linux"
+        "aarch64-darwin"
+        "x86_64-darwin"
+      ];
     in {
       nixosModules = {
         Common = import ./components/general;
         Linux = import ./components/linux;
         MacOs = import ./components/macos;
         Languages = import ./components/languages;
+      };
+
+      packages = forAllSystems (system:
+        let
+          nixvimPackages = import ./nixvim/package.nix {
+            inherit nixpkgs nixpkgs-unstable nixvim system;
+          };
+        in {
+          nixvim = nixvimPackages.default;
+          nixvim-lite = nixvimPackages.lite;
+        });
+        
+      overlays = {
+        default = final: prev: {
+          nvim-ide = self.packages.${prev.system}.nixvim;
+          nvim-ide-lite = self.packages.${prev.system}.nixvim-lite;
+        };
       };
     };
 }
