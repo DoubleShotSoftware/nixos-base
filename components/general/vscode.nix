@@ -68,8 +68,6 @@ let
         extensions = with pkgs.vscode-extensions;
           [
             waderyan.gitblame
-            pkief.material-icon-theme
-            pkief.material-product-icons
             eamodio.gitlens
             ms-azuretools.vscode-docker
             donjayamanne.githistory
@@ -79,8 +77,7 @@ let
             redhat.vscode-yaml
             editorconfig.editorconfig
             christian-kohler.path-intellisense
-            gitlab.gitlab-workflow
-          ] ++ marketPlaceExtensions;
+          ];# ++ marketPlaceExtensions;
 
       };
     };

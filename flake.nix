@@ -16,22 +16,26 @@
     sops-nix.url = "github:Mic92/sops-nix";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     deploy-rs.url = "github:serokell/deploy-rs";
-    swayfx.url = "github:WillPower3309/swayfx";
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware, home-manager, nur
-    , microvm, sops-nix, swayfx, ... }:
+    , sops-nix, nix-darwin, ... }:
     let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config = { allowUnfree = true; };
+      system = (builtins.readFile ./system.ignore);
+      hostPlatform = nixpkgs.lib.mkDefault system;
+    in {
+      nixosModules = {
+        Common = import ./components/general;
+        Linux = import ./components/linux;
+        MacOs = import ./components/macos;
+        Languages = import ./components/languages;
       };
-      overlay-unstable = final: prev: {
-        unstable = import nixpkgs-unstable {
-          inherit system;
-          config.allowUnfree = true;
-        };
-      };
-      lib = nixpkgs.lib;
-    in { nixosModules = { personalConfig = import ./components; }; };
+    };
 }

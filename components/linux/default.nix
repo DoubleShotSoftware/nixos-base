@@ -16,6 +16,8 @@ with lib; {
     ./zfs.nix
     ./zrepl.nix
     ./usb-awake.nix
+    ./fonts
+    ./nix-builder.nix
   ];
   config = mkMerge [{
     environment.systemPackages = with pkgs; [
