@@ -6,7 +6,6 @@
     };
     lsd = {
       enable = true;
-      enableAliases = true;
     };
     zoxide = {
       enable = true;

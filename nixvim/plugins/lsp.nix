@@ -130,7 +130,7 @@
       shfmt
       alejandra
       mdformat
-      jq
+      unstable.jq
     ];
   };
 }

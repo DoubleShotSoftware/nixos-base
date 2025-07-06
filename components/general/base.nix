@@ -13,7 +13,7 @@ in
     system = {
       nixStateVersion = mkOption {
         type = types.str;
-        default = "23.05";
+        default = (import ../../constants.nix).defaultStateVersion;
         description =
           "The nixos state version to use, also used for home-manager";
       };
@@ -40,7 +40,22 @@ in
   config = lib.mkMerge [
     (lib.mkIf (pkgs.system != "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.nixStateVersion;
-      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils ];
+      environment.systemPackages = with pkgs; [ usbutils nfs-utils pciutils cryptsetup openssl ];
+      programs.nix-ld = {
+        enable = true;
+        libraries = with pkgs; [
+          stdenv.cc.cc
+          zlib
+          fuse3
+          icu
+          nss
+          openssl
+          curl
+          expat
+          libgcc
+          libllvm
+        ];
+      };
     })
     (lib.mkIf (pkgs.system == "aarch64-darwin") {
       system.stateVersion = config.personalConfig.system.darwinStateVersion;
@@ -49,6 +64,8 @@ in
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs; [
+        unstable.jujutsu
+        nix-output-monitor
         sops
         age
         gnumake
@@ -62,16 +79,16 @@ in
         htop
         zsh
         rsync
-        nixfmt
+        nixfmt-rfc-style
         p7zip
-        jq
-        nixfmt
+        unstable.jq
         deploy-rs
         gnupg
         tree
+        pwgen
       ];
       nix = {
-        settings.auto-optimise-store = true;
+        #settings.auto-optimise-store = true;
         gc = { automatic = true; };
         extraOptions = ''
           experimental-features = nix-command flakes

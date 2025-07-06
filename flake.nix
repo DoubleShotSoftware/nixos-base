@@ -41,22 +41,34 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware, home-manager, nur
     , sops-nix, nix-darwin, nixvim, flake-parts, nixgl, nix-index-database, ... }:
     let
+      constants = import ./constants.nix;
       system = (builtins.readFile ./system.ignore);
       hostPlatform = nixpkgs.lib.mkDefault system;
-      forAllSystems = nixpkgs.lib.genAttrs [
-        "aarch64-linux"
-        "i686-linux"
-        "x86_64-linux"
-        "aarch64-darwin"
-        "x86_64-darwin"
-      ];
+      forAllSystems = nixpkgs.lib.genAttrs constants.supportedSystems;
     in {
       nixosModules = {
-        Common = import ./components/general;
-        Linux = import ./components/linux;
-        MacOs = import ./components/macos;
-        Languages = import ./components/languages;
-        Homemanager = import ./home-manager;
+        Common = ./components/general;
+        Linux = ./components/linux;
+        MacOs = ./components/macos;
+        Languages = ./components/languages;
+        HomeManager = { config, lib, pkgs, ... }: 
+          import ./home-manager/nixos-module.nix {
+            inherit config lib pkgs constants nix-index-database;
+          };
+        # Convenience module that includes Common + overlay
+        CommonWithOverlay = { config, lib, pkgs, ... }: {
+          imports = [ ./components/general ];
+          nixpkgs.overlays = [ self.overlays.default ];
+        };
+      };
+      
+      homeManagerModules = {
+        default = import ./home-manager;
+        # Convenience module that includes default + overlay for standalone use
+        withOverlay = { config, lib, pkgs, ... }: {
+          imports = [ ./home-manager ];
+          nixpkgs.overlays = [ self.overlays.default ];
+        };
       };
 
       packages = forAllSystems (system:

@@ -11,7 +11,7 @@ in {
           trace "Enabling zsh for user: ${user}" {
             programs.zsh = {
               enable = true;
-              enableAutosuggestions = true;
+              autosuggestion.enable = true;
               enableCompletion = true;
               syntaxHighlighting = { enable = true; };
               dirHashes = {
@@ -30,7 +30,7 @@ in {
                 plugins = [ "git" "sudo" ];
                 theme = userConfig.zsh.theme;
               };
-              initExtra = ''
+              initContent = ''
                   alias ls="ls -l --color"
                   alias e=$EDITOR
                   if [[ "$(uname -a |awk '{print $1}')" == "Darwin" ]]
