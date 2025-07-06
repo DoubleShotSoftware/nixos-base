@@ -65,6 +65,7 @@ in {
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs; [
+        unstable.jujutsu
         nix-output-monitor
         sops
         age
