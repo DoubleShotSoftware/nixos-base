@@ -79,18 +79,6 @@ let
         default = [ ];
         description = "Which languages to configure for a user.";
       };
-      git = {
-        enable = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enable git configuration for user.";
-        };
-        exclude = mkOption {
-          type = types.str;
-          default = "";
-          description = "Git ignore patterns to exclude globally for this user.";
-        };
-      };
     };
   };
   nixStateVersion = config.personalConfig.system.nixStateVersion;
@@ -121,7 +109,7 @@ in {
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
   };
-  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ./vscode.nix ./zellij.nix ];
+  imports = [ ./zsh ./kitty ./wezterm ./fonts ./nvim ./vscode.nix ./zellij.nix ./git.nix ];
   config = lib.mkMerge ([
     {
       users.users = mapAttrs (user: userConfig:
