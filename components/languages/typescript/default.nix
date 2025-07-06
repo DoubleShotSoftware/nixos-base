@@ -6,10 +6,12 @@ let
   typescriptPackages = with pkgs; [
     nodejs
     yarn
+    pnpm
     nodePackages.npm
     nodePackages.typescript
-    nodePackages.vscode-langservers-extracted
-    nodePackages.typescript-language-server
+    pnpm
+    corepack 
+    nodePackages.prettier
   ];
   typescriptDeveloper = mapAttrs (user: config:
     trace "Enabling typescript development for user: ${user}" {
@@ -26,38 +28,19 @@ let
             set prefix '$HOME/.npm-global' || true
         '';
         oh-my-zsh = { plugins = [ "npm" "node" "yarn" ]; };
-
+      };
+      # TypeScript developers often want these additional ignore patterns
+      # These will be merged with the user's git.exclude patterns
+      programs.git = {
+        extraConfig = {
+          # Additional TypeScript/Node.js specific patterns can be configured here
+          # The user's git.exclude patterns from personalConfig will still apply
+        };
       };
     }) (filterAttrs (user: userConfig:
       (any (language: language == "typescript") userConfig.languages)) users);
-  typescriptNVIMDevelopers = mapAttrs (user: config:
-    trace "Enabling typescript nvim development support for user: ${user}" (let
-      inherit typescriptPackages;
-      lspPackages = with pkgs.unstable; [ ];
-    in {
-      home = {
-        packages = lspPackages;
-        file = { };
-      };
-      xdg.configFile = {
-        "nvim/lua/user/lsp/settings/typescript.lua".source = ./typescript.lua;
-        "nvim/lua/lsp/user/treesitter/typescript.lua".source = ./treesitter.lua;
-      };
-      programs.neovim = {
-        plugins = with pkgs.vimPlugins; [  ];
-        extraPackages = with pkgs; [
-          tree-sitter-grammars.tree-sitter-tsx
-          tree-sitter-grammars.tree-sitter-typescript
-          tree-sitter-grammars.tree-sitter-javascript
-        ];
-      };
-
-    })) (filterAttrs (user: userConfig:
-      ((any (language: language == "typescript") userConfig.languages)
-        && userConfig.nvim)) users);
 in {
   config = lib.mkMerge [
     { home-manager.users = typescriptDeveloper; }
-    { home-manager.users = typescriptNVIMDevelopers; }
   ];
 }
