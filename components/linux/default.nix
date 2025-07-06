@@ -20,15 +20,36 @@ with lib; {
     ./nix-builder.nix
   ];
   config = mkMerge [{
+    system.stateVersion = config.personalConfig.system.nixStateVersion;
     environment.systemPackages = with pkgs; [
       inetutils
-      jq  
+      jq
+      usbutils
+      nfs-utils
+      pciutils
+      cryptsetup
+      openssl
     ];
     programs.gnupg = {
       agent = {
         enable = true;
         enableSSHSupport = true;
       };
+    };
+    programs.nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        stdenv.cc.cc
+        zlib
+        fuse3
+        icu
+        nss
+        openssl
+        curl
+        expat
+        libgcc
+        libllvm
+      ];
     };
   }];
 }

@@ -31,38 +31,6 @@ let
       { }
   ) (filterAttrs (user: userConfig: userConfig.userType != "system") users);
 in {
-  options.personalConfig.users = mkOption {
-    type = types.attrsOf (types.submodule {
-      options.git = {
-        enable = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enable git configuration for user.";
-        };
-        exclude = mkOption {
-          type = types.str;
-          default = "";
-          description = "Git ignore patterns to exclude globally for this user.";
-        };
-        lazy = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enable lazygit for user.";
-        };
-        jujutsu = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enable jujutsu (jj) version control for user.";
-        };
-        extraIgnore = mkOption {
-          type = types.str;
-          default = "";
-          description = "Additional git ignore patterns to append to the generated ignore file.";
-        };
-      };
-    });
-  };
-  
   config = {
     home-manager.users = gitUserConfigs;
   };

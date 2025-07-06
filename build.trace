@@ -1,0 +1,383 @@
+warning: Git tree '/persist/etc/nixos' is dirty
+error:
+       … while calling the 'seq' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:360:18:
+          359|         options = checked options;
+          360|         config = checked (removeAttrs config [ "_module" ]);
+             |                  ^
+          361|         _module = checked (config._module);
+
+       … while evaluating a branch condition
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:295:9:
+          294|       checkUnmatched =
+          295|         if config._module.check && config._module.freeformType == null && merged.unmatchedDefns != [ ] then
+             |         ^
+          296|           let
+
+       … in the left operand of the AND (&&) operator
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:295:72:
+          294|       checkUnmatched =
+          295|         if config._module.check && config._module.freeformType == null && merged.unmatchedDefns != [ ] then
+             |                                                                        ^
+          296|           let
+
+       … in the left operand of the AND (&&) operator
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:295:33:
+          294|       checkUnmatched =
+          295|         if config._module.check && config._module.freeformType == null && merged.unmatchedDefns != [ ] then
+             |                                 ^
+          296|           let
+
+       … while evaluating a branch condition
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:286:9:
+          285|         in
+          286|         if declaredConfig._module.freeformType == null then
+             |         ^
+          287|           declaredConfig
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:273:28:
+          272|           # For definitions that have an associated option
+          273|           declaredConfig = mapAttrsRecursiveCond (v: !isOption v) (_: v: v.value) options;
+             |                            ^
+          274|
+
+       … while calling 'mapAttrsRecursiveCond'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/attrsets.nix:1177:14:
+         1176|   mapAttrsRecursiveCond =
+         1177|     cond: f: set:
+             |              ^
+         1178|     let
+
+       … while calling the 'mapAttrs' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/attrsets.nix:1186:5:
+         1185|     in
+         1186|     recurse [ ] set;
+             |     ^
+         1187|
+
+       … while evaluating the attribute 'matchedOptions'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:819:15:
+          818|     {
+          819|       inherit matchedOptions;
+             |               ^
+          820|
+
+       … while calling the 'mapAttrs' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:809:24:
+          808|
+          809|       matchedOptions = mapAttrs (n: v: v.matchedOptions) resultsByName;
+             |                        ^
+          810|
+
+       … while calling the 'mapAttrs' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:757:23:
+          756|
+          757|       resultsByName = mapAttrs (
+             |                       ^
+          758|         name: decls:
+
+       … while calling the 'zipAttrsWith' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:669:21:
+          668|       # an attrset 'name' => list of submodules that declare ‘name’.
+          669|       declsByName = zipAttrsWith (n: concatLists) (
+             |                     ^
+          670|         map (
+
+       … while calling the 'map' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:670:9:
+          669|       declsByName = zipAttrsWith (n: concatLists) (
+          670|         map (
+             |         ^
+          671|           module:
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:265:30:
+          264|         in
+          265|         mergeModules prefix (reverseList collected);
+             |                              ^
+          266|
+
+       … while calling 'reverseList'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/lists.nix:1103:5:
+         1102|   reverseList =
+         1103|     xs:
+             |     ^
+         1104|     let
+
+       … while calling the 'genList' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/lists.nix:1107:5:
+         1106|     in
+         1107|     genList (n: elemAt xs (l - n - 1)) l;
+             |     ^
+         1108|
+
+       … while evaluating the second argument passed to builtins.genList
+
+       … while calling the 'length' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/lists.nix:1105:11:
+         1104|     let
+         1105|       l = length xs;
+             |           ^
+         1106|     in
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:251:13:
+          250|           collected =
+          251|             collectModules class (specialArgs.modulesPath or "") (regularModules ++ [ internalModule ])
+             |             ^
+          252|               (
+
+       … while calling anonymous lambda
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:517:34:
+          516|     in
+          517|     modulesPath: initialModules: args:
+             |                                  ^
+          518|     filterModules modulesPath (collectStructuredModules unknownModule "" initialModules args);
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:518:5:
+          517|     modulesPath: initialModules: args:
+          518|     filterModules modulesPath (collectStructuredModules unknownModule "" initialModules args);
+             |     ^
+          519|
+
+       … while calling 'filterModules'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:487:9:
+          486|         modulesPath:
+          487|         { disabled, modules }:
+             |         ^
+          488|         let
+
+       … while calling the 'map' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:511:9:
+          510|         in
+          511|         map (attrs: attrs.module) (genericClosure {
+             |         ^
+          512|           startSet = keyFilter modules;
+
+       … while calling the 'genericClosure' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:511:36:
+          510|         in
+          511|         map (attrs: attrs.module) (genericClosure {
+             |                                    ^
+          512|           startSet = keyFilter modules;
+
+       … while calling the 'filter' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:512:22:
+          511|         map (attrs: attrs.module) (genericClosure {
+          512|           startSet = keyFilter modules;
+             |                      ^
+          513|           operator = attrs: keyFilter attrs.modules;
+
+       … while calling anonymous lambda
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:509:31:
+          508|           disabledKeys = concatMap ({ file, disabled }: map (moduleKey file) disabled) disabled;
+          509|           keyFilter = filter (attrs: !elem attrs.key disabledKeys);
+             |                               ^
+          510|         in
+
+       … in the argument of the not operator
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:509:39:
+          508|           disabledKeys = concatMap ({ file, disabled }: map (moduleKey file) disabled) disabled;
+          509|           keyFilter = filter (attrs: !elem attrs.key disabledKeys);
+             |                                       ^
+          510|         in
+
+       … while calling the 'elem' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:509:39:
+          508|           disabledKeys = concatMap ({ file, disabled }: map (moduleKey file) disabled) disabled;
+          509|           keyFilter = filter (attrs: !elem attrs.key disabledKeys);
+             |                                       ^
+          510|         in
+
+       … while calling the 'concatMap' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:508:26:
+          507|
+          508|           disabledKeys = concatMap ({ file, disabled }: map (moduleKey file) disabled) disabled;
+             |                          ^
+          509|           keyFilter = filter (attrs: !elem attrs.key disabledKeys);
+
+       … while calling the 'concatLists' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:24:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |                        ^
+          449|             inherit modules;
+
+       … while evaluating the attribute 'disabled'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:13:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |             ^
+          449|             inherit modules;
+
+       … while calling the 'concatLists' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:24:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |                        ^
+          449|             inherit modules;
+
+       … while evaluating the attribute 'disabled'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:13:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |             ^
+          449|             inherit modules;
+
+       … while calling the 'concatLists' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:24:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |                        ^
+          449|             inherit modules;
+
+       … while evaluating the attribute 'disabled'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:13:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |             ^
+          449|             inherit modules;
+
+       … while calling the 'concatLists' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:448:24:
+          447|           collectResults = modules: {
+          448|             disabled = concatLists (catAttrs "disabled" modules);
+             |                        ^
+          449|             inherit modules;
+
+       … while evaluating a branch condition
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:466:19:
+          465|                 (
+          466|                   if module.disabledModules != [ ] then
+             |                   ^
+          467|                     [
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:457:24:
+          456|             let
+          457|               module = checkModule (loadModule args parentFile "${parentKey}:anon-${toString n}" x);
+             |                        ^
+          458|               collectedImports = collectStructuredModules module._file module.key module.imports args;
+
+       … while calling anonymous lambda
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:412:11:
+          411|         if class != null then
+          412|           m:
+             |           ^
+          413|           if m._class != null -> m._class == class then
+
+       … while evaluating a branch condition
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:413:11:
+          412|           m:
+          413|           if m._class != null -> m._class == class then
+             |           ^
+          414|             m
+
+       … in the left operand of the IMPL (->) operator
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:413:31:
+          412|           m:
+          413|           if m._class != null -> m._class == class then
+             |                               ^
+          414|             m
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:457:37:
+          456|             let
+          457|               module = checkModule (loadModule args parentFile "${parentKey}:anon-${toString n}" x);
+             |                                     ^
+          458|               collectedImports = collectStructuredModules module._file module.key module.imports args;
+
+       … while calling 'loadModule'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:378:42:
+          377|       loadModule =
+          378|         args: fallbackFile: fallbackKey: m:
+             |                                          ^
+          379|         if isFunction m then
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:406:11:
+          405|         else
+          406|           unifyModuleSyntax (toString m) (toString m) (
+             |           ^
+          407|             applyModuleArgsIfFunction (toString m) (import m) args
+
+       … while calling 'unifyModuleSyntax'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:531:16:
+          530|   unifyModuleSyntax =
+          531|     file: key: m:
+             |                ^
+          532|     let
+
+       … while evaluating a branch condition
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:552:5:
+          551|     in
+          552|     if m ? config || m ? options then
+             |     ^
+          553|       let
+
+       … in the left operand of the OR (||) operator
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:552:19:
+          551|     in
+          552|     if m ? config || m ? options then
+             |                   ^
+          553|       let
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:407:13:
+          406|           unifyModuleSyntax (toString m) (toString m) (
+          407|             applyModuleArgsIfFunction (toString m) (import m) args
+             |             ^
+          408|           );
+
+       … while calling 'applyModuleArgsIfFunction'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:601:13:
+          600|   applyModuleArgsIfFunction =
+          601|     key: f: args@{ config, ... }: if isFunction f then applyModuleArgs key f args else f;
+             |             ^
+          602|
+
+       … while evaluating a branch condition
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:601:35:
+          600|   applyModuleArgsIfFunction =
+          601|     key: f: args@{ config, ... }: if isFunction f then applyModuleArgs key f args else f;
+             |                                   ^
+          602|
+
+       … from call site
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:601:38:
+          600|   applyModuleArgsIfFunction =
+          601|     key: f: args@{ config, ... }: if isFunction f then applyModuleArgs key f args else f;
+             |                                      ^
+          602|
+
+       … while calling 'isFunction'
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/trivial.nix:1023:16:
+         1022|   */
+         1023|   isFunction = f: builtins.isFunction f || (f ? __functor && isFunction (f.__functor f));
+             |                ^
+         1024|
+
+       … in the left operand of the OR (||) operator
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/trivial.nix:1023:41:
+         1022|   */
+         1023|   isFunction = f: builtins.isFunction f || (f ? __functor && isFunction (f.__functor f));
+             |                                         ^
+         1024|
+
+       … while calling the 'isFunction' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/trivial.nix:1023:19:
+         1022|   */
+         1023|   isFunction = f: builtins.isFunction f || (f ? __functor && isFunction (f.__functor f));
+             |                   ^
+         1024|
+
+       … while calling the 'import' builtin
+         at /nix/store/lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source/lib/modules.nix:407:53:
+          406|           unifyModuleSyntax (toString m) (toString m) (
+          407|             applyModuleArgsIfFunction (toString m) (import m) args
+             |                                                     ^
+          408|           );
+
+       error: path '/nix/store/48hrpv9vvwk4wrrj7djv8yqxwz9cx980-source/packages' does not exist

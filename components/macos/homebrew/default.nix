@@ -17,11 +17,11 @@ in {
       "docker-compose"
       "docker-buildx"
       "gnu-getopt"
-      "jordanbaird-ice"
       "wireguard-tools"
     ];
     casks = [
-      { name ="karabiner-elements"; }
+      { name = "jordanbaird-ice"; }
+      { name = "karabiner-elements"; }
       { name = "keycastr"; }
       { name = "visual-studio-code"; }
       { name = "iglance"; }

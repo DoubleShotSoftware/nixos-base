@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }: {
+{ lib, config, pkgs, constants ? import ../../models/constants.nix, ... }: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -6,10 +6,9 @@
     enableFzfCompletion = true;
     enableFzfGit = true;
   };
-  security.pam = { enableSudoTouchIdAuth = true; };
-  services.nix-daemon.enable = true;
+  nix.enable = true;
   nixpkgs.config.allowUnsupportedSystem = true;
-  system.stateVersion = 4;
+  system.stateVersion = constants.darwinStateVersion;
   system.defaults = {
     screencapture = { location = "/tmp"; };
     dock = {

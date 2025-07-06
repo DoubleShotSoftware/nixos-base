@@ -1,0 +1,74 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--mount",
+        "type=bind,src=/home/sobrien/dev,dst=/projects",
+        "mcp/filesystem",
+        "/projects"
+      ]
+    },
+    "git": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--mount",
+        "type=bind,src=/home/sobrien/dev/nix-base,dst=/workspace",
+        "mcp/git"
+      ]
+    },
+    "fetch": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "mcp/fetch"]
+    },
+    "memory": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--mount",
+        "type=bind,src=/home/sobrien/dev/nix-base/.claude/mcp-data/memory,dst=/data",
+        "-e",
+        "MEMORY_FILE_PATH=/data/memory.json",
+        "--rm",
+        "mcp/memory"
+      ]
+    },
+    "sequentialthinking": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--mount",
+        "type=bind,src=/home/sobrien/dev/nix-base/.claude/mcp-data/sequentialthinking,dst=/data",
+        "mcp/sequentialthinking"
+      ]
+    },
+    "time": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "mcp/time"]
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "GITHUB_TOKEN=${GITHUB_TOKEN}",
+        "mcp/github"
+      ]
+    },
+    "nixos": {
+      "command": "nix",
+      "args": ["run", "github:utensils/mcp-nixos", "--"]
+    }
+  }
+}
