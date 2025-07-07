@@ -1,0 +1,32 @@
+warning: Git tree '/home/sobrien/dev/nix-base' is dirty
+evaluating flake...
+checking flake output 'nixosModules'...
+checking NixOS module 'nixosModules.Models'...
+checking NixOS module 'nixosModules.Common'...
+checking NixOS module 'nixosModules.Linux'...
+checking NixOS module 'nixosModules.MacOs'...
+checking NixOS module 'nixosModules.HomeManager'...
+checking NixOS module 'nixosModules.HomeManagerLanguages'...
+error:
+       … while checking flake output 'nixosModules'
+         at /nix/store/ssyjhd88dl0g8wfr1ssl3lc8jngfrcf1-source/flake.nix:54:7:
+           53|     in {
+           54|       nixosModules = {
+             |       ^
+           55|         Models = import ./models;
+
+       … while checking the NixOS module 'nixosModules.HomeManagerLanguages'
+         at /nix/store/ssyjhd88dl0g8wfr1ssl3lc8jngfrcf1-source/flake.nix:71:9:
+           70|         };
+           71|         HomeManagerLanguages = import ./components/languages;
+             |         ^
+           72|         CommonWithOverlay = { pkgs, ... }: {
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: attribute '_' already defined at /nix/store/ssyjhd88dl0g8wfr1ssl3lc8jngfrcf1-source/components/languages/default.nix:10:3
+       at /nix/store/ssyjhd88dl0g8wfr1ssl3lc8jngfrcf1-source/components/languages/default.nix:91:3:
+           90|   # Debug current user detection
+           91|   _ = if isHomeManager
+             |   ^
+           92|       then trace "Home-manager user: ${toString currentUser}, has config: ${toString (currentUserConfig != null)}" null

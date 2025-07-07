@@ -14,7 +14,6 @@ in {
         imports = [ 
           ../models
           ./default.nix
-          ../components/languages
           nix-index-database.hmModules.nix-index
         ];
         

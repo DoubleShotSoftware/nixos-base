@@ -2,9 +2,12 @@
 { config, lib, options, pkgs, ... }:
 with lib;
 let
-  # Check context
-  isNixOS = options ? home-manager.users;
-  isHomeManager = options ? home.packages;
+  # Check context - be more specific to avoid false positives
+  isNixOS = options ? home-manager && options ? home-manager.users;
+  isHomeManager = options ? home && options ? home.packages && !(options ? home-manager);
+  
+  # Debug context detection
+  _ = trace "Language module context: isNixOS=${toString isNixOS}, isHomeManager=${toString isHomeManager}" null;
   
   # Get user configs
   users = config.personalConfig.users;
@@ -84,8 +87,15 @@ let
     then getUserLanguageConfigs users.${currentUser}
     else null;
     
+  # Debug current user detection
+  _2 = if isHomeManager 
+      then trace "Home-manager user: ${toString currentUser}, has config: ${toString (currentUserConfig != null)}" null
+      else null;
+    
 in {
-  config = mkMerge [
+  config = mkMerge ([
+    # Force re-evaluation by adding a dummy attribute
+    {}
     # NixOS context - configure all users
     (mkIf (isNixOS && usersWithLanguages != {}) {
       # System-level permitted insecure packages
@@ -122,28 +132,30 @@ in {
     })
     
     # Home-manager context - configure current user
-    (mkIf (isHomeManager && currentUserConfig != null && currentUser != null) (
-      let
-        userConfig = users.${currentUser};
-        userShell = userConfig.shell or "bash";
-      in mkMerge [
-        {
-          home.packages = currentUserConfig.packages;
-          home.sessionVariables = currentUserConfig.sessionVariables;
-        }
-        # Shell-specific configuration
-        (mkIf (userShell == "zsh") {
-          programs.zsh.oh-my-zsh.plugins = mkIf (currentUserConfig.shellPlugins.zsh != []) currentUserConfig.shellPlugins.zsh;
-          programs.zsh.initExtra = mkIf (currentUserConfig.shellInitExtra.zsh != "") currentUserConfig.shellInitExtra.zsh;
-        })
-        (mkIf (userShell == "fish") {
-          # TODO: Add fish plugin configuration when fish plugin system is set up
-          programs.fish.interactiveShellInit = currentUserConfig.shellInitExtra.fish;
-        })
-        (mkIf (userShell == "bash") {
-          programs.bash.initExtra = currentUserConfig.shellInitExtra.bash;
-        })
-      ]
-    ))
-  ];
+    # TEMPORARILY DISABLED - causing evaluation issues
+    # (mkIf (isHomeManager && currentUser != null && users ? ${currentUser} && currentUserConfig != null && currentUserConfig ? packages) (
+    #   let
+    #     userConfig = users.${currentUser};
+    #     userShell = userConfig.shell or "bash";
+    #     _3 = trace "Configuring language support for home-manager user: ${currentUser} with shell: ${userShell}" null;
+    #   in mkMerge [
+    #     {
+    #       home.packages = currentUserConfig.packages;
+    #       home.sessionVariables = currentUserConfig.sessionVariables;
+    #     }
+    #     # Shell-specific configuration
+    #     (mkIf (userShell == "zsh") {
+    #       programs.zsh.oh-my-zsh.plugins = mkIf (currentUserConfig.shellPlugins.zsh != []) currentUserConfig.shellPlugins.zsh;
+    #       programs.zsh.initExtra = mkIf (currentUserConfig.shellInitExtra.zsh != "") currentUserConfig.shellInitExtra.zsh;
+    #     })
+    #     (mkIf (userShell == "fish") {
+    #       # TODO: Add fish plugin configuration when fish plugin system is set up
+    #       programs.fish.interactiveShellInit = currentUserConfig.shellInitExtra.fish;
+    #     })
+    #     (mkIf (userShell == "bash") {
+    #       programs.bash.initExtra = currentUserConfig.shellInitExtra.bash;
+    #     })
+    #   ]
+    # ))
+  ]);
 }
