@@ -7,230 +7,36 @@ trace: Enabling vfio support
 trace: Adding Udev Rules for desktop devices
 trace: Enabling Desktop Support
 trace: Enabling lib virt.
-error:
-       … while calling the 'seq' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/modules.nix:359:18:
-          358|         options = checked options;
-          359|         config = checked (removeAttrs config [ "_module" ]);
-             |                  ^
-          360|         _module = checked (config._module);
+building the system configuration...
+warning: Git tree '/persist/etc/nixos' is dirty
+trace: Enabling i3 & LightDM
+trace: Enabling Gnome & GDM
+trace: Enabling ZFS core configuration.
+trace: Enabling ZFS Ephemeral Mounts.
+trace: Enabling vfio support
+trace: Adding Udev Rules for desktop devices
+trace: Enabling Desktop Support
+trace: Enabling lib virt.
+trace: Enabling git configuration for user: sobrien
+trace: Enabling zsh for user: sobrien
+trace: Enabling Home Manager For: sobrien
+trace: Enabling bind for /etc/nixos to /home/sobrien/.nixos
+trace: Creating user: sobrien
+trace: Creating group for user: sobrien named: sobrien
+evaluation warning: `programs.zsh.initExtra` is deprecated, use `programs.zsh.initContent` instead.
 
-       … while calling the 'throw' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/modules.nix:331:13:
-          330|           else
-          331|             throw baseMsg
-             |             ^
-          332|         else
-
-       … while evaluating the error message for definitions for `home', which is an option that does not exist
-
-       … while evaluating a definition from `/nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/flake.nix'
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/modules.nix:304:95:
-          303|                     "while evaluating the error message for definitions for `${optText}', which is an option that does not exist"
-          304|                     (addErrorContext "while evaluating a definition from `${firstDef.file}'" (showDefs [ firstDef ]));
-             |                                                                                               ^
-          305|               in
-
-       … while calling 'showDefs'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:760:5:
-          759|   showDefs =
-          760|     defs:
-             |     ^
-          761|     concatMapStrings (
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:761:5:
-          760|     defs:
-          761|     concatMapStrings (
-             |     ^
-          762|       def:
-
-       … while calling 'concatMapStrings'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/strings.nix:94:25:
-           93|   */
-           94|   concatMapStrings = f: list: concatStrings (map f list);
-             |                         ^
-           95|
-
-       … while calling the 'concatStringsSep' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/strings.nix:94:31:
-           93|   */
-           94|   concatMapStrings = f: list: concatStrings (map f list);
-             |                               ^
-           95|
-
-       … while calling anonymous lambda
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:762:7:
-          761|     concatMapStrings (
-          762|       def:
-             |       ^
-          763|       let
-
-       … while evaluating a branch condition
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:779:11:
-          778|           # Don't print any value if evaluating the value strictly fails
-          779|           if !prettyEval.success then
-             |           ^
-          780|             ""
-
-       … in the argument of the not operator
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:779:15:
-          778|           # Don't print any value if evaluating the value strictly fails
-          779|           if !prettyEval.success then
-             |               ^
-          780|             ""
-
-       … while calling the 'tryEval' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:765:22:
-          764|         # Pretty print the value for display, if successful
-          765|         prettyEval = builtins.tryEval (
-             |                      ^
-          766|           lib.generators.toPretty { } (
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/options.nix:766:11:
-          765|         prettyEval = builtins.tryEval (
-          766|           lib.generators.toPretty { } (
-             |           ^
-          767|             lib.generators.withRecursion {
-
-       … while calling 'go'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:531:17:
-          530|       go =
-          531|         indent: v:
-             |                 ^
-          532|         let
-
-       … while calling the 'concatStringsSep' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:599:15:
-          598|             + introSpace
-          599|             + concatStringsSep introSpace (
-             |               ^
-          600|               mapAttrsToList (
-
-       … while calling anonymous lambda
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:601:23:
-          600|               mapAttrsToList (
-          601|                 name: value:
-             |                       ^
-          602|                 "${escapeNixIdentifier name} = ${
-
-       … while evaluating an attribute `content`
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:603:78:
-          602|                 "${escapeNixIdentifier name} = ${
-          603|                   addErrorContext "while evaluating an attribute `${name}`" (go (indent + "  ") value)
-             |                                                                              ^
-          604|                 };"
-
-       … while calling 'go'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:531:17:
-          530|       go =
-          531|         indent: v:
-             |                 ^
-          532|         let
-
-       … while calling the 'concatStringsSep' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:599:15:
-          598|             + introSpace
-          599|             + concatStringsSep introSpace (
-             |               ^
-          600|               mapAttrsToList (
-
-       … while calling anonymous lambda
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:601:23:
-          600|               mapAttrsToList (
-          601|                 name: value:
-             |                       ^
-          602|                 "${escapeNixIdentifier name} = ${
-
-       … while evaluating an attribute `packages`
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:603:78:
-          602|                 "${escapeNixIdentifier name} = ${
-          603|                   addErrorContext "while evaluating an attribute `${name}`" (go (indent + "  ") value)
-             |                                                                              ^
-          604|                 };"
-
-       … while calling 'go'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:531:17:
-          530|       go =
-          531|         indent: v:
-             |                 ^
-          532|         let
-
-       … while evaluating a branch condition
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:536:9:
-          535|         in
-          536|         if isInt v then
-             |         ^
-          537|           toString v
-
-       … while calling the 'isInt' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:536:12:
-          535|         in
-          536|         if isInt v then
-             |            ^
-          537|           toString v
-
-       … while calling 'evalNext'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:488:22:
-          487|         let
-          488|           evalNext = x: mapAny (depth + 1) (transform (depth + 1) x);
-             |                      ^
-          489|         in
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:488:25:
-          487|         let
-          488|           evalNext = x: mapAny (depth + 1) (transform (depth + 1) x);
-             |                         ^
-          489|         in
-
-       … while calling 'mapAny'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:486:16:
-          485|       mapAny =
-          486|         depth: v:
-             |                ^
-          487|         let
-
-       … while evaluating a branch condition
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:490:9:
-          489|         in
-          490|         if isAttrs v then
-             |         ^
-          491|           mapAttrs (stepIntoAttr evalNext) v
-
-       … while calling the 'isAttrs' builtin
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:490:12:
-          489|         in
-          490|         if isAttrs v then
-             |            ^
-          491|           mapAttrs (stepIntoAttr evalNext) v
-
-       … from call site
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/generators.nix:488:45:
-          487|         let
-          488|           evalNext = x: mapAny (depth + 1) (transform (depth + 1) x);
-             |                                             ^
-          489|         in
-
-       … while calling 'id'
-         at /nix/store/0if5dcj3vd4887n2rfj3ja5jx0vfb282-source/lib/trivial.nix:40:8:
-           39|   */
-           40|   id = x: x;
-             |        ^
-           41|
-
-       … while selecting an attribute
-         at /nix/store/4q6m5v68ynksx3vxrdhx7mrwyazjpnsz-source/components/languages/default.nix:131:27:
-          130|         {
-          131|           home.packages = currentUserConfig.packages;
-             |                           ^
-          132|           home.sessionVariables = currentUserConfig.sessionVariables;
-
-       error: expected a set but found null: null
+                    Example: programs.zsh.initContent = "your content here";
+evaluation warning: sobrien profile: The option `programs.zsh.enableAutosuggestions' defined in `/nix/store/mx1y0gx74z9z87z0d49nhnxj43h5m6mx-source/components/general/zsh' has been renamed to `programs.zsh.autosuggestion.enable'.
+updating GRUB 2 menu...
+Warning: os-prober will be executed to detect other bootable partitions.
+Its output will be used to detect bootable binaries on them and create new boot entries.
+lsblk: /dev/mapper/no*[0-9]: not a block device
+lsblk: /dev/mapper/block*[0-9]: not a block device
+lsblk: /dev/mapper/devices*[0-9]: not a block device
+lsblk: /dev/mapper/found*[0-9]: not a block device
+activating the configuration...
+sops-install-secrets: Imported /etc/ssh/ssh_host_ed25519_key as age key with fingerprint age1nyalaq2rtat8e4vanv0mnek9nea39k0hp2e9jwyadee2svs7dpvshxu3e9
+reloading user units for sobrien...
+restarting sysinit-reactivation.target
+the following new units were started: snapperd.service
+Done. The new configuration is 

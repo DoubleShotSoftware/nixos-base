@@ -50,6 +50,9 @@
         "aarch64-darwin"
         "x86_64-darwin"
       ];
+      
+      # Import custom packages
+      customPackages = import ./packages;
     in {
       nixosModules = {
         Models = import ./models;
@@ -68,7 +71,7 @@
           ];
           _module.args.nix-index-database = nix-index-database;
         };
-        HomeManagerLanguages = import ./components/languages;
+        Languages = import ./components/languages/nixos.nix;
         CommonWithOverlay = { pkgs, ... }: {
           imports = [ self.nixosModules.Common ];
           nixpkgs.overlays = [ self.overlays.default ];
@@ -77,6 +80,7 @@
       
       homeManagerModules = {
         default = import ./home-manager;
+        languages = import ./components/languages/home-manager.nix;
         withOverlay = { pkgs, ... }: {
           imports = [ self.homeManagerModules.default ];
           nixpkgs.overlays = [ self.overlays.default ];
@@ -101,7 +105,7 @@
             system = prev.system;
             config = prev.config;
           };
-        };
+        } // (customPackages { pkgs = final; });
       };
       
       homeConfigurations = forAllSystems (system:

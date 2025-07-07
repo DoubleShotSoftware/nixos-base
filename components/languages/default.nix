@@ -1,16 +1,10 @@
-# Language configuration module that dynamically loads enabled languages
-{ config, lib, options, pkgs, ... }:
+# Language configuration shared logic
+{ config, lib, pkgs, ... }:
 with lib;
 let
-  # Check context - be more specific to avoid false positives
-  isNixOS = options ? home-manager && options ? home-manager.users;
-  isHomeManager = options ? home && options ? home.packages && !(options ? home-manager);
-  
-  # Debug context detection
-  _ = trace "Language module context: isNixOS=${toString isNixOS}, isHomeManager=${toString isHomeManager}" null;
-  
-  # Get user configs
-  users = config.personalConfig.users;
+  # Get user configs - handle both NixOS and home-manager contexts
+  personalConfig = config.personalConfig or config._module.args.personalConfig or {};
+  users = personalConfig.users or {};
   
   # Available language modules (function name -> filename mapping)
   availableLanguages = {
@@ -81,33 +75,52 @@ let
   # For NixOS: get all users with languages
   usersWithLanguages = filterAttrs (name: cfg: (cfg.languages or []) != []) users;
   
-  # For home-manager: get current user
-  currentUser = if isHomeManager then config.home.username or null else null;
-  currentUserConfig = if currentUser != null && users ? ${currentUser}
-    then getUserLanguageConfigs users.${currentUser}
-    else null;
-    
-  # Debug current user detection
-  _2 = if isHomeManager 
-      then trace "Home-manager user: ${toString currentUser}, has config: ${toString (currentUserConfig != null)}" null
-      else null;
-    
 in {
-  config = mkMerge ([
-    # Force re-evaluation by adding a dummy attribute
-    {}
-    # NixOS context - configure all users
-    (mkIf (isNixOS && usersWithLanguages != {}) {
-      # System-level permitted insecure packages
-      nixpkgs.config.permittedInsecurePackages = mkMerge (
-        mapAttrsToList (user: userConfig:
-          (getUserLanguageConfigs userConfig).permittedInsecurePackages
-        ) usersWithLanguages
-      );
-      
-      # Per-user home-manager configuration
-      home-manager.users = mapAttrs (user: userConfig:
-        let 
+  # NixOS configuration - sets home-manager.users for all users
+  nixosConfig = mkIf (usersWithLanguages != {}) {
+    # System-level permitted insecure packages
+    nixpkgs.config.permittedInsecurePackages = mkMerge (
+      mapAttrsToList (user: userConfig:
+        (getUserLanguageConfigs userConfig).permittedInsecurePackages
+      ) usersWithLanguages
+    );
+    
+    # Per-user home-manager configuration
+    home-manager.users = mapAttrs (user: userConfig:
+      let 
+        cfg = getUserLanguageConfigs userConfig;
+        userShell = userConfig.shell or "bash";
+      in mkMerge [
+        {
+          home.packages = cfg.packages;
+          home.sessionVariables = cfg.sessionVariables;
+        }
+        # Shell-specific configuration
+        (mkIf (userShell == "zsh") {
+          programs.zsh.oh-my-zsh.plugins = mkIf (cfg.shellPlugins.zsh != []) cfg.shellPlugins.zsh;
+          programs.zsh.initExtra = mkIf (cfg.shellInitExtra.zsh != "") cfg.shellInitExtra.zsh;
+        })
+        (mkIf (userShell == "fish") {
+          # TODO: Add fish plugin configuration when fish plugin system is set up
+          programs.fish.interactiveShellInit = cfg.shellInitExtra.fish;
+        })
+        (mkIf (userShell == "bash") {
+          programs.bash.initExtra = cfg.shellInitExtra.bash;
+        })
+      ]
+    ) usersWithLanguages;
+  };
+  
+  # Home-manager configuration - sets home.* for current user
+  homeManagerConfig = 
+    let
+      userList = attrNames users;
+      userCount = length userList;
+    in
+      if userCount == 1 then
+        let
+          username = head userList;
+          userConfig = users.${username};
           cfg = getUserLanguageConfigs userConfig;
           userShell = userConfig.shell or "bash";
         in mkMerge [
@@ -128,34 +141,8 @@ in {
             programs.bash.initExtra = cfg.shellInitExtra.bash;
           })
         ]
-      ) usersWithLanguages;
-    })
-    
-    # Home-manager context - configure current user
-    # TEMPORARILY DISABLED - causing evaluation issues
-    # (mkIf (isHomeManager && currentUser != null && users ? ${currentUser} && currentUserConfig != null && currentUserConfig ? packages) (
-    #   let
-    #     userConfig = users.${currentUser};
-    #     userShell = userConfig.shell or "bash";
-    #     _3 = trace "Configuring language support for home-manager user: ${currentUser} with shell: ${userShell}" null;
-    #   in mkMerge [
-    #     {
-    #       home.packages = currentUserConfig.packages;
-    #       home.sessionVariables = currentUserConfig.sessionVariables;
-    #     }
-    #     # Shell-specific configuration
-    #     (mkIf (userShell == "zsh") {
-    #       programs.zsh.oh-my-zsh.plugins = mkIf (currentUserConfig.shellPlugins.zsh != []) currentUserConfig.shellPlugins.zsh;
-    #       programs.zsh.initExtra = mkIf (currentUserConfig.shellInitExtra.zsh != "") currentUserConfig.shellInitExtra.zsh;
-    #     })
-    #     (mkIf (userShell == "fish") {
-    #       # TODO: Add fish plugin configuration when fish plugin system is set up
-    #       programs.fish.interactiveShellInit = currentUserConfig.shellInitExtra.fish;
-    #     })
-    #     (mkIf (userShell == "bash") {
-    #       programs.bash.initExtra = currentUserConfig.shellInitExtra.bash;
-    #     })
-    #   ]
-    # ))
-  ]);
+      else if userCount == 0 then
+        throw "Home-manager language configuration requires exactly one user in personalConfig.users, but found none"
+      else
+        throw "Home-manager language configuration requires exactly one user in personalConfig.users, but found ${toString userCount} users: ${concatStringsSep ", " userList}";
 }

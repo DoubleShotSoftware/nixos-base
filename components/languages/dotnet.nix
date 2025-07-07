@@ -15,6 +15,7 @@ in
     dotnetPackages.Nuget
     dotnetPackages.NUnit
     dotnetSDK
+    resharper-cli
   ];
   sessionVariables = {
     DOTNET_ROOT = "${dotnetSDK}/share/dotnet";

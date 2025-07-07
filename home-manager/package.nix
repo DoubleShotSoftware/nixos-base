@@ -18,10 +18,7 @@ let
     };
   };
   
-  overlay-nvim-ide = final: prev: 
-    if nvim-ide != null then {
-      nvim-ide = nvim-ide.packages.${system}.default;
-    } else {};
+  overlay-nvim-ide = final: prev: {};
   
   overlay-nixgl = nixgl.overlay;
   
@@ -45,10 +42,14 @@ let
       modules = [
         ../models
         ./.
-        ../components/languages
+        ({ ... }: {
+          _module.args = {
+            inherit constants personalConfig;
+          };
+        })
+        ../components/languages/home-manager.nix
         {
           inherit personalConfig;
-          _module.args.constants = constants;
         }
       ] ++ defaultModules ++ extraModules;
     };
@@ -61,6 +62,8 @@ in
       users.sobrien = {
         desktop = "gnome";
         userType = "normal";
+        languages = [ "typescript" "python" ];
+        shell = "zsh";
       };
     };
   };
