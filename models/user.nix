@@ -94,6 +94,60 @@ with lib;
         default = false;
         description = "Enable git configuration for user.";
       };
+      
+      # Default/global git identity
+      userName = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Default git user name for commits";
+      };
+      userEmail = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Default git email for commits";
+      };
+      
+      # Directory-specific configurations
+      dirConfig = mkOption {
+        type = types.attrsOf (types.submodule {
+          options = {
+            path = mkOption {
+              type = types.str;
+              description = "Directory path pattern (e.g., ~/work/)";
+            };
+            userName = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Git user name for this directory";
+            };
+            userEmail = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Git email for this directory";
+            };
+            signingKey = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "GPG signing key for this directory";
+            };
+          };
+        });
+        default = {};
+        example = {
+          work = {
+            path = "~/work/";
+            userName = "sobrien";
+            userEmail = "sean.obrien@delaware.gov";
+          };
+          personal = {
+            path = "~/personal/";
+            userName = "Sean O'Brien";
+            userEmail = "personal@example.com";
+          };
+        };
+        description = "Directory-specific git configurations using includeIf";
+      };
+      
       exclude = mkOption {
         type = types.str;
         default = "";

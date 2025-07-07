@@ -9,11 +9,26 @@ let
       (trace "Enabling git configuration for user: ${user}" {
         programs.git = {
           enable = true;
+          
+          # Set default user name and email if provided
+          userName = mkIf (userConfig.git.userName != null) userConfig.git.userName;
+          userEmail = mkIf (userConfig.git.userEmail != null) userConfig.git.userEmail;
+          
           extraConfig = {
             core = {
               excludesFile = "${config.users.users.${user}.home}/.config/git/nixGeneratedExclude.conf";
             };
-          };
+          } // (
+            # Generate includeIf blocks for directory-specific configs
+            foldl' (acc: name: 
+              let dirCfg = userConfig.git.dirConfig.${name};
+              in acc // {
+                "includeIf \"gitdir:${dirCfg.path}\"" = {
+                  path = "${config.users.users.${user}.home}/.config/git/dir-${name}.conf";
+                };
+              }
+            ) {} (attrNames userConfig.git.dirConfig)
+          );
         };
         
         home.packages = with pkgs; 
@@ -26,7 +41,20 @@ let
           (if userConfig.git.extraIgnore != "" then "\n# Extra ignore patterns\n" + userConfig.git.extraIgnore else "");
         
         home.file.".config/git/local-ignore.conf".text = "";
-      })
+      } // (
+        # Generate directory-specific config files
+        foldl' (acc: name:
+          let dirCfg = userConfig.git.dirConfig.${name};
+          in acc // {
+            "home.file.\".config/git/dir-${name}.conf\".text" = ''
+              [user]
+              ${optionalString (dirCfg.userName != null) "  name = ${dirCfg.userName}"}
+              ${optionalString (dirCfg.userEmail != null) "  email = ${dirCfg.userEmail}"}
+              ${optionalString (dirCfg.signingKey != null) "  signingkey = ${dirCfg.signingKey}"}
+            '';
+          }
+        ) {} (attrNames userConfig.git.dirConfig)
+      ))
     else
       { }
   ) (filterAttrs (user: userConfig: userConfig.userType != "system") users);

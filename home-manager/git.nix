@@ -15,8 +15,7 @@ in {
         side-by-side = true;
         navigate = true;
       };
-      userEmail = "sean.obrien@delaware.gov";
-      userName = "Sean O'Brien";
+      # userName and userEmail are now configured via personalConfig.users.<name>.git
       extraConfig = {
         credential = {
           helper = "cache --timeout=86400";
