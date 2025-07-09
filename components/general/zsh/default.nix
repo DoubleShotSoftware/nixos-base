@@ -45,7 +45,7 @@ in
                 ];
                 theme = userConfig.zsh.theme;
               };
-              initExtra = ''
+              initContent = ''
                   alias ls="ls -l --color"
                   alias e=$EDITOR
                   if [[ "$(uname -a |awk '{print $1}')" == "Darwin" ]]
