@@ -1,19 +1,31 @@
-{ config, lib, pkgs, inputs, desktop, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  desktop,
+  ...
+}:
 with lib;
 with builtins;
-let users = config.personalConfig.users;
-in {
+let
+  users = config.personalConfig.users;
+in
+{
   config = mkMerge [
     {
       programs.zsh.enable = true;
-      home-manager.users = mapAttrs (user: userConfig:
+      home-manager.users = mapAttrs (
+        user: userConfig:
         if (userConfig.zsh.enable && userConfig.userType == "normal") then
           trace "Enabling zsh for user: ${user}" {
             programs.zsh = {
               enable = true;
-              enableAutosuggestions = true;
+              autosuggestion.enable = true;
               enableCompletion = true;
-              syntaxHighlighting = { enable = true; };
+              syntaxHighlighting = {
+                enable = true;
+              };
               dirHashes = {
                 downloads = "$HOME/Downloads";
                 dev = "$HOME/dev";
@@ -27,7 +39,10 @@ in {
               '';
               oh-my-zsh = {
                 enable = true;
-                plugins = [ "git" "sudo" ];
+                plugins = [
+                  "git"
+                  "sudo"
+                ];
                 theme = userConfig.zsh.theme;
               };
               initExtra = ''
@@ -45,17 +60,19 @@ in {
                 	fi
               '';
             };
-            home = { packages = with pkgs; [ freshfetch ]; };
+            home = {
+              packages = with pkgs; [ freshfetch ];
+            };
             programs.direnv.enableZshIntegration = true;
           }
         else
-          { })
-        (filterAttrs (user: userConfig: userConfig.userType != "system") users);
+          { }
+      ) (filterAttrs (user: userConfig: userConfig.userType != "system") users);
     }
     (lib.mkIf (pkgs.system == "aarch64-darwin") {
-      home-manager.users = mapAttrs
-        (user: userConfig: { home.sessionPath = [ "/opt/homebrew/bin/" ]; })
-        users;
+      home-manager.users = mapAttrs (user: userConfig: {
+        home.sessionPath = [ "/opt/homebrew/bin/" ];
+      }) users;
     })
   ];
 }

@@ -37,9 +37,13 @@
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-hardware, home-manager, nur
-    , sops-nix, nix-darwin, nixvim, flake-parts, nixgl, nix-index-database, ... }:
+    , sops-nix, nix-darwin, nixvim, flake-parts, nixgl, nix-index-database, nixos-generators, ... }:
     let
       system = (builtins.readFile ./system.ignore);
       hostPlatform = nixpkgs.lib.mkDefault system;
@@ -92,9 +96,40 @@
           nixvimPackages = import ./nixvim/package.nix {
             inherit nixpkgs nixpkgs-unstable nixvim system;
           };
+          
+          # Factory image builder function
+          buildFactory = format: nixos-generators.nixosGenerate {
+            inherit system format;
+            modules = [ 
+              ./factory-base
+              sops-nix.nixosModules.sops
+            ];
+          };
         in {
           nixvim = nixvimPackages.default;
           nixvim-lite = nixvimPackages.lite;
+          
+          # Factory base images in various formats
+          factory-base = buildFactory "qcow-efi";      # Default: QEMU/KVM with UEFI
+          factory-qcow = buildFactory "qcow";          # QEMU/KVM with BIOS
+          factory-raw = buildFactory "raw-efi";        # Raw disk image (convertible)
+          factory-hyperv = buildFactory "hyperv";      # Hyper-V VHDX format
+          factory-vmware = buildFactory "vmware";      # VMware VMDK format
+          factory-virtualbox = buildFactory "virtualbox"; # VirtualBox VDI format
+          
+          # Cloud provider formats
+          factory-openstack = buildFactory "openstack"; # OpenStack QCOW2
+          factory-proxmox = buildFactory "proxmox";     # Proxmox VMA format
+          
+          # Test VM (QCOW2 with UEFI)
+          factory-test = nixos-generators.nixosGenerate {
+            inherit system;
+            format = "qcow-efi";
+            modules = [ 
+              ./factory-base/test/example-vm.nix
+              sops-nix.nixosModules.sops
+            ];
+          };
         });
         
       overlays = {
