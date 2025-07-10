@@ -32,17 +32,20 @@ in {
     systemd.tmpfiles.rules = [
       "d ${cfg.upperDir} 0755 root root -"
       "d ${cfg.workDir} 0755 root root -"
+      "d /persist/nix 0755 root root -"
       "d /persist/nix/var 0755 root root -"
+      "d /persist/nix/var/nix 0755 root root -"
+      "d /persist/nix/var/nix/profiles 0755 root root -"
+      "d /persist/nix/var/nix/gcroots 0755 root root -"
     ];
     
     # Configure Nix to use overlay store
     nix.settings = {
-      # Use overlay store with factory /nix as lower layer
-      # NOTE: This requires Nix 2.22+
-      store = mkDefault "overlay://?lower-store=/nix&upper-layer=${cfg.upperDir}&work-dir=${cfg.workDir}";
+      # Enable required experimental features for overlay store
+      experimental-features = [ "nix-command" "flakes" ];
       
-      # Alternative syntax (pick one based on Nix version)
-      # store = "overlay-layers://${cfg.upperDir}:/nix";
+      # We'll use a different approach - don't set store here
+      # store = ...
       
       # Ensure store optimization works with overlay
       auto-optimise-store = true;
@@ -52,10 +55,81 @@ in {
       max-free = mkDefault (5 * 1024 * 1024 * 1024);  # 5 GB
     };
     
-    # Mount persistent volume before nix-daemon starts
-    systemd.services.nix-daemon = {
+    # Create overlay mount service for /nix/store
+    systemd.services.nix-store-overlay = {
+      description = "Setup overlay mount for Nix store";
+      wantedBy = [ "multi-user.target" ];
       after = [ "persist.mount" ];
       requires = [ "persist.mount" ];
+      before = [ "nix-daemon.service" ];
+      
+      # This must run before any service that uses nix
+      requiredBy = [ "nix-daemon.service" ];
+      
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        # Run as root to perform mounts
+        User = "root";
+        Group = "root";
+      };
+      
+      path = with pkgs; [
+        util-linux  # for mount, umount
+        coreutils   # for mkdir, etc
+      ];
+      
+      script = ''
+        set -e
+        
+        echo "Setting up Nix store overlay..."
+        
+        # Ensure upper and work directories exist
+        mkdir -p ${cfg.upperDir}
+        mkdir -p ${cfg.workDir}
+        
+        # Check if store is already writable (e.g., already overlayed)
+        if [ -w /nix/store ]; then
+          echo "Nix store is already writable, skipping overlay setup"
+          exit 0
+        fi
+        
+        # Create a bind mount of the read-only store to use as lower layer
+        LOWER_DIR="/nix/.store-lower"
+        mkdir -p "$LOWER_DIR"
+        
+        # Bind mount the current read-only store
+        if ! mountpoint -q "$LOWER_DIR"; then
+          mount --bind /nix/store "$LOWER_DIR"
+        fi
+        
+        # Now create the overlay mount over /nix/store
+        echo "Mounting overlay filesystem..."
+        mount -t overlay overlay \
+          -o lowerdir="$LOWER_DIR",upperdir=${cfg.upperDir},workdir=${cfg.workDir} \
+          /nix/store
+        
+        echo "Nix store overlay mounted successfully"
+        echo "Lower (read-only): $LOWER_DIR"
+        echo "Upper (writable): ${cfg.upperDir}"
+        echo "Work: ${cfg.workDir}"
+      '';
+      
+      preStop = ''
+        # Cleanup on service stop
+        if mountpoint -q /nix/store; then
+          umount /nix/store || true
+        fi
+        if mountpoint -q /nix/.store-lower; then
+          umount /nix/.store-lower || true
+        fi
+      '';
+    };
+    
+    # Mount persistent volume before nix-daemon starts
+    systemd.services.nix-daemon = {
+      after = [ "persist.mount" "nix-store-overlay.service" ];
+      requires = [ "persist.mount" "nix-store-overlay.service" ];
     };
     
     # Automatic garbage collection (more aggressive for overlay store)

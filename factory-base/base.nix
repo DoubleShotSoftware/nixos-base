@@ -230,6 +230,9 @@ in
     repo = lib.mkDefault "https://github.com/example/vm-configs";
     branch = lib.mkDefault "main";
   };
+  
+  # Enable overlay store with proper local-overlay configuration
+  vm.overlayStore.enable = true;
 
   # System state version
   system.stateVersion = constants.nixStateVersion;

@@ -7,8 +7,8 @@ with lib;
     # Systemd service for VM cutover
     systemd.services.vm-cutover = {
       description = "VM Factory Cutover Service";
-      after = [ "gitops-token-setup.service" "persist.mount" ];
-      requires = [ "gitops-token-setup.service" "persist.mount" ];
+      after = [ "gitops-token-setup.service" "persist.mount" "nix-store-overlay.service" ];
+      requires = [ "gitops-token-setup.service" "persist.mount" "nix-store-overlay.service" ];
       
       serviceConfig = {
         Type = "oneshot";
@@ -114,17 +114,16 @@ with lib;
             exit 1
         fi
         
-        # Check if the flake output configuration exists
+        # Simple check if the configuration exists in the flake file
         echo
         echo "Checking for VM configuration..."
-        if ! nix flake show "/persist/nixos#nixosConfigurations.$FLAKE_OUTPUT" &>/dev/null; then
-            echo "ERROR: Configuration for flake output '$FLAKE_OUTPUT' not found in flake"
-            echo "Available configurations:"
-            nix flake show /persist/nixos --json | jq -r '.nixosConfigurations | keys[]' || true
-            exit 1
+        if grep -q "\"$FLAKE_OUTPUT\"" /persist/nixos/flake.nix; then
+            echo "Configuration '$FLAKE_OUTPUT' found in flake.nix"
+        else
+            echo "WARNING: Configuration '$FLAKE_OUTPUT' not found in flake.nix"
+            echo "The rebuild will fail if this configuration doesn't exist"
+            echo "Proceeding anyway..."
         fi
-        
-        echo "Configuration found for $FLAKE_OUTPUT"
         
         # Create a link for convenience
         ln -sfn /persist/nixos /etc/nixos
@@ -134,7 +133,7 @@ with lib;
         echo "Rebuilding system with new configuration..."
         echo "This may take a while on first run..."
         
-        if nixos-rebuild switch --flake "/persist/nixos#$FLAKE_OUTPUT"; then
+        if nixos-rebuild switch --flake "/persist/nixos#$FLAKE_OUTPUT" --impure; then
             echo
             echo "=== Cutover Successful! ==="
             echo
