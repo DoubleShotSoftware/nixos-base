@@ -1,6 +1,14 @@
 { config, lib, options, pkgs, ... }:
 with lib;
 let
+  sysOptions = { ... }: {
+    options = {
+ nixStateVersion      = mkOption {
+        type = types.str;
+        default = "24.11";
+        description = lib.mdDoc "The user's auxiliary groups.";
+      };
+};
   userOptions = { ... }: {
     options = {
       keys = {
@@ -93,6 +101,11 @@ let
     (filterAttrs (user: userConfig: userConfig.admin) users);
 in {
   options.personalConfig = {
+    system = mkOption {
+      default = { };
+      type = types.attrsOf (types.submodule sysOptions);
+      description = "Configure system";
+    };
     users = mkOption {
       default = { };
       type = types.attrsOf (types.submodule userOptions);
@@ -104,6 +117,7 @@ in {
       description =
         "Whether this instance is personal or work based, personal includes more personal related packages.";
     };
+	
   };
   imports = [ ./zsh ./kitty ./wezterm ./vscode.nix ./zellij.nix ./git.nix ];
   config = lib.mkMerge ([
