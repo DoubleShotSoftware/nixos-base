@@ -9,6 +9,7 @@ let
         description = lib.mdDoc "The user's auxiliary groups.";
       };
 };
+};
   userOptions = { ... }: {
     options = {
       keys = {
