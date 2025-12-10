@@ -1,14 +1,18 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with builtins;
 with lib;
 let
   users = config.personalConfig.users;
-  desktopEnabled = any (userConfig: userConfig.desktop != "disabled")
-    (mapAttrsToList (user: userConfig: userConfig) users);
-  nerdFonts = pkgs.nerdfonts.override {
-    fonts = [ "FiraCode" "FiraMono" "VictorMono" "Iosevka" "IosevkaTerm" ];
-  };
-in {
+  desktopEnabled = any (userConfig: userConfig.desktop != "disabled") (
+    mapAttrsToList (user: userConfig: userConfig) users
+  );
+in
+{
   config = lib.mkIf desktopEnabled {
     fonts = {
       packages = with pkgs; [
@@ -26,7 +30,12 @@ in {
         victor-mono
         iosevka
         _3270font
-        nerdFonts
+        nerd-fonts.victor-mono
+        nerd-fonts.fira-mono
+        nerd-fonts.fira-code
+        nerd-fonts.jetbrains-mono
+        nerd-fonts.iosevka
+        nerd-fonts.iosevka-term
       ];
     };
   };

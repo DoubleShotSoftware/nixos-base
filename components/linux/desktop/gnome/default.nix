@@ -1,11 +1,21 @@
-{ config, lib, pkgs, inputs, desktop, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 with builtins;
 let
-  portals = with pkgs; [ xdg-desktop-portal-gnome xdg-desktop-portal ];
-  gnomeEnabled = any (userConfig: userConfig.desktop == "gnome")
-    (mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users);
-  gnomeConfigs = mapAttrs (user: config:
+  portals = with pkgs; [
+    xdg-desktop-portal-gnome
+    xdg-desktop-portal
+  ];
+  gnomeEnabled = any (userConfig: userConfig.desktop == "gnome") (
+    mapAttrsToList (user: userConfig: userConfig) config.personalConfig.users
+  );
+  gnomeConfigs = mapAttrs (
+    user: config:
     (trace "Enabling Gnome for user: ${user}" {
       #imports = [ ];
       home.packages = with pkgs; [
@@ -32,11 +42,11 @@ let
         qalculate-gtk
         dconf2nix
         pop-launcher
-        gnome.nautilus
+        nautilus
         gnome.gvfs
         gtk_engines
-        gnome.dconf-editor
-        gnome.gnome-tweaks
+        dconf-editor
+        gnome-tweaks
         gnomeExtensions.settingscenter
         gnomeExtensions.appindicator
         gnomeExtensions.pop-shell
@@ -46,6 +56,7 @@ let
         gnomeExtensions.wallpaper-slideshow
         gnomeExtensions.open-bar
         gnomeExtensions.tiling-shell
+        gnomeExtensions.user-themes
         catppuccin-cursors
         nordic
       ];
@@ -53,7 +64,12 @@ let
       ## https://github.com/NixOS/nixpkgs/issues/274554#issuecomment-2211307799
       dconf = {
         settings = {
-          "org/gnome/desktop/interface" = { color-scheme = "prefer-dark"; };
+          "org/gnome/desktop/interface" = {
+            gtk-theme = "Tokyonight-Dark";
+            icon-theme = "Nordic-darker";
+            cursor-theme = "Nordic-cursors";
+            color-scheme = "prefer-dark";
+          };
           "org/gnome/shell/keybindings" = {
             "switch-to-application-1" = [ ];
             "switch-to-application-2" = [ ];
@@ -67,7 +83,9 @@ let
             "switch-to-application-0" = [ ];
             "toggle-overview" = [ "" ];
           };
-          "org/gnome/desktop/interface" = { enable-hot-corners = false; };
+          "org/gnome/desktop/interface" = {
+            enable-hot-corners = false;
+          };
           "org/gnome/shell/extensions/pop-shell" = {
             active-hint = true;
             active-hint-color = "rgba(122,162,247, 0.8)";
@@ -78,17 +96,19 @@ let
             snap-to-grid = false;
             tile-by-default = true;
           };
-          "org/desktop/wm/preferences" = {
-            "focus-mode" = "mouse";
+          "org/gnome/desktop/wm/preferences" = {
+            theme = "Tokyonight-Dark";
+            focus-mode = "mouse";
             num-workspaces = 10;
-
           };
           "org/gnome/mutter" = {
             attach-modal-dialogs = true;
             dynamic-workspaces = false;
             edge-tiling = false;
-            experimental-features =
-              [ "scale-monitor-framebuffer" "variable-refresh-rate" ];
+            experimental-features = [
+              "scale-monitor-framebuffer"
+              "variable-refresh-rate"
+            ];
             focus-change-on-pointer-rest = true;
             overlay-key = "";
             workspaces-only-on-primary = true;
@@ -97,9 +117,14 @@ let
             toggle-tiled-left = [ ];
             toggle-tiled-right = [ ];
           };
-          "org/gnome/mutter/wayland/keybindings" = { restore-shortcuts = [ ]; };
+          "org/gnome/mutter/wayland/keybindings" = {
+            restore-shortcuts = [ ];
+          };
           "org/gnome/desktop/wm/keybindings" = {
-            close = [ "<Super>q" "<Alt>F4" ];
+            close = [
+              "<Super>q"
+              "<Alt>F4"
+            ];
             toggle-fullscreen = [ "<Super>f" ];
             toggle-maximized = [ "<Super>m" ];
             minimize = [ "" ];
@@ -125,12 +150,11 @@ let
             "switch-to-workspace-9" = [ "<Super>9" ];
             "switch-to-workspace-0" = [ "<Super>0" ];
           };
-          "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" =
-            {
-              binding = "<Control><Super>Return";
-              command = "${pkgs.wezterm}/bin/wezterm";
-              name = "Terminal";
-            };
+          "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+            binding = "<Control><Super>Return";
+            command = "${pkgs.wezterm}/bin/wezterm";
+            name = "Terminal";
+          };
         };
       };
       qt = {
@@ -141,40 +165,61 @@ let
           package = pkgs.adwaita-qt;
         };
       };
-    })) (filterAttrs (user: userConfig: userConfig.desktop == "gnome")
-      config.personalConfig.users);
-in {
+    })
+  ) (filterAttrs (user: userConfig: userConfig.desktop == "gnome") config.personalConfig.users);
+in
+{
   config = lib.mkMerge ([
-    (lib.mkIf (gnomeEnabled) (trace "Enabling Gnome & GDM" {
-      xdg.portal = {
-        enable = true;
-        config = { common = { default = [ "gnome" ]; }; };
-        extraPortals = portals;
-      };
-      services = {
-        dbus.packages = with pkgs; [ gnome2.GConf ];
-        xserver = {
-          displayManager.gdm.enable = true;
-          desktopManager.gnome.enable = true;
+    (lib.mkIf (gnomeEnabled) (
+      trace "Enabling Gnome & GDM" {
+        xdg.portal = {
+          enable = true;
+          config = {
+            common = {
+              default = [ "gnome" ];
+            };
+          };
+          extraPortals = portals;
         };
-        udev.packages = with pkgs; [ gnome.gnome-settings-daemon ];
-      };
-      environment.gnome.excludePackages =
-        (with pkgs; [ gnome-photos gnome-tour ]) ++ (with pkgs.gnome; [
-          cheese # webcam tool
-          gnome-music
-          gnome-terminal
-          epiphany # web browser
-          geary # email reader
-          evince # document viewer
-          gnome-characters
-          totem # video player
-          tali # poker game
-          iagno # go game
-          hitori # sudoku game
-          atomix # puzzle game
-        ]);
-    }))
+        programs = {
+          seahorse.enable = true;
+          ssh = {
+            startAgent = true;
+            askPassword = "${pkgs.gnome.seahorse}/libexec/seahorse/ssh-askpass";
+          };
+        };
+        environment.sessionVariables = {
+          SSH_ASKPASS_REQUIRE = "prefer";
+        };
+        services = {
+          dbus.packages = with pkgs; [ gnome2.GConf ];
+          gnome.gnome-keyring.enable = true;
+          xserver = {
+            displayManager.gdm.enable = true;
+            desktopManager.gnome.enable = true;
+          };
+        };
+        environment.gnome.excludePackages =
+          (with pkgs; [
+            gnome-photos
+            gnome-tour
+          ])
+          ++ (with pkgs; [
+            cheese # webcam tool
+            gnome-music
+            gnome-terminal
+            epiphany # web browser
+            geary # email reader
+            evince # document viewer
+            gnome-characters
+            totem # video player
+            tali # poker game
+            iagno # go game
+            hitori # sudoku game
+            atomix # puzzle game
+          ]);
+      }
+    ))
     (lib.mkIf gnomeEnabled { home-manager.users = gnomeConfigs; })
   ]);
 }

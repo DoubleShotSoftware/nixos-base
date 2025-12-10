@@ -1,0 +1,1 @@
+autocmd BufRead,BufNewFile */hypr/*.conf,hyprland.conf set filetype=hyprlang

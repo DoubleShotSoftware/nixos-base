@@ -26,7 +26,7 @@ with lib; {
         };
         boot = {
           supportedFilesystems = [ "zfs" ];
-          extraModulePackages = with config.boot.kernelPackages; [ zfs ];
+          # ZFS kernel module is automatically included when in supportedFilesystems
         };
         systemd.services.zfs-mount.enable = false;
       }))

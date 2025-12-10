@@ -18,10 +18,5 @@ in {
           { })
         (filterAttrs (user: userConfig: userConfig.userType != "system") users);
     }
-    (lib.mkIf (pkgs.system == "aarch64-darwin") {
-      home-manager.users = mapAttrs
-        (user: userConfig: { home.sessionPath = [ "/opt/homebrew/bin/" ]; })
-        users;
-    })
   ];
 }

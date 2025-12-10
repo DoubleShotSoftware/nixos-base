@@ -6,7 +6,6 @@ in {
     global = { lockfiles = true; };
     masApps = {
       Xcode = 497799835;
-      "Unsplash Wallpapers" = 1284863847;
       "Microsoft Remote Desktop" = 1295203466;
     };
     brews = [
@@ -17,11 +16,11 @@ in {
       "docker-compose"
       "docker-buildx"
       "gnu-getopt"
-      "jordanbaird-ice"
       "wireguard-tools"
     ];
     casks = [
-      { name ="karabiner-elements"; }
+      { name = "jordanbaird-ice"; }
+      { name = "karabiner-elements"; }
       { name = "keycastr"; }
       { name = "visual-studio-code"; }
       { name = "iglance"; }
@@ -31,12 +30,9 @@ in {
       { name = "nikitabobko/tap/aerospace"; }
       { name = "gpg-suite"; }
       { name = "postman"; }
-      { name = "kitty"; }
       { name = "jetbrains-toolbox"; }
       { name = "firefox"; }
-      { name = "utm"; }
       { name = "wezterm"; }
-      { name = "kitty"; }
       { name = "alacritty"; }
       { name = "graalvm/tap/graalvm-ce-java11"; }
       { name = "graalvm/tap/graalvm-ce-java17"; }
@@ -104,7 +100,6 @@ in {
     taps = [
       "FelixKratz/formulae"
       "null-dev/firefox-profile-switcher"
-      "homebrew/bundle"
     ];
   };
 }

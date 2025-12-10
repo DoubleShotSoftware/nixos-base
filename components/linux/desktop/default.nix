@@ -20,19 +20,19 @@ let
   desktopEnabled = any (userConfig: userConfig.desktop != "disabled")
     (mapAttrsToList (user: userConfig: userConfig) users);
   desktopUsers = mapAttrs (user: config:
-    trace "Enabling Wall directory and desktop packages for user: ${user}" {
+    trace "Enabling and desktop packages for user: ${user}" {
       home = {
         packages = desktopPackages;
         sessionVariables = {
           MOZ_ENABLE_WAYLAND = if config.desktop == "gnome" then 1 else 0;
           MOZ_USE_XINPUT2 = "1";
         };
-        file = {
-          "Wall" = {
-            source = ./Wall;
-            recursive = true;
-          };
-        };
+        # file = {
+        #   "Wall" = {
+        #     source = ./Wall;
+        #     recursive = true;
+        #   };
+        # };
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
   mpvConfig = mapAttrs (user: config:
@@ -49,7 +49,7 @@ let
       };
     }) (filterAttrs (user: userConfig: userConfig.desktop != "disabled") users);
 in {
-  imports = [ ./gnome ./i3 ];
+  imports = [ ./gnome ./i3 ./gtk.nix ./theme-integration.nix ];
   config = lib.mkMerge ([
     (lib.mkIf desktopEnabled (trace "Adding Udev Rules for desktop devices" {
       services.udev.extraRules = ''
@@ -72,7 +72,6 @@ in {
       };
       programs = {
         dconf = { enable = true; };
-        seahorse.enable = true;
       };
       environment = {
         systemPackages = with pkgs; [
@@ -89,7 +88,6 @@ in {
         gvfs.enable = true;
         packagekit.enable = true;
         blueman.enable = true;
-        gnome.gnome-keyring.enable = true;
         pipewire = {
           enable = true;
           systemWide = false;

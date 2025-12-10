@@ -45,39 +45,43 @@ let
       zsh = { oh-my-zsh = { plugins = [ "vscode" ]; }; };
       vscode = {
         enable = true;
-        enableExtensionUpdateCheck = true;
-        enableUpdateCheck = true;
-        package = pkgs.unstable.vscode-fhs;
-        # userSettings = {
-        #   "breadcrumbs.filePath" = "on";
-        #   "[nix]"."editor.tabSize" = 2;
-        #   "workbench.iconTheme" = "material-icon-theme";
-        #   "workbench.colorTheme" = "Tokyo Night";
-        #   "editor.fontFamily" = "Victor Mono";
-        #   "extensions.experimental.affinity" = {
-        #     "asvetliakov.vscode-neovim" = 1;
-        #   };
-        #   "vscode-neovim.neovimInitVimPaths.linux" =
-        #     "/etc/profiles/${user}/sobrien/bin/nvim";
-        #   "files.autoSave" = "onFocusChange";
-        #   "editor.bracketPairColorization.independentColorPoolPerBracketType" =
-        #     true;
-        #   "editor.codeLens" = false;
-        #   "editor.fontLigatures" = "'ss01'";
-        # };
-        extensions = with pkgs.vscode-extensions;
-          [
-            waderyan.gitblame
-            eamodio.gitlens
-            ms-azuretools.vscode-docker
-            donjayamanne.githistory
-            oderwat.indent-rainbow
-            shd101wyy.markdown-preview-enhanced
-            ms-vscode-remote.remote-ssh
-            redhat.vscode-yaml
-            editorconfig.editorconfig
-            christian-kohler.path-intellisense
-          ];# ++ marketPlaceExtensions;
+        package = if pkgs.stdenv.isDarwin 
+                  then pkgs.unstable.vscode 
+                  else pkgs.unstable.vscode-fhs;
+        profiles.default = {
+          enableExtensionUpdateCheck = true;
+          enableUpdateCheck = true;
+          # userSettings = {
+          #   "breadcrumbs.filePath" = "on";
+          #   "[nix]"."editor.tabSize" = 2;
+          #   "workbench.iconTheme" = "material-icon-theme";
+          #   "workbench.colorTheme" = "Tokyo Night";
+          #   "editor.fontFamily" = "Victor Mono";
+          #   "extensions.experimental.affinity" = {
+          #     "asvetliakov.vscode-neovim" = 1;
+          #   };
+          #   "vscode-neovim.neovimInitVimPaths.linux" =
+          #     "/etc/profiles/${user}/sobrien/bin/nvim";
+          #   "files.autoSave" = "onFocusChange";
+          #   "editor.bracketPairColorization.independentColorPoolPerBracketType" =
+          #     true;
+          #   "editor.codeLens" = false;
+          #   "editor.fontLigatures" = "'ss01'";
+          # };
+          extensions = with pkgs.vscode-extensions;
+            [
+              waderyan.gitblame
+              eamodio.gitlens
+              ms-azuretools.vscode-docker
+              donjayamanne.githistory
+              oderwat.indent-rainbow
+              shd101wyy.markdown-preview-enhanced
+              ms-vscode-remote.remote-ssh
+              redhat.vscode-yaml
+              editorconfig.editorconfig
+              christian-kohler.path-intellisense
+            ];# ++ marketPlaceExtensions;
+        };
 
       };
     };

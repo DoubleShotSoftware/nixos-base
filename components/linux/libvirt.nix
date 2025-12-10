@@ -5,49 +5,27 @@ let
   cfg = config.personalConfig.linux.libvirt;
 in
 {
-  options.personalConfig.linux.libvirt = with lib; {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to enable looking libvirt support.
-      '';
-    };
-    lookingGlass.enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to enable looking glass support.
-      '';
-    };
-    lookingGlass.user = mkOption {
-      type = types.str;
-      default = "manager";
-      description = ''
-        The user to create looking glass file as, default: manager.
-      '';
-    };
-    zfsSupport = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to add zfs support to libvirt
-      '';
-    };
-    bridgeSupport = mkOption {
-      type = types.bool;
-      default = true;
-      description = ''
-        Add support for bridge network passthrough.
-      '';
-    };
-  };
+  imports = [
+    ./libvirt-mem-balloon.nix
+    ./libvirt-ksm.nix
+    ./libvirt-dbus.nix
+  ];
+
   config = mkIf cfg.enable
     (
       trace "Enabling lib virt."
         mkMerge [
         {
           security.polkit.enable = true;
+          # Add polkit rule for libvirtd group (NixOS uses libvirtd, but upstream libvirt checks for libvirt)
+          security.polkit.extraConfig = ''
+            polkit.addRule(function(action, subject) {
+              if (action.id == "org.libvirt.unix.manage" &&
+                  subject.isInGroup("libvirtd")) {
+                return polkit.Result.YES;
+              }
+            });
+          '';
           virtualisation = {
             libvirtd = {
               enable = true;

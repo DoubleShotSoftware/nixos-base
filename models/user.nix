@@ -1,0 +1,189 @@
+{ lib }:
+with lib;
+{
+  options = {
+    keys = {
+      ssh = mkOption {
+        type = types.listOf types.path;
+        default = [ ];
+        description = "A list of paths to ssh keys allowed for this user.";
+      };
+    };
+    desktop = mkOption {
+      type = types.enum [ "disabled" "sway" "gnome" "i3" ];
+      default = "disabled";
+      description = "Enable desktop environment for user.";
+    };
+    nixBuilder = mkOption {
+      type = types.bool;
+      description = "Create bind to /etc/nixos under $HOME/.nixos";
+      default = false;
+    };
+    shell = mkOption {
+      type = types.enum [ "zsh" "fish" "bash" ];
+      description = "The user's preferred shell.";
+      default = "bash";
+    };
+    shellInjector = mkOption {
+      type = types.enum [ "disabled" "bash" "zsh" "fish" ];
+      default = "disabled";
+      description = "Shell to inject on non-NixOS systems. Creates shell initialization files that exec into the specified Nix-managed shell.";
+    };
+    zsh = {
+      enable = mkOption {
+        type = types.bool;
+        description = "Whether to enable zsh for user.";
+        default = false;
+      };
+      theme = mkOption {
+        type = types.enum [ "agnoster" ];
+        description = "The user's zsh theme.";
+        default = "agnoster";
+      };
+    };
+    wezterm = mkOption {
+      type = types.bool;
+      description = "Whether to enable wezterm for user.";
+      default = false;
+    };
+    kitty = mkOption {
+      type = types.bool;
+      description = "Whether to enable kitty for user.";
+      default = false;
+    };
+    ghostty = mkOption {
+      type = types.bool;
+      description = "Whether to enable ghostty for user.";
+      default = false;
+    };
+    nvim = mkOption {
+      type = types.bool;
+      description = "Whether to enable nvim for user.";
+      default = false;
+    };
+    vscode = mkOption {
+      type = types.bool;
+      description = "Whether to enable vscode for user.";
+      default = false;
+    };
+    vscodeVimConfig = mkOption {
+      type = types.bool;
+      description = "Enable VSCode-compatible NeoVim keybinding integration. Routes NeoVim keybindings to VSCode commands when running inside VSCode's NeoVim extension.";
+      default = false;
+    };
+    userType = mkOption {
+      type = types.enum [ "normal" "system" ];
+      description = "Whether the user is a system or normal user.";
+      default = "system";
+    };
+    extraGroups = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = lib.mdDoc "The user's auxiliary groups.";
+    };
+    admin = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Give user sudo access.";
+    };
+    zellij = mkOption {
+      type = types.bool;
+      default = false;
+      description = "install zellij for user.";
+    };
+    languages = mkOption {
+      type = types.listOf (types.enum [
+        "aws"
+        "terraform"
+        "rust"
+        "dotnet"
+        "python"
+        "sql"
+        "typescript"
+        "json"
+      ]);
+      default = [ ];
+      description = "Which languages to configure for a user.";
+    };
+    git = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable git configuration for user.";
+      };
+      
+      # Default/global git identity
+      userName = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Default git user name for commits";
+      };
+      userEmail = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Default git email for commits";
+      };
+      
+      # Directory-specific configurations
+      dirConfig = mkOption {
+        type = types.attrsOf (types.submodule {
+          options = {
+            path = mkOption {
+              type = types.str;
+              description = "Directory path pattern (e.g., ~/work/)";
+            };
+            userName = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Git user name for this directory";
+            };
+            userEmail = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Git email for this directory";
+            };
+            signingKey = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "GPG signing key for this directory";
+            };
+          };
+        });
+        default = {};
+        example = {
+          work = {
+            path = "~/work/";
+            userName = "sobrien";
+            userEmail = "sean.obrien@delaware.gov";
+          };
+          personal = {
+            path = "~/personal/";
+            userName = "Sean O'Brien";
+            userEmail = "personal@example.com";
+          };
+        };
+        description = "Directory-specific git configurations using includeIf";
+      };
+      exclude = mkOption {
+        type = types.str;
+        default = "";
+        description = "Git ignore patterns to exclude globally for this user.";
+      };
+      lazy = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable lazygit for user.";
+      };
+      jujutsu = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable jujutsu (jj) version control for user.";
+      };
+      extraIgnore = mkOption {
+        type = types.str;
+        default = "";
+        description = "Additional git ignore patterns to append to the generated ignore file.";
+      };
+    };
+  };
+}

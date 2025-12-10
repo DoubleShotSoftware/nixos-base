@@ -1,24 +1,9 @@
-{ pkgs
-, linuxKernel
-, config
-, buildPackages
-, callPackage
-, makeOverridable
-, recurseIntoAttrs
-, dontRecurseIntoAttrs
-, stdenv
-, stdenvNoCC
-, newScope
-, lib
-, fetchurl
-, gcc10Stdenv
-, ...
-}:
-# https://github.com/NixOS/nixpkgs/blob/master/pkgs/top-level/linux-kernels.nix
-with linuxKernel;
-with lib;
+{ pkgs, dotnetSDK, ... }:
+
 {
-    imports = [
-        ./dotnet
-    ];
+  resharper-cli = pkgs.callPackage ./resharper-cli.nix { inherit dotnetSDK; };
+  cockpit-machines = pkgs.callPackage ./cockpit-machines.nix { };
+  easy-dotnet-tool = pkgs.callPackage ./easy-dotnet-tool.nix { };
+  # Note: customVimPlugins is added directly in flake.nix overlay to avoid
+  # overwriting nixpkgs vimPlugins
 }

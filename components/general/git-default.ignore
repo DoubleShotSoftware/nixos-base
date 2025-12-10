@@ -167,3 +167,6 @@ claude-artifacts/
 !.env.example
 secrets/
 credentials/
+CLAUDE.local.md
+pr-notes.md
+pr-notes.tmpl

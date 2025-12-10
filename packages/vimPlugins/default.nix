@@ -1,0 +1,7 @@
+# packages/vimPlugins/default.nix
+# Custom vim plugins shared between nixvim and nixcats
+{ pkgs }:
+{
+  roslyn-nvim = pkgs.callPackage ./roslyn-nvim.nix { };
+  telescope-tabs = pkgs.callPackage ./telescope-tabs.nix { };
+}

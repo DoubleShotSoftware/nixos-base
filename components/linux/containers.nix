@@ -1,4 +1,9 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 with builtins;
 let
@@ -8,10 +13,12 @@ let
     ipv6 = false;
   };
   containerEnabled = config.personalConfig.linux.container.enable;
-  isDocker = config.personalConfig.linux.container.backend == "docker"
+  isDocker =
+    config.personalConfig.linux.container.backend == "docker"
     || config.personalConfig.linux.container.backend == "docker-nvidia";
   isPodman = config.personalConfig.linux.container.backend == "podman";
-in {
+in
+{
   options.personalConfig.linux.container = {
     enable = mkOption {
       type = types.bool;
@@ -19,19 +26,29 @@ in {
       default = false;
     };
     backend = mkOption {
-      type = types.enum [ "podman" "docker" "docker-nvidia" ];
+      type = types.enum [
+        "podman"
+        "docker"
+        "docker-nvidia"
+      ];
       description = lib.mdDoc "The underlying Docker implementation to use.";
       default = "docker";
     };
     podman = {
       dockerCompat = mkOption {
         type = types.bool;
-        description =
-          "Whether to have podman mimic docker with a compatibility layer and tools";
+        description = "Whether to have podman mimic docker with a compatibility layer and tools";
         default = false;
       };
       storageDriver = mkOption {
-        type = types.enum [ "overlay" "vfs" "devmapper" "aufs" "btrfs" "zfs" ];
+        type = types.enum [
+          "overlay"
+          "vfs"
+          "devmapper"
+          "aufs"
+          "btrfs"
+          "zfs"
+        ];
         default = "overlay";
         description = "The podman storage driver to user.";
       };
@@ -49,19 +66,20 @@ in {
       };
       broadcastIp = mkOption {
         type = types.str;
-        description =
-          lib.mdDoc "The broadcast ip for the base docker network interface.";
+        description = lib.mdDoc "The broadcast ip for the base docker network interface.";
         default = "172.26.0.1/16";
       };
       storageDriver = mkOption {
-        type = types.nullOr (types.enum [
-          "aufs"
-          "btrfs"
-          "devicemapper"
-          "overlay"
-          "overlay2"
-          "zfs"
-        ]);
+        type = types.nullOr (
+          types.enum [
+            "aufs"
+            "btrfs"
+            "devicemapper"
+            "overlay"
+            "overlay2"
+            "zfs"
+          ]
+        );
         default = null;
         description = lib.mdDoc ''
           This option determines which Docker storage driver to use. By default
@@ -72,6 +90,11 @@ in {
         default = false;
         type = types.bool;
         description = "Enable the cadvisor scraper monitoring.";
+      };
+      networkAccessible = mkOption {
+        default = false;
+        type = types.bool;
+        description = "Whether to publish docker as network accessible.";
       };
     };
   };
@@ -90,16 +113,26 @@ in {
           enable = true;
           enableOnBoot = containerConfig.docker.onBoot;
           daemon.settings = dockerDaemonSettings;
-          autoPrune = { enable = true; };
+          autoPrune = {
+            enable = true;
+          };
+          listenOptions = [
+            "/run/docker.sock"
+          ]
+          ++ (if containerConfig.docker.networkAccessible then [ "0.0.0.0:2375" ] else [ ]);
         };
       };
-      environment.systemPackages = [ pkgs.docker-compose pkgs.docker-buildx ];
+      environment.systemPackages = [
+        pkgs.docker-compose
+        pkgs.docker-buildx
+      ];
     })
-    (lib.mkIf (containerEnabled && isDocker
-      && config.personalConfig.linux.container.docker.storageDriver != null) {
-        virtualisation.docker.storageDriver =
-          config.personalConfig.linux.container.docker.storageDriver;
-      })
+    (lib.mkIf
+      (containerEnabled && isDocker && config.personalConfig.linux.container.docker.storageDriver != null)
+      {
+        virtualisation.docker.storageDriver = config.personalConfig.linux.container.docker.storageDriver;
+      }
+    )
     (lib.mkIf (containerEnabled && isPodman) {
       virtualisation = {
         containers = {
@@ -119,16 +152,15 @@ in {
       };
       environment.systemPackages = with pkgs; [ podman-tui ];
     })
-    (lib.mkIf
-      (containerEnabled && isPodman && containerConfig.podman.dockerCompat) {
-        environment.systemPackages = with pkgs; [ podman-compose ];
-        virtualisation = {
-          podman = {
-            dockerSocket.enable = true;
-            dockerCompat = true;
+    (lib.mkIf (containerEnabled && isPodman && containerConfig.podman.dockerCompat) {
+      environment.systemPackages = with pkgs; [ podman-compose ];
+      virtualisation = {
+        podman = {
+          dockerSocket.enable = true;
+          dockerCompat = true;
 
-          };
         };
-      })
+      };
+    })
   ];
 }
