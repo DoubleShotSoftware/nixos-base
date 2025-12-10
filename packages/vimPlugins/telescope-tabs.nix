@@ -2,7 +2,7 @@
 # Telescope extension for tab management (LukasPietzschmann/telescope-tabs)
 { pkgs }:
 let
-  version = "9ca0800d4e9c2610d5cac4d121cde0d9fbd89a64";
+  version = "777b1f630f3d6a12a2e71635a82581c988d6da2e";
 in pkgs.vimUtils.buildVimPlugin {
   inherit version;
   name = "telescope-tabs";
@@ -10,6 +10,6 @@ in pkgs.vimUtils.buildVimPlugin {
     owner = "LukasPietzschmann";
     repo = "telescope-tabs";
     rev = version;
-    hash = "sha256-++iTyrjl6IX2GmwljbgcwiYvZ3ghsX732VWMcyu1ciw=";
+    hash = "";
   };
 }

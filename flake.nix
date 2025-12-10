@@ -3,10 +3,10 @@
   description = "Platform Craft Common Nix Config.";
   inputs = {
     nixgl.url = "github:nix-community/nixGL";
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nur.url = "github:nix-community/NUR";
@@ -14,7 +14,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     deploy-rs.url = "github:serokell/deploy-rs";
     darwin = {
-      url = "github:LnL7/nix-darwin?ref=nix-darwin-25.05";
+      url = "github:LnL7/nix-darwin?ref=nix-darwin-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {

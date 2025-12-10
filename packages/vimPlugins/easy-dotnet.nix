@@ -2,13 +2,13 @@
 # Roslyn LSP integration for Neovim (seblyng/roslyn.nvim)
 { pkgs }:
 let
-  version = "1ebc9393d3e577d9f68102f14d98b2e4e7f15644";
+  version = "f06e8c953c4091f790aabc05060cd923f31940fa";
 in pkgs.vimUtils.buildVimPlugin {
   inherit version;
-  name = "roslyn.nvim";
+  name = "easy-dotnet.nvim";
   src = pkgs.fetchFromGitHub {
-    owner = "seblyng";
-    repo = "roslyn.nvim";
+    owner = "GustavEikaas";
+    repo = "easy-dotnet.nvim";
     rev = version;
     hash = "";
   };
