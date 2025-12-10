@@ -3,11 +3,7 @@ with lib;
 with builtins;
 let
   users = config.personalConfig.users;
-  personalPackages = if (config.personalConfig.machineType == "personal") then
-    with pkgs; [ mpvScripts.mpris playerctl vlc moonlight-qt  ]
-  else
-    [ ];
-  desktopPackages = (with pkgs; [
+  desktopPackages = with pkgs; [
     cpupower-gui
     wg-netmanager
     xorg.xhost
@@ -16,7 +12,9 @@ let
     blueman
     xdg-dbus-proxy
     virt-manager
-  ]) ++ personalPackages;
+    playerctl
+    mpvScripts.mpris
+  ];
   desktopEnabled = any (userConfig: userConfig.desktop != "disabled")
     (mapAttrsToList (user: userConfig: userConfig) users);
   desktopUsers = mapAttrs (user: config:
@@ -117,7 +115,7 @@ in {
       programs.xwayland.enable = true;
     }))
     (lib.mkIf desktopEnabled ({ home-manager.users = desktopUsers; }))
-    (lib.mkIf (config.personalConfig.machineType == "personal") ({
+    (lib.mkIf desktopEnabled ({
       home-manager.users = mpvConfig;
     }))
   ]);

@@ -4,7 +4,6 @@ let
   constants = import ./constants.nix;
   userOptions = import ./user.nix { inherit lib; };
   systemOptions = import ./system.nix { inherit lib; };
-  machineOptions = import ./machine.nix { inherit lib; };
   networkingOptions = import ./networking.nix { inherit lib; };
   cockpitOptions = import ./cockpit.nix { inherit lib; };
   libvirtOptions = import ./libvirt.nix { inherit lib; };
@@ -22,8 +21,6 @@ in
     };
 
     system = systemOptions.options;
-
-    inherit (machineOptions.options) machineType;
 
     networking = networkingOptions.options.personalConfig.networking;
 
