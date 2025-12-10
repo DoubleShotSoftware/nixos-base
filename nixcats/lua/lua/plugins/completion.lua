@@ -7,6 +7,24 @@ if not ok then
   return
 end
 
+local nixCats = require('nixCats')
+
+-- Build sources list
+local default_sources = { 'lsp', 'path', 'snippets', 'buffer' }
+local providers = {}
+
+-- Add easy-dotnet source only if dotnet is enabled
+if nixCats.cats["languages.dotnet"] then
+  table.insert(default_sources, 'easy-dotnet')
+  providers["easy-dotnet"] = {
+    name = "easy-dotnet",
+    enabled = true,
+    module = "easy-dotnet.completion.blink",
+    score_offset = 10000,
+    async = true,
+  }
+end
+
 blink.setup({
   keymap = {
     preset = 'default',
@@ -25,7 +43,8 @@ blink.setup({
     nerd_font_variant = 'mono',
   },
   sources = {
-    default = { 'lsp', 'path', 'snippets', 'buffer' },
+    default = default_sources,
+    providers = providers,
   },
   completion = {
     documentation = {

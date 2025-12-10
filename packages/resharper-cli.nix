@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://download.jetbrains.com/resharper/dotUltimate.${version}/JetBrains.ReSharper.CommandLineTools.${version}.zip";
-    sha256 = "";
+    sha256 = "1lpaz25bpssq8f3qajl5qyfx5nc0ys82sdc36rz2mzx8jnjwx1i3";
   };
 
   nativeBuildInputs = [ unzip makeWrapper ];

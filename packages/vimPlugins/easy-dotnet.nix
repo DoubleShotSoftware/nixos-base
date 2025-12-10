@@ -10,6 +10,6 @@ in pkgs.vimUtils.buildVimPlugin {
     owner = "GustavEikaas";
     repo = "easy-dotnet.nvim";
     rev = version;
-    hash = "";
+    hash = "sha256-bsr8mdQayofy+esXMkTGChVBQ2djGjSt3LFeDW9F7gk=";
   };
 }

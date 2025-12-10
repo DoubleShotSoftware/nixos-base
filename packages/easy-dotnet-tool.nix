@@ -19,7 +19,7 @@ buildDotnetGlobalTool {
 
   # SHA256 hash of the NuGet package
   # This will need to be updated when updating the version
-  nugetSha256 = "";
+  nugetSha256 = "sha256-N10h7LjJQxCby6NFHTrSFkWH1JxFB8gFfzaLYwDxIyc=";
 
   meta = with lib; {
     description = "Easy .NET CLI tool for managing .NET projects";

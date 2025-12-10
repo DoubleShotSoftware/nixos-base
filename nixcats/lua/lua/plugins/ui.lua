@@ -1,6 +1,14 @@
 -- nixcats/lua/plugins/ui.lua
 -- UI plugin configurations
 
+local nixCats = require('nixCats')
+
+-- Build lualine_a section (conditionally add dotnet job indicator)
+local lualine_a = { 'mode' }
+if nixCats.cats["languages.dotnet"] then
+  table.insert(lualine_a, require("easy-dotnet.ui-modules.jobs").lualine)
+end
+
 -- Lualine
 require('lualine').setup({
   options = {
@@ -10,7 +18,7 @@ require('lualine').setup({
     globalstatus = true,
   },
   sections = {
-    lualine_a = { 'mode' },
+    lualine_a = lualine_a,
     lualine_b = { 'branch', 'diff', 'diagnostics' },
     lualine_c = { { 'filename', path = 1 } },
     lualine_x = { 'encoding', 'fileformat', 'filetype' },

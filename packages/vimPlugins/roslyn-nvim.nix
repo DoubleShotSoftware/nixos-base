@@ -10,6 +10,6 @@ in pkgs.vimUtils.buildVimPlugin {
     owner = "seblyng";
     repo = "roslyn.nvim";
     rev = version;
-    hash = "";
+    hash = "sha256-sKlShvL8V8/jzVYQQ5UlEarIF9tBIN+JFe6msrPvb0k=";
   };
 }

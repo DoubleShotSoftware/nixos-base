@@ -10,7 +10,11 @@ with lib;
           Whether to enable libvirt virtualization support.
         '';
       };
-
+      userAllow = mkOption {
+        type = types.listOf types.str;
+        default = [ "manager" ];
+        description = " A list of users to provide acccess to libvirt resources";
+      };
       lookingGlass = {
         enable = mkOption {
           type = types.bool;

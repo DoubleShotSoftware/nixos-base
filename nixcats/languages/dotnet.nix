@@ -1,26 +1,22 @@
 # nixcats/languages/dotnet.nix - .NET/C# language support
-# Uses pkgs.dotnetSDK, pkgs.customVimPlugins, pkgs.easy-dotnet-tool from flake overlay
-{ pkgs, stablePkgs, ... }:
-let
-  # Use stable roslyn-ls to avoid breakage
-  roslyn-ls = stablePkgs.roslyn-ls or pkgs.roslyn-ls;
-in
+# Uses pkgs.dotnetSDK, pkgs.easy-dotnet-tool from flake overlay
+# Note: Roslyn LSP is now handled by easy-dotnet plugin (no longer need roslyn-ls/roslyn-nvim)
+{ pkgs, ... }:
 {
   lspsAndRuntimeDeps = with pkgs; [
     dotnetSDK              # From overlay
-    roslyn-ls
+    # roslyn-ls           # Removed: easy-dotnet handles Roslyn LSP
     csharpier
-    netcoredbg
+    netcoredbg             # Fallback, easy-dotnet bundles its own
     dotnet-outdated
     dotnetPackages.Nuget
     dotnet-ef
     easy-dotnet-tool       # From overlay
   ];
 
-  startupPlugins = (with pkgs.vimPlugins; [
+  startupPlugins = with pkgs.vimPlugins; [
     easy-dotnet-nvim
-  ]) ++ [
-    pkgs.customVimPlugins.roslyn-nvim  # From overlay
+    # roslyn-nvim         # Removed: using easy-dotnet built-in LSP
   ];
 
   optionalPlugins = with pkgs.vimPlugins; [
@@ -35,9 +31,5 @@ in
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
   };
 
-  # Pass paths for Lua config via nixCats.extra
-  extra = {
-    roslynDLLPath = "${roslyn-ls}/lib/roslyn-ls/Microsoft.CodeAnalysis.LanguageServer.dll";
-    roslynDotnetPath = "${pkgs.dotnetSDK}/bin/dotnet";
-  };
+  # extra removed: no longer passing roslyn paths to Lua config
 }

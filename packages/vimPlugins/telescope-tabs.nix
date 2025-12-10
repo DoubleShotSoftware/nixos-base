@@ -10,6 +10,6 @@ in pkgs.vimUtils.buildVimPlugin {
     owner = "LukasPietzschmann";
     repo = "telescope-tabs";
     rev = version;
-    hash = "";
+    hash = "sha256-5NpH9+0ECrcKi8quPLpCHLSPTuzGETWtq4E+2jqUKio=";
   };
 }
