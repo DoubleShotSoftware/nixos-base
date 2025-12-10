@@ -9,6 +9,7 @@ let
   cockpitOptions = import ./cockpit.nix { inherit lib; };
   libvirtOptions = import ./libvirt.nix { inherit lib; };
   firecrackerOptions = import ./firecracker.nix  { inherit lib; };
+  languageSettingsOptions = import ./languageSettings.nix { inherit lib; };
 in
 {
   imports = [ ];
@@ -32,6 +33,8 @@ in
 
     inherit (libvirtOptions.options) linux;
     inherit (firecrackerOptions.options) firecracker;
+
+    languageSettings = languageSettingsOptions.options;
   };
 
   # Export constants for use by other modules

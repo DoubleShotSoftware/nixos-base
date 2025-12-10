@@ -5,7 +5,8 @@ let
   # Get user configs - handle both NixOS and home-manager contexts
   personalConfig = config.personalConfig or config._module.args.personalConfig or {};
   users = personalConfig.users or {};
-  
+  languageSettings = personalConfig.languageSettings or {};
+
   # Available language modules (function name -> filename mapping)
   availableLanguages = {
     json = ./json.nix;
@@ -17,11 +18,15 @@ let
     terraform = ./terraform.nix;
     aws = ./aws.nix;
   };
-  
+
   # Function to get language config for a specific language
+  # Passes language-specific settings if available
   getLanguageConfig = language: username:
+    let
+      settings = languageSettings.${language} or {};
+    in
     if availableLanguages ? ${language}
-    then import availableLanguages.${language} { inherit pkgs username; }
+    then import availableLanguages.${language} { inherit pkgs username lib settings; }
     else null;
     
   # Function to merge language configs

@@ -6,7 +6,7 @@
     nodePackages.typescript-language-server
     nodePackages.eslint
     nodePackages.prettier
-    nodejs
+    # nodejs provided by components/languages/typescript.nix in home.packages
   ];
 
   startupPlugins = with pkgs.vimPlugins; [
