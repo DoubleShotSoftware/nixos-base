@@ -8,15 +8,15 @@
 
 stdenv.mkDerivation rec {
   pname = "cockpit-machines";
-  # Pin to cockpit's version for compatibility
-  version = cockpit.version or "338";
+  # Decouple from nixpkgs as this got ahead of cockpit releases
+  version = "346";
 
   src = fetchzip {
     url = "https://github.com/cockpit-project/cockpit-machines/releases/download/${version}/cockpit-machines-${version}.tar.xz";
     # This hash will need to be updated when cockpit version changes
     # You can get the correct hash by running:
     # nix-prefetch-url --unpack https://github.com/cockpit-project/cockpit-machines/releases/download/${version}/cockpit-machines-${version}.tar.xz
-    sha256 = "13b3f8xn5ns2r1chkqk55afzxpamy6zcw1nink3rc740yaqngmbl";
+    sha256 = "sha256-Hc3M4JB+RHzABIKRQtvD4SyErh4CbY2ZV69lLerZDvw=";
   };
 
   nativeBuildInputs = [
