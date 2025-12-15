@@ -34,6 +34,8 @@ in
       environment.systemPackages =
         let
           cockpit-machines = pkgs.callPackage ../../packages/cockpit-machines.nix { };
+          # Python with pygobject for libosinfo bindings (used by cockpit-machines)
+          pythonWithGi = pkgs.python3.withPackages (ps: [ ps.pygobject3 ]);
         in
         [
           cockpit-machines
@@ -41,6 +43,7 @@ in
           pkgs.virt-manager  # Provides virt-install for VM creation
           pkgs.libosinfo     # OS detection library
           pkgs.osinfo-db     # OS information database
+          pythonWithGi       # Python with GObject introspection
         ];
 
       # Ensure libvirt is configured when machines plugin is enabled
@@ -62,6 +65,12 @@ in
         }/share/cockpit/machines"
         "L+ /usr/share/osinfo - - - - ${pkgs.osinfo-db}/share/osinfo"
       ];
+
+      # Set GI_TYPELIB_PATH for libosinfo GObject introspection (needed by cockpit-machines)
+      environment.sessionVariables.GI_TYPELIB_PATH = lib.mkDefault "${pkgs.libosinfo}/lib/girepository-1.0";
+
+      # Also set for cockpit service specifically
+      systemd.services.cockpit.environment.GI_TYPELIB_PATH = "${pkgs.libosinfo}/lib/girepository-1.0";
     })
   ]);
 }

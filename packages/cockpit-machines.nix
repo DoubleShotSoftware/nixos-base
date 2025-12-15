@@ -4,6 +4,8 @@
 , gettext
 , python3
 , cockpit
+, libosinfo
+, gobject-introspection
 }:
 
 stdenv.mkDerivation rec {
@@ -18,6 +20,9 @@ stdenv.mkDerivation rec {
     # nix-prefetch-url --unpack https://github.com/cockpit-project/cockpit-machines/releases/download/${version}/cockpit-machines-${version}.tar.xz
     sha256 = "sha256-Hc3M4JB+RHzABIKRQtvD4SyErh4CbY2ZV69lLerZDvw=";
   };
+
+  # Python with pygobject3 for libosinfo GObject introspection bindings
+  pythonWithGi = python3.withPackages (ps: [ ps.pygobject3 ]);
 
   nativeBuildInputs = [
     gettext
@@ -41,8 +46,8 @@ stdenv.mkDerivation rec {
 
     gunzip $out/share/cockpit/machines/index.js.gz
 
-    # Fix Python shebang
-    sed -i "s#/usr/bin/python3#${python3}/bin/python3#g" $out/share/cockpit/machines/index.js
+    # Fix Python shebang - use python with pygobject3 for libosinfo bindings
+    sed -i "s#/usr/bin/python3#${pythonWithGi}/bin/python3#g" $out/share/cockpit/machines/index.js
 
     # Remove pwscore reference (not typically available/needed)
     sed -i "s#/usr/bin/pwscore#/usr/bin/env pwscore#ig" $out/share/cockpit/machines/index.js
