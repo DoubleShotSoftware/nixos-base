@@ -39,6 +39,8 @@ in
           cockpit-machines
           pkgs.libvirt
           pkgs.virt-manager  # Provides virt-install for VM creation
+          pkgs.libosinfo     # OS detection library
+          pkgs.osinfo-db     # OS information database
         ];
 
       # Ensure libvirt is configured when machines plugin is enabled
