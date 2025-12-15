@@ -55,11 +55,12 @@ in
         }
       ];
 
-      # Add systemd tmpfiles rules for cockpit-machines
+      # Add systemd tmpfiles rules for cockpit-machines and osinfo-db
       systemd.tmpfiles.rules = [
         "L+ /usr/share/cockpit/machines - - - - ${
           pkgs.callPackage ../../packages/cockpit-machines.nix { }
         }/share/cockpit/machines"
+        "L+ /usr/share/osinfo - - - - ${pkgs.osinfo-db}/share/osinfo"
       ];
     })
   ]);
