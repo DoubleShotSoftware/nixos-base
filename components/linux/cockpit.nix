@@ -67,10 +67,17 @@ in
       ];
 
       # Set GI_TYPELIB_PATH for libosinfo GObject introspection (needed by cockpit-machines)
-      environment.sessionVariables.GI_TYPELIB_PATH = lib.mkDefault "${pkgs.libosinfo}/lib/girepository-1.0";
+      # libosinfo depends on libxml2 typelib
+      environment.sessionVariables.GI_TYPELIB_PATH = lib.mkDefault (lib.concatStringsSep ":" [
+        "${pkgs.libosinfo}/lib/girepository-1.0"
+        "${pkgs.libxml2}/lib/girepository-1.0"
+      ]);
 
       # Also set for cockpit service specifically
-      systemd.services.cockpit.environment.GI_TYPELIB_PATH = "${pkgs.libosinfo}/lib/girepository-1.0";
+      systemd.services.cockpit.environment.GI_TYPELIB_PATH = lib.concatStringsSep ":" [
+        "${pkgs.libosinfo}/lib/girepository-1.0"
+        "${pkgs.libxml2}/lib/girepository-1.0"
+      ];
     })
   ]);
 }
