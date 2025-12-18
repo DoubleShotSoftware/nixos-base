@@ -2,7 +2,7 @@
 { pkgs, username, lib, settings ? {} }:
 {
   packages = with pkgs; [
-    python311Full
+    python311
     python311Packages.pip
     black
     pipenv
