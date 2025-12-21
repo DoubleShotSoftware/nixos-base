@@ -136,6 +136,17 @@ in
       type = types.listOf types.str;
       default = [ ];
     };
+    domain = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Local domain suffix. With expand-hosts, dnsmasq appends this to short hostnames.";
+      example = "zipline.colo-miami.lan.animus.design";
+    };
+    genHosts = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Generate /etc/hosts entries from ethers. Set to false if hosts are managed elsewhere.";
+    };
     interfaces = mkOption {
       default = [ ];
       type = types.listOf (types.submodule dnsMasqInterfaceOptions);
@@ -168,7 +179,7 @@ in
     environment.etc."ethers" = {
       text = (lib.concatStringsSep "\n" (map (ether: "${ether.mac} ${ether.hostname}") cfg.ethers));
     };
-    networking = {
+    networking = mkIf cfg.genHosts {
       hosts = hosts;
     };
     services = {
@@ -191,6 +202,8 @@ in
           log-queries = true;
           listen-address = lib.concatStringsSep "," listenAddresses;
           dhcp-range = interfaceConfigs;
+        } // lib.optionalAttrs (cfg.domain != null) {
+          domain = cfg.domain;
         };
       };
     };
