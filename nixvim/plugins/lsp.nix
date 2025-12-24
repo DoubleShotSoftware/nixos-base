@@ -120,7 +120,8 @@
       };
       sqls.enable = true;
       ts_ls.enable = true;
-      terraformls.enable = true;
+      # terraformls.enable = true;
+      tofu_ls.enable = true;
       tflint.enable = true;
       qmlls.enable = true;
       just.enable = true;

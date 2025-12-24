@@ -95,6 +95,7 @@ with lib;
       type = types.listOf (types.enum [
         "aws"
         "terraform"
+        "tofu"
         "rust"
         "dotnet"
         "python"
