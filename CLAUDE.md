@@ -149,6 +149,40 @@ personalConfig.libvirt = { ... };
 personalConfig.firecracker = { ... };
 ```
 
+### dnsmasq
+
+```nix
+personalConfig.linux.dnsmasq = {
+  enable = true;
+  dnsServers = [ "1.1.1.1" "8.8.8.8" ];
+  domain = "zipline.colo-miami.lan.animus.design";  # expand-hosts appends this
+  interfaces = [{
+    interface = "lan";
+    dhcp = true;
+    listenOn = "10.10.202.1";
+    lowerRange = "10.10.202.100";
+    upperRange = "10.10.202.200";
+    leaseTime = 12;  # hours
+  }];
+  ethers = [{
+    mac = "52:54:00:a4:d5:29";
+    hostname = "win";
+    ip = "10.10.202.10";
+  }];
+  domainOverrides = [{
+    domain = "internal.company.com";
+    includeSubdomains = true;
+    target = [ "192.168.1.53" ];
+  }];
+};
+```
+
+**Key behaviors:**
+- Creates `/etc/ethers` for MAC→hostname mapping
+- Always generates `/etc/hosts` from ethers (hostname→IP) using `lib.mkAfter` for merging
+- dnsmasq `read-ethers` + `/etc/hosts` enables static DHCP assignments
+- `expand-hosts` + `domain` expands short hostnames to FQDNs in DNS responses
+
 ## Usage in Host Configs
 
 In your host flake (e.g., `~/.nixos`):

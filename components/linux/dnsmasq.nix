@@ -142,11 +142,6 @@ in
       description = "Local domain suffix. With expand-hosts, dnsmasq appends this to short hostnames.";
       example = "zipline.colo-miami.lan.animus.design";
     };
-    genHosts = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Generate /etc/hosts entries from ethers. Set to false if hosts are managed elsewhere.";
-    };
     interfaces = mkOption {
       default = [ ];
       type = types.listOf (types.submodule dnsMasqInterfaceOptions);
@@ -179,9 +174,9 @@ in
     environment.etc."ethers" = {
       text = (lib.concatStringsSep "\n" (map (ether: "${ether.mac} ${ether.hostname}") cfg.ethers));
     };
-    networking = mkIf cfg.genHosts {
-      hosts = hosts;
-    };
+    # Always generate hosts from ethers for dnsmasq read-ethers to work
+    # Uses mkAfter to merge with hosts from other modules (e.g., FVM guest networking)
+    networking.hosts = lib.mkAfter hosts;
     services = {
       dnsmasq = {
         enable = true;
