@@ -8,7 +8,6 @@
 with lib;
 with builtins;
 let
-  serviceConfig = config.services.dnsmasq;
   dnsmasq = pkgs.dnsmasq;
   dnsMasqConfig = config.personalConfig.linux.dnsmasq.interfaces;
   cfg = config.personalConfig.linux.dnsmasq;
@@ -106,25 +105,6 @@ let
       )
     ) cfg.domainOverrides
   );
-  # True values are just put as `name` instead of `name=true`, and false values
-  # are turned to comments (false values are expected to be overrides e.g.
-  # mkForce)
-  formatKeyValue =
-    name: value:
-    if value == true then
-      name
-    else if value == false then
-      "# setting `${name}` explicitly set to false"
-    else
-      generators.mkKeyValueDefault { } "=" name value;
-  settingsFormat = pkgs.formats.keyValue {
-    mkKeyValue = formatKeyValue;
-    listsAsDuplicateKeys = true;
-  };
-  dnsmasqConf = pkgs.writeText "dnsmasq.conf" ''
-    conf-file=${settingsFormat.generate "dnsmasq.conf" serviceConfig.settings}
-    ${serviceConfig.extraConfig}
-  '';
 in
 {
   options.personalConfig.linux.dnsmasq = {

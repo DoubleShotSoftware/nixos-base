@@ -4,18 +4,21 @@
   pkgs,
   ...
 }:
-with lib;
-{
-  imports = [ ];
+with lib; {
+  imports = [];
   config = lib.mkMerge [
     (lib.mkIf (pkgs.stdenv.isDarwin) {
       system.stateVersion = config.personalConfig.system.darwinStateVersion;
     })
+    (lib.mkIf (!pkgs.stdenv.isDarwin && config.system.autoUpgrade.enable) {
+      programs.git.config = {
+        safe.directory = "/etc/nixos";
+      };
+    })
     {
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;
-      environment.systemPackages =
-        with pkgs;
+      environment.systemPackages = with pkgs;
         [
           dust
           yazi
@@ -39,7 +42,6 @@ with lib;
           tree
           pwgen
           ssh-to-age
-
         ]
         ++ lib.optionals config.personalConfig.system.developerPackages [
           gnumake
