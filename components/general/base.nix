@@ -10,11 +10,6 @@ with lib; {
     (lib.mkIf (pkgs.stdenv.isDarwin) {
       system.stateVersion = config.personalConfig.system.darwinStateVersion;
     })
-    (lib.mkIf (!pkgs.stdenv.isDarwin && config.system.autoUpgrade.enable) {
-      programs.git.config = {
-        safe.directory = "/etc/nixos";
-      };
-    })
     {
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;

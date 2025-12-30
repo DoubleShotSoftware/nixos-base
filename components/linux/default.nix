@@ -1,5 +1,11 @@
-{ config, lib, options, sops, pkgs, ... }:
-with lib; {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+with lib;
+{
   imports = [
     ./acme.nix
     ./cockpit.nix
@@ -25,48 +31,55 @@ with lib; {
     ./users.nix
     ./networking
   ];
-  config = mkMerge [{
-    system.stateVersion = config.personalConfig.system.nixStateVersion;
-    environment.systemPackages = with pkgs; [
-      inetutils
-      jq
-      usbutils
-      nfs-utils
-      pciutils
-      cryptsetup
-      openssl
-    ];
-    programs.gnupg = {
-      agent = {
-        enable = true;
-        enableSSHSupport = false;
+  config = mkMerge [
+    (config.system.autoUpgrade.enable) {
+      programs.git.config = {
+        safe.directory = "/etc/nixos";
       };
-    };
-    programs.nix-ld = mkIf config.personalConfig.system.remoteDevSupport {
-      enable = true;
-      libraries = with pkgs; [
-        stdenv.cc.cc
-        gcc-unwrapped.lib
-        zlib
-        fuse3
-        icu
-        nss
+    }
+    {
+      system.stateVersion = config.personalConfig.system.nixStateVersion;
+      environment.systemPackages = with pkgs; [
+        inetutils
+        jq
+        usbutils
+        nfs-utils
+        pciutils
+        cryptsetup
         openssl
-        curl
-        expat
-        libgcc
-        libllvm
-        glib
-        gtk3
-        libGL
-        xorg.libX11
-        xorg.libXext
-        xorg.libXrender
-        xorg.libXtst
-        xorg.libXi
-        fontconfig
-        freetype
       ];
-    };
-  }];
+      programs.gnupg = {
+        agent = {
+          enable = true;
+          enableSSHSupport = false;
+        };
+      };
+      programs.nix-ld = mkIf config.personalConfig.system.remoteDevSupport {
+        enable = true;
+        libraries = with pkgs; [
+          stdenv.cc.cc
+          gcc-unwrapped.lib
+          zlib
+          fuse3
+          icu
+          nss
+          openssl
+          curl
+          expat
+          libgcc
+          libllvm
+          glib
+          gtk3
+          libGL
+          xorg.libX11
+          xorg.libXext
+          xorg.libXrender
+          xorg.libXtst
+          xorg.libXi
+          fontconfig
+          freetype
+        ];
+      };
+    }
+  ];
 }
