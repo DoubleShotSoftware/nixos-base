@@ -33,6 +33,7 @@ with lib;
   ];
   config = mkMerge [
     (mkIf config.system.autoUpgrade.enable {
+      programs.git.enable = true;
       programs.git.config = {
         safe.directory = "/etc/nixos";
       };
