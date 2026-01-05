@@ -32,11 +32,11 @@ with lib;
     ./networking
   ];
   config = mkMerge [
-    (config.system.autoUpgrade.enable) {
+    (mkIf config.system.autoUpgrade.enable {
       programs.git.config = {
         safe.directory = "/etc/nixos";
       };
-    }
+    })
     {
       system.stateVersion = config.personalConfig.system.nixStateVersion;
       environment.systemPackages = with pkgs; [
