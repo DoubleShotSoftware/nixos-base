@@ -30,6 +30,7 @@ in {
   let
     # Custom plugins from overlay (using outer pkgs which has the overlay)
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
+    vscodeDiff = pkgs.customVimPlugins.vscode-diff;
 
     # Convert languages list to category enables
     # e.g., ["dotnet" "rust"] -> { "languages.dotnet" = true; "languages.rust" = true; }
@@ -53,6 +54,11 @@ in {
             fzf
             git
             lazygit
+            stylua
+            chafa
+            # Linting tools
+            vale
+            deadnix
           ];
         } // langConfigs.lspsAndRuntimeDeps;
 
@@ -79,6 +85,8 @@ in {
             # LSP
             nvim-lspconfig
             fidget-nvim
+            # Formatting
+            conform-nvim
             # Completion
             blink-cmp
             # Telescope
@@ -86,8 +94,8 @@ in {
             telescope-fzf-native-nvim
             # Git
             gitsigns-nvim
-            diffview-nvim
             lazygit-nvim
+            git-worktree-nvim
             # File explorer
             neo-tree-nvim
             # Which-key
@@ -104,10 +112,29 @@ in {
             snacks-nvim
             # Tab bar
             tabby-nvim
-            # Markdown preview
+            # Markdown
             render-markdown-nvim
+            markdown-preview-nvim
+            # AI assistance
+            avante-nvim
+            copilot-lua
+            # UI extras
+            edgy-nvim
+            nvim-ufo
+            promise-async  # Required by nvim-ufo
+            lsp_signature-nvim
+            # Completion enhancement
+            colorful-menu-nvim
+            # Navigation/window management
+            vim-illuminate
+            smart-splits-nvim
+            zellij-nav-nvim
+            # Linting
+            nvim-lint
           ] ++ [
-            telescopeTabs  # Custom plugin from overlay (outer scope)
+            # Custom plugins from overlay (outer scope)
+            telescopeTabs
+            vscodeDiff
           ] ++ extraPlugins;
         } // langConfigs.startupPlugins;
 

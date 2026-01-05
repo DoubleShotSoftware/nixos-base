@@ -16,6 +16,10 @@ let
     markdown = ./markdown.nix;
     terraform = ./terraform.nix;
     aws = ./aws.nix;
+    kotlin = ./kotlin.nix;
+    scala = ./scala.nix;
+    bash = ./bash.nix;
+    docker = ./docker.nix;
   };
 
   # Get editor config for a language

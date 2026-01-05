@@ -12,7 +12,7 @@ require('gitsigns').setup({
     untracked = { text = '┆' },
   },
   signcolumn = true,
-  numhl = false,
+  numhl = true,
   linehl = false,
   word_diff = false,
   watch_gitdir = {
@@ -52,23 +52,35 @@ require('gitsigns').setup({
   end,
 })
 
--- Diffview
-require('diffview').setup({
-  enhanced_diff_hl = true,
-  view = {
-    default = {
-      layout = 'diff2_horizontal',
+-- vscode-diff (replaces diffview)
+local vscode_diff_ok, vscode_diff = pcall(require, 'vscode-diff')
+if vscode_diff_ok then
+  vscode_diff.setup({
+    highlights = {
+      char_brightness = nil,  -- Auto-detect based on background
     },
-    merge_tool = {
-      layout = 'diff3_horizontal',
+    diff = {
+      disable_inlay_hints = true,
+      max_computation_time_ms = 5000,
     },
-  },
-})
+    explorer = {
+      position = 'left',
+      width = 40,
+      view_mode = 'list',
+    },
+  })
+end
 
--- Diffview keymaps
-vim.keymap.set('n', '<leader>gv', '<cmd>DiffviewOpen<CR>', { desc = 'Open diffview' })
-vim.keymap.set('n', '<leader>gc', '<cmd>DiffviewClose<CR>', { desc = 'Close diffview' })
-vim.keymap.set('n', '<leader>gh', '<cmd>DiffviewFileHistory %<CR>', { desc = 'File history' })
+-- Diff keymaps
+vim.keymap.set('n', '<leader>gv', '<cmd>CodeDiff<CR>', { desc = 'Open diff' })
+vim.keymap.set('n', '<leader>gc', '<cmd>CodeDiffClose<CR>', { desc = 'Close diff' })
+vim.keymap.set('n', '<leader>gh', '<cmd>CodeDiff file HEAD<CR>', { desc = 'File history' })
+
+-- Git buffer search (Telescope)
+vim.keymap.set('n', '<leader>gC', '<cmd>Telescope git_bcommits<CR>', { desc = 'Buffer commits' })
+vim.keymap.set('n', '<leader>gB', function() require('gitsigns').toggle_current_line_blame() end, { desc = 'Toggle blame' })
+vim.keymap.set('n', '<leader>gl', '<cmd>Telescope git_commits<CR>', { desc = 'Git log' })
+vim.keymap.set('n', '<leader>gf', '<cmd>Telescope git_status<CR>', { desc = 'Git status files' })
 
 -- Lazygit
 vim.keymap.set('n', '<leader>gg', '<cmd>LazyGit<CR>', { desc = 'LazyGit' })
