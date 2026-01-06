@@ -51,6 +51,22 @@ let
         };
       };
     };
+  routeOptions =
+    { ... }:
+    {
+      options = {
+        destination = mkOption {
+          type = types.str;
+          description = "Destination network in CIDR notation (e.g., 172.16.128.0/24)";
+          example = "172.16.128.0/24";
+        };
+        gateway = mkOption {
+          type = types.str;
+          description = "Gateway IP address for this route";
+          example = "172.16.1.1";
+        };
+      };
+    };
   dnsMasqInterfaceOptions =
     { ... }:
     {
@@ -81,6 +97,15 @@ let
           description = "Lease time for a dhcp address in hours.";
           default = 12;
         };
+        routes = mkOption {
+          type = types.listOf (types.submodule routeOptions);
+          default = [ ];
+          description = "Static routes to push via DHCP option 121 (classless static routes)";
+          example = [
+            { destination = "172.16.128.0/24"; gateway = "172.16.1.1"; }
+            { destination = "192.168.130.0/24"; gateway = "172.16.1.1"; }
+          ];
+        };
       };
     };
   listenAddresses = map (interfaceConfig: interfaceConfig.listenOn) dnsMasqConfig;
@@ -104,6 +129,19 @@ let
         ) override.target
       )
     ) cfg.domainOverrides
+  );
+  # Generate DHCP option 121 (classless static routes) per interface
+  # Format: dhcp-option=tag:<interface>,121,<dest>,<gateway>,...
+  # When using interface:<name> in dhcp-range, dnsmasq creates a tag matching the interface
+  dhcpRouteDirectives = lib.flatten (
+    map (interfaceConfig:
+      if interfaceConfig.routes == [] then []
+      else
+        let
+          routeEntries = lib.concatMapStringsSep "," (r: "${r.destination},${r.gateway}") interfaceConfig.routes;
+        in
+          [ "tag:${interfaceConfig.interface},121,${routeEntries}" ]
+    ) dnsMasqConfig
   );
 in
 {
@@ -177,6 +215,7 @@ in
           log-queries = true;
           listen-address = lib.concatStringsSep "," listenAddresses;
           dhcp-range = interfaceConfigs;
+          dhcp-option = dhcpRouteDirectives;
         } // lib.optionalAttrs (cfg.domain != null) {
           domain = cfg.domain;
         };
