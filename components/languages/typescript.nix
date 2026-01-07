@@ -7,7 +7,8 @@ let
   extraPackages = settings.extraPackages or [];
 in
 {
-  packages = with pkgs.unstable; [
+  # Use stable packages to avoid nodejs build from source issues in unstable
+  packages = with pkgs; [
     yarn
     pnpm
     nodePackages.npm
