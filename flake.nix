@@ -22,8 +22,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvim = {
-      url = "github:nix-community/nixvim?ref=8e2bbc6b0bcec4154e3c18f20c6da1ba6caa7810";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      url = "github:nix-community/nixvim/nixos-25.11";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nixCats = {
       url = "github:BirdeeHub/nixCats-nvim";
