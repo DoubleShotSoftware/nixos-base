@@ -229,6 +229,7 @@
             ]));
           in
           {
+            # Legacy nixvim (deprecated - use mkNixCatsIDE instead)
             nvim-ide = self.packages.${prev.system}.nixvim;
             nvim-ide-lite = self.packages.${prev.system}.nixvim-lite;
             inherit unstable dotnetSDK;
@@ -236,6 +237,24 @@
             customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
             # Easy-dotnet CLI tool
             easy-dotnet-tool = unstable.callPackage ./packages/easy-dotnet-tool.nix { };
+
+            # Dynamic nixcats builder - builds slim editor with only specified languages
+            # Usage: pkgs.mkNixCatsIDE { languages = ["dotnet" "typescript"]; }
+            mkNixCatsIDE = {
+              languages ? [ ],
+              theme ? "catppuccin",
+              wrapRc ? true,
+              extraCategories ? { },
+              extraPlugins ? [ ],
+              extraPackages ? [ ],
+            }:
+              nixcatsLib.mkNixCats {
+                system = prev.system;
+                pkgs = unstable;
+                stablePkgs = prev;
+                languages = [ "nix" ] ++ languages;  # always include nix
+                inherit theme wrapRc extraCategories extraPlugins extraPackages;
+              };
           }
           // (customPackages { pkgs = final; inherit dotnetSDK; });
       };
