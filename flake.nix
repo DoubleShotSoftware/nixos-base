@@ -248,9 +248,16 @@
               extraPlugins ? [ ],
               extraPackages ? [ ],
             }:
+              let
+                # Extend unstable with overlay packages needed by nixcats language modules
+                customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
+                pkgsForNixcats = unstable // {
+                  inherit dotnetSDK customVimPlugins;
+                };
+              in
               nixcatsLib.mkNixCats {
                 system = prev.system;
-                pkgs = unstable;
+                pkgs = pkgsForNixcats;
                 stablePkgs = prev;
                 languages = [ "nix" ] ++ languages;  # always include nix
                 inherit theme wrapRc extraCategories extraPlugins extraPackages;
