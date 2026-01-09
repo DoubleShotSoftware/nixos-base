@@ -229,9 +229,6 @@
             ]));
           in
           {
-            # Legacy nixvim (deprecated - use mkNixCatsIDE instead)
-            nvim-ide = self.packages.${prev.system}.nixvim;
-            nvim-ide-lite = self.packages.${prev.system}.nixvim-lite;
             inherit unstable dotnetSDK;
             # Custom vim plugins shared between nixvim and nixcats
             customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };

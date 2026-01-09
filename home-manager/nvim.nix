@@ -22,13 +22,12 @@ let
   # Get user's languages for nixcats
   userLanguages = userConfig.languages or [];
 
-  # Build nixcats with user's languages (if mkNixCatsIDE is available in overlay)
+  # Build nixcats with user's languages
   nixcatsPackage =
     if pkgs ? mkNixCatsIDE then
       pkgs.mkNixCatsIDE { languages = userLanguages; }
     else
-      # Fallback to legacy nvim-ide if mkNixCatsIDE not available
-      pkgs.nvim-ide or null;
+      null;
 
 in
 {
