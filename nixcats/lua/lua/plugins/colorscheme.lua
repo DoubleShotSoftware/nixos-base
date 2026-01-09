@@ -65,7 +65,7 @@ if theme == 'tokyonight' then
 elseif theme == 'catppuccin' then
   require('catppuccin').setup({
     flavour = 'mocha',
-    transparent_background = false,
+    transparent_background = true,
     term_colors = true,
     dim_inactive = { enabled = true },
     integrations = {

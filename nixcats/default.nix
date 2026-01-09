@@ -157,7 +157,7 @@ in {
         settings = {
           inherit wrapRc;
           configDirName = "nixcats";
-          aliases = [ "vim" "vi" ];
+          aliases = [ "e" "nvim" "vim" "vi" ];
           neovim-unwrapped = pkgs.neovim-unwrapped;
           # For wrapRc = false, use this path for lua config
           unwrappedCfgPath = ./lua;
