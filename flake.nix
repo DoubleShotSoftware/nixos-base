@@ -251,8 +251,9 @@
               let
                 # Extend unstable with overlay packages needed by nixcats language modules
                 customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
+                easy-dotnet-tool = unstable.callPackage ./packages/easy-dotnet-tool.nix { };
                 pkgsForNixcats = unstable // {
-                  inherit dotnetSDK customVimPlugins;
+                  inherit dotnetSDK customVimPlugins easy-dotnet-tool;
                 };
               in
               nixcatsLib.mkNixCats {
