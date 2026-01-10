@@ -67,7 +67,6 @@ elseif theme == 'catppuccin' then
     flavour = 'mocha',
     transparent_background = true,
     term_colors = true,
-    dim_inactive = { enabled = true },
     integrations = {
       cmp = true,
       gitsigns = true,
@@ -75,7 +74,7 @@ elseif theme == 'catppuccin' then
       treesitter = true,
       notify = true,
       mini = true,
-      telescope = { enabled = true },
+      telescope = { enabled = true, style = 'nvchad' },
       which_key = true,
       indent_blankline = { enabled = true },
       native_lsp = {
@@ -116,6 +115,7 @@ elseif theme == 'catppuccin' then
         DiagnosticSignWarn = { fg = colors.yellow, bg = colors.mantle },
         DiagnosticSignInfo = { fg = colors.blue, bg = colors.mantle },
         DiagnosticSignHint = { fg = colors.teal, bg = colors.mantle },
+
       }
     end,
   })
