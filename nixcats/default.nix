@@ -55,6 +55,7 @@ in {
             lazygit
             nodejs  # Required for copilot
             stylua  # Lua formatter
+            lua-language-server  # Lua LSP
           ];
         } // langConfigs.lspsAndRuntimeDeps;
 

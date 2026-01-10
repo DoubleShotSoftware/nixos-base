@@ -56,17 +56,35 @@ if ok_blink then
   capabilities = blink.get_lsp_capabilities(capabilities)
 end
 
+-- Pre-configure vim.lsp.config for easy_dotnet BEFORE setup
+-- easy-dotnet merges capabilities from existing vim.lsp.config["easy_dotnet"]
+vim.lsp.config.easy_dotnet = {
+  capabilities = capabilities,
+}
+
+-- Set up LspAttach autocmd for easy_dotnet (easy-dotnet has its own on_attach we can't override)
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('EasyDotnetLspAttach', { clear = true }),
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if not client or client.name ~= 'easy_dotnet' then
+      return
+    end
+    -- Apply our on_attach for easy_dotnet client
+    on_attach(client, ev.buf)
+  end,
+})
+
 -- Easy-dotnet setup (includes built-in Roslyn LSP)
 require("easy-dotnet").setup({
-  -- LSP configuration with our on_attach
+  -- LSP configuration - settings go inside config.settings
   lsp = {
     enabled = true,
     roslynator_enabled = true,
-    -- Pass our capabilities and on_attach
-    capabilities = capabilities,
-    on_attach = on_attach,
-    -- Include settings from lsp/easy_dotnet.lua
-    settings = lsp_settings.settings,
+    -- Settings must be inside config.settings (see roslyn/lsp.lua:330)
+    config = {
+      settings = lsp_settings.settings,
+    },
   },
 
   -- Zero-config debugging with bundled NetCoreDbg

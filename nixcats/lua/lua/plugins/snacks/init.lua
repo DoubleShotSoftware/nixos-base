@@ -15,6 +15,9 @@ Snacks.setup({
   quickfile = { enabled = true },
   words = { enabled = true },
 
+  -- Picker (handles vim.ui.select)
+  picker = { enabled = true },
+
   -- Git integration
   gitbrowse = { enabled = true },
 
