@@ -12,8 +12,8 @@
   };
 
   # Build the native library separately
-  libcodediff = pkgs.stdenv.mkDerivation {
-    pname = "libcodediff";
+  libvscode-diff = pkgs.stdenv.mkDerivation {
+    pname = "libvscode-diff";
     inherit version src;
 
     nativeBuildInputs = with pkgs; [ cmake ];
@@ -24,11 +24,12 @@
       "-DENABLE_OPENMP=${if pkgs.stdenv.isLinux then "ON" else "OFF"}"
     ];
 
+    # Library is built in libvscode-diff/ subdirectory as libvscode_diff.so
     installPhase = ''
       runHook preInstall
       mkdir -p $out/lib
-      cp libcodediff/libcodediff.so $out/lib/ 2>/dev/null || \
-      cp libcodediff/libcodediff.dylib $out/lib/ 2>/dev/null || true
+      cp libvscode-diff/libvscode_diff.so $out/lib/ 2>/dev/null || \
+      cp libvscode-diff/libvscode_diff.dylib $out/lib/ 2>/dev/null || true
       runHook postInstall
     '';
   };
@@ -41,9 +42,10 @@ in
 
     dependencies = with pkgs.vimPlugins; [ nui-nvim ];
 
-    # Copy the pre-built library into the plugin
+    # Copy the pre-built library into the plugin root
+    # The unversioned name (libvscode_diff.so) tells installer.needs_update() to skip auto-install
     postInstall = ''
-      cp ${libcodediff}/lib/libcodediff.* $out/ 2>/dev/null || true
+      cp ${libvscode-diff}/lib/libvscode_diff.* $out/ 2>/dev/null || true
     '';
 
     # Skip require check - library loading happens at runtime

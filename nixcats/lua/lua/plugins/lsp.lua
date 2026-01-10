@@ -36,9 +36,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     -- Actions
     map('n', '<leader>la', vim.lsp.buf.code_action, 'Code action')
-    map('n', '<leader>lr', vim.lsp.buf.rename, 'Rename symbol')
+    map('n', '<leader>lr', vim.lsp.buf.references, 'References')
+    map('n', '<leader>lR', vim.lsp.buf.rename, 'Rename symbol')
     map('n', '<leader>lf', function() vim.lsp.buf.format({ async = true }) end, 'Format buffer')
     map('n', '<leader>li', '<cmd>checkhealth lsp<CR>', 'LSP info')
+    map('n', '<leader>lo', vim.lsp.buf.document_symbol, 'Document symbols')
 
     -- Diagnostics
     map('n', '<leader>ld', vim.diagnostic.open_float, 'Line diagnostics')
