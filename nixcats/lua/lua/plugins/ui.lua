@@ -109,11 +109,15 @@ require('trouble').setup({
   use_diagnostic_signs = true,
 })
 
+-- Main trouble keymaps under <leader>x
 vim.keymap.set('n', '<leader>xx', '<cmd>Trouble diagnostics toggle<CR>', { desc = 'Diagnostics (Trouble)' })
 vim.keymap.set('n', '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<CR>', { desc = 'Buffer diagnostics' })
 vim.keymap.set('n', '<leader>xs', '<cmd>Trouble symbols toggle<CR>', { desc = 'Symbols (Trouble)' })
 vim.keymap.set('n', '<leader>xl', '<cmd>Trouble lsp toggle<CR>', { desc = 'LSP refs (Trouble)' })
 vim.keymap.set('n', '<leader>xq', '<cmd>Trouble qflist toggle<CR>', { desc = 'Quickfix (Trouble)' })
+
+-- LSP group shortcut (matches nixvim)
+vim.keymap.set('n', '<leader>lx', '<cmd>Trouble diagnostics toggle focus=false filter.buf=0<CR>', { desc = 'Buffer diagnostics' })
 
 -- Indent blankline
 require('ibl').setup({

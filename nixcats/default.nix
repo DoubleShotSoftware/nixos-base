@@ -30,6 +30,7 @@ in {
   let
     # Custom plugins from overlay (using outer pkgs which has the overlay)
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
+    codediff = pkgs.customVimPlugins.codediff;
 
     # Convert languages list to category enables
     # e.g., ["dotnet" "rust"] -> { "languages.dotnet" = true; "languages.rust" = true; }
@@ -115,6 +116,7 @@ in {
             conform-nvim
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
+            codediff       # VSCode-style diff viewer
           ] ++ extraPlugins;
         } // langConfigs.startupPlugins;
 

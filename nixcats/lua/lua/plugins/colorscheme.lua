@@ -4,7 +4,7 @@
 local nixCats = require('nixCats')
 local theme = nixCats.extra.theme or 'tokyonight'
 
--- Tokyonight setup
+-- Tokyonight setup (matches nixvim config)
 if theme == 'tokyonight' then
   require('tokyonight').setup({
     style = 'night',
@@ -12,7 +12,9 @@ if theme == 'tokyonight' then
     terminal_colors = true,
     dim_inactive = true,
     lualine_bold = false,
-    sidebars = { 'qf', 'vista_kind', 'terminal', 'packer', 'neo-tree' },
+    hide_inactive_statusline = false,
+    light_style = 'day',
+    sidebars = { 'qf', 'vista_kind', 'terminal', 'packer' },
     day_brightness = 0.3,
     styles = {
       comments = { italic = true },
@@ -35,11 +37,11 @@ if theme == 'tokyonight' then
         bg = colors.bg_dark,
       }
       hl.LineNrAbove = {
-        fg = colors.blue,
+        fg = colors.blue1,  -- blue_bright in tokyonight
         bg = colors.bg_dark,
       }
       hl.LineNrBelow = {
-        fg = colors.blue,
+        fg = colors.blue1,  -- blue_bright in tokyonight
         bg = colors.bg_dark,
       }
 
@@ -52,11 +54,17 @@ if theme == 'tokyonight' then
       hl.GitSignsChange = { fg = colors.blue, bg = colors.bg_dark }
       hl.GitSignsDelete = { fg = colors.red, bg = colors.bg_dark }
 
-      -- LSP diagnostics with dark background
+      -- LSP diagnostics with dark background (modern names)
       hl.DiagnosticSignError = { fg = colors.red, bg = colors.bg_dark }
       hl.DiagnosticSignWarn = { fg = colors.yellow, bg = colors.bg_dark }
       hl.DiagnosticSignInfo = { fg = colors.blue, bg = colors.bg_dark }
       hl.DiagnosticSignHint = { fg = colors.cyan, bg = colors.bg_dark }
+
+      -- Legacy LSP diagnostic names (for compatibility)
+      hl.LspDiagnosticsDefaultHint = { fg = colors.yellow, bg = colors.bg_dark }
+      hl.LspDiagnosticsSignHint = { fg = colors.yellow, bg = colors.bg_dark }
+      hl.LspDiagnosticsSignError = { fg = colors.red, bg = colors.bg_dark }
+      hl.LspDiagnosticsSignWarning = { fg = colors.yellow, bg = colors.bg_dark }
     end,
   })
   vim.cmd.colorscheme('tokyonight')
