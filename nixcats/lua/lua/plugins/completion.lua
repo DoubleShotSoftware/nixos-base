@@ -1,50 +1,10 @@
 -- nixcats/lua/plugins/completion.lua
--- Completion configuration (blink.cmp + colorful-menu)
+-- Completion configuration (blink.cmp)
 
 local ok, blink = pcall(require, 'blink.cmp')
 if not ok then
   vim.notify('blink.cmp not found', vim.log.levels.WARN)
   return
-end
-
--- Setup colorful-menu for enhanced completion highlighting
-local cm_ok, colorful_menu = pcall(require, 'colorful-menu')
-if cm_ok then
-  colorful_menu.setup({
-    ls = {
-      lua_ls = { arguments_hl = "@comment" },
-      gopls = {
-        align_type_to_right = true,
-        add_colon_before_type = false,
-        preserve_type_when_truncate = true,
-      },
-      ts_ls = { extra_info_hl = "@comment" },
-      vtsls = { extra_info_hl = "@comment" },
-      ["rust-analyzer"] = {
-        extra_info_hl = "@comment",
-        align_type_to_right = true,
-        preserve_type_when_truncate = true,
-      },
-      clangd = {
-        extra_info_hl = "@comment",
-        align_type_to_right = true,
-        import_dot_hl = "@comment",
-        preserve_type_when_truncate = true,
-      },
-      zls = { align_type_to_right = true },
-      roslyn = { extra_info_hl = "@comment" },
-      dartls = { extra_info_hl = "@comment" },
-      basedpyright = { extra_info_hl = "@comment" },
-      pylsp = {
-        extra_info_hl = "@comment",
-        arguments_hl = "@comment",
-      },
-      fallback = true,
-      fallback_extra_info_hl = "@comment",
-    },
-    fallback_highlight = "@variable",
-    max_width = 60,
-  })
 end
 
 local nixCats = require('nixCats')
@@ -67,9 +27,16 @@ end
 
 blink.setup({
   keymap = {
-    preset = 'super-tab',  -- Tab accepts completion (like nixvim)
+    preset = 'default',
     ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
-    ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
+    ['<C-e>'] = { 'hide' },
+    ['<CR>'] = { 'accept', 'fallback' },
+    ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' },
+    ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
+    ['<C-p>'] = { 'select_prev', 'fallback' },
+    ['<C-n>'] = { 'select_next', 'fallback' },
+    ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
+    ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
   },
   appearance = {
     use_nvim_cmp_as_default = true,

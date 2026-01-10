@@ -58,25 +58,6 @@ vim.keymap.set('n', '<leader>bC', function()
   require('mini.bufremove').delete(0, true)
 end, { desc = 'Force close buffer' })
 
--- Quality-of-life keybindings
-vim.keymap.set('n', '<leader>w', '<cmd>w<CR>', { desc = 'Save file' })
-vim.keymap.set('n', '<leader>W', '<cmd>wa<CR>', { desc = 'Save all files' })
-vim.keymap.set('n', '<leader>q', '<cmd>q<CR>', { desc = 'Quit' })
-vim.keymap.set('n', '<leader>Q', '<cmd>qa!<CR>', { desc = 'Force quit all' })
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlights' })
-
--- Colorscheme picker
-vim.keymap.set('n', '<leader>uC', function()
-  vim.ui.select(vim.fn.getcompletion('', 'color'), {
-    prompt = 'Select colorscheme:',
-  }, function(choice)
-    if choice then vim.cmd.colorscheme(choice) end
-  end)
-end, { desc = 'Pick colorscheme' })
-
--- Markdown preview
-vim.keymap.set('n', '<leader>mp', '<cmd>MarkdownPreviewToggle<CR>', { desc = 'Toggle markdown preview' })
-
 -- Snacks.nvim is configured in plugins/snacks/init.lua
 
 -- Render-markdown (markdown preview in buffer)

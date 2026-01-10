@@ -28,6 +28,14 @@ let
             permittedInsecurePackages = [ ];
           };
         };
+
+        # Override vimPlugins to disable require check for treesitter-textobjects
+        # (it requires nvim-treesitter to be loaded first)
+        vimPlugins = prev.vimPlugins // {
+          nvim-treesitter-textobjects = prev.vimPlugins.nvim-treesitter-textobjects.overrideAttrs {
+            doCheck = false;
+          };
+        };
       })
       # Neovim overlay for unstable
       (_final: prev: {

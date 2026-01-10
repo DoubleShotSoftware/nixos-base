@@ -15,9 +15,10 @@ with lib; {
       nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs;
         [
+          ghostty.terminfo
+          wezterm.terminfo
           dust
           yazi
-          unstable.jujutsu
           broot
           btop
           nix-output-monitor

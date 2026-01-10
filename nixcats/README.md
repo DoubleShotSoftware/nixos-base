@@ -1,175 +1,225 @@
-# nixcats
+# nixcats - Neovim Configuration
 
-A [nixCats](https://github.com/BirdeeHub/nixCats-nvim)-based Neovim distribution with Lua-first philosophy and Nix reproducibility.
+A [nixCats](https://github.com/BirdeeHub/nixCats-nvim)-based Neovim configuration with Lua-first philosophy and Nix reproducibility.
 
 ## Quick Start
 
 ```bash
-# Full IDE (all languages)
-nix run .#nixcats-full
-
 # Minimal (nix language only)
 nix run .#nixcats
 
-# Dev mode (live Lua reload)
+# Full IDE (all languages)
+nix run .#nixcats-full
+
+# Dev mode (live Lua reload for config development)
 nix run .#nixcats-dev
 ```
 
-## Package Variants
+## Philosophy
 
-| Package | Languages | Use Case |
-|---------|-----------|----------|
-| `nixcats` | nix | Minimal Nix development |
-| `nixcats-full` | nix, dotnet, rust, python, typescript, json, sql, terraform | Full-stack IDE |
-| `nixcats-dev` | nix | Configuration development (live reload) |
+**Lua-first**: Configuration lives in standard Lua files, making it portable and familiar to any Neovim user.
 
-## Features
+**Nix for dependencies**: Plugins, LSPs, and tools are managed by Nix, ensuring reproducibility without polluting your system.
 
-- **Lua-first**: Standard Neovim Lua configuration, portable anywhere
-- **Nix reproducibility**: Plugins, LSPs, and tools managed deterministically
-- **Category-based loading**: Enable only the languages you need
-- **Theme flexibility**: Choose tokyonight or catppuccin
-- **Dev mode**: Edit Lua config without rebuilding
+**Category-based loading**: Enable languages via a simple list - only the requested language tooling is included.
 
-## Documentation
+## Architecture
 
-- [Keybindings Reference](docs/KEYBINDINGS.md) - Complete key mappings
-- [Language Modules](docs/LANGUAGES.md) - Available languages and their tools
-- [Architecture](docs/ARCHITECTURE.md) - How nixcats works internally
+```
+nixcats/
+├── default.nix          # Builder function (mkNixCats)
+├── languages/           # Language-specific Nix configs
+│   ├── default.nix      # Language module loader & merging
+│   ├── nix.nix          # Nix: nixd, alejandra
+│   ├── dotnet.nix       # .NET: roslyn-ls, easy-dotnet, netcoredbg
+│   ├── rust.nix         # Rust: rust-analyzer, rustaceanvim
+│   ├── python.nix       # Python: pyright, black, ruff
+│   ├── typescript.nix   # TypeScript: ts_ls, eslint, prettier
+│   ├── json.nix         # JSON: jsonls, schemastore
+│   └── sql.nix          # SQL: sqls, pgformatter
+└── lua/                 # Neovim Lua configuration
+    ├── init.lua         # Entry point
+    └── lua/
+        ├── core/        # options.lua, keymaps.lua
+        └── plugins/     # Plugin configs (lsp.lua, telescope.lua, etc.)
+```
 
-## Configuration
+## How It Works
+
+### 1. Flake Overlay (Single Source of Truth)
+
+The `flake.nix` overlay defines shared packages used by both nixvim and nixcats:
+
+```nix
+overlays.default = final: prev: {
+  dotnetSDK = ...;              # Combined .NET SDKs
+  customVimPlugins = ...;       # Custom vim plugins (roslyn-nvim, etc.)
+  easy-dotnet-tool = ...;       # CLI tools
+};
+```
+
+### 2. mkNixCats Builder
+
+Receives pre-configured `pkgs` (with overlay) and builds Neovim:
 
 ```nix
 nixcatsLib.mkNixCats {
-  system = "x86_64-linux";
-  pkgs = unstablePkgs;
-  stablePkgs = stablePkgs;
-
-  # Languages to enable
+  inherit system stablePkgs;
+  pkgs = unstablePkgs;          # Has overlay applied
   languages = [ "nix" "dotnet" "rust" ];
-
-  # Theme: "tokyonight" (default) or "catppuccin"
-  theme = "tokyonight";
-
-  # Hermetic build (true) or dev mode (false)
-  wrapRc = true;
-
-  # Optional extras
-  extraPlugins = [ ];
-  extraPackages = [ ];
-  extraCategories = { debug = true; };
+  wrapRc = true;                # Hermetic build
 }
 ```
 
-## Available Languages
+### 3. Language Modules
 
-| Language | LSP | Formatter | Tools |
-|----------|-----|-----------|-------|
-| nix | nixd | alejandra | statix, deadnix |
-| dotnet | roslyn-ls | csharpier | netcoredbg, dotnet-ef |
-| rust | rust-analyzer | rustfmt | clippy |
-| python | pyright | ruff, black | isort |
-| typescript | ts_ls | prettier | eslint |
-| json | jsonls | - | schemastore |
-| sql | sqls | pgformatter | - |
-| markdown | marksman | - | - |
-| terraform | terraformls | - | - |
-| kotlin | kotlin-lsp | ktlint | gradle |
-| scala | metals | scalafmt | mill, sbt |
-| bash | bashls | shfmt | shellcheck |
-| docker | dockerls | - | hadolint |
-| aws | yamlls | - | CloudFormation schemas |
+Each `languages/{lang}.nix` returns:
 
-See [Language Modules](docs/LANGUAGES.md) for details.
+```nix
+{
+  lspsAndRuntimeDeps = [ ... ];   # LSPs, formatters, tools
+  startupPlugins = [ ... ];       # Always-loaded plugins
+  optionalPlugins = [ ... ];      # Lazy-loaded plugins
+  environmentVariables = { };     # DOTNET_ROOT, etc.
+  extra = { };                    # Passed to Lua via nixCats.extra
+}
+```
 
-## Key Bindings Summary
+### 4. Category System
 
-Leader key: `<Space>`
+Languages list becomes nixCats categories:
 
-| Category | Keys | Description |
-|----------|------|-------------|
-| Find | `<leader>ff` | Find files |
-| Find | `<leader>fg` | Live grep |
-| LSP | `gd` | Go to definition |
-| LSP | `K` | Hover documentation |
-| LSP | `<leader>la` | Code action |
-| Git | `<leader>gg` | LazyGit |
-| Debug | `<leader>db` | Toggle breakpoint |
+```nix
+languages = [ "dotnet" "rust" ]
+# Creates: nixCats.cats["languages.dotnet"] = true
+#          nixCats.cats["languages.rust"] = true
+```
 
-See [Keybindings Reference](docs/KEYBINDINGS.md) for complete list.
+In Lua, guard language-specific config:
+
+```lua
+if not nixCats.cats["languages.dotnet"] then return end
+-- dotnet-specific setup here
+```
+
+### 5. Passing Nix Paths to Lua
+
+Use `extra` to pass Nix store paths:
+
+```nix
+# In languages/dotnet.nix
+extra = {
+  roslynDLLPath = "${roslyn-ls}/lib/roslyn-ls/...";
+};
+```
+
+```lua
+-- In lua/plugins/dotnet.lua
+local roslynDLLPath = nixCats.extra.roslynDLLPath
+```
 
 ## Adding a New Language
 
-1. Create `languages/{lang}.nix`:
+### Step 1: Create Language Module
+
+Create `nixcats/languages/{lang}.nix`:
+
 ```nix
 { pkgs, stablePkgs, ... }:
 {
-  lspsAndRuntimeDeps = with pkgs; [ your-lsp ];
-  startupPlugins = [ ];
+  lspsAndRuntimeDeps = with pkgs; [
+    your-lsp
+    your-formatter
+  ];
+
+  startupPlugins = with pkgs.vimPlugins; [
+    language-specific-plugin
+  ];
+
   optionalPlugins = [ ];
+
   environmentVariables = { };
+
+  extra = {
+    # Optional: paths needed in Lua
+  };
 }
 ```
 
-2. Register in `languages/default.nix`:
+### Step 2: Register Language
+
+Add to `languages/default.nix`:
+
 ```nix
 availableLanguages = {
+  # ... existing languages ...
   yourlang = ./yourlang.nix;
 };
 ```
 
-3. Add LSP config to `lua/lua/plugins/lsp.lua`:
+### Step 3: Add Lua Config (if needed)
+
+Create `lua/lua/plugins/{lang}.lua`:
+
 ```lua
-if hasLang('yourlang') then
-  table.insert(servers, 'yourlang_server')
-  vim.lsp.config.yourlang_server = { capabilities = capabilities }
+local nixCats = require('nixCats')
+
+if not nixCats.cats["languages.yourlang"] then
+  return
 end
+
+-- Your plugin setup here
+require("your-plugin").setup({ ... })
 ```
 
-4. Test: `nix run .#nixcats-full`
+Add to `lua/lua/plugins/init.lua`:
 
-See [Architecture](docs/ARCHITECTURE.md) for detailed guide.
-
-## Directory Structure
-
-```
-nixcats/
-├── default.nix              # mkNixCats builder
-├── languages/               # Language modules (Nix)
-│   ├── default.nix          # Module loader
-│   ├── nix.nix
-│   ├── dotnet.nix
-│   └── ...
-├── lua/                     # Neovim configuration (Lua)
-│   ├── init.lua
-│   └── lua/
-│       ├── core/            # options.lua, keymaps.lua
-│       ├── plugins/         # Plugin configurations
-│       └── languages/       # Language-specific Lua
-└── docs/                    # Documentation
+```lua
+require('plugins.yourlang')
 ```
 
-## Development
-
-### Dev Mode
-
-Use `nixcats-dev` for live Lua reload:
+### Step 4: Test
 
 ```bash
-nix run .#nixcats-dev
-```
-
-Edit `lua/**/*.lua` files - restart Neovim to see changes (no rebuild needed).
-
-### Testing Changes
-
-```bash
-# Build without switching
 nix build .#nixcats-full --no-link
-
-# Run the build
 nix run .#nixcats-full
 ```
+
+## Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| `pkgs.dotnetSDK` | Combined .NET SDK from overlay |
+| `pkgs.customVimPlugins` | Custom vim plugins (roslyn-nvim) |
+| `stablePkgs` | Stable nixpkgs for packages that break on unstable |
+| `wrapRc = true` | Hermetic: Lua baked into derivation |
+| `wrapRc = false` | Dev mode: reads from `./lua` at runtime |
+| `nixCats.cats[key]` | Check if category enabled |
+| `nixCats.extra[key]` | Access Nix values in Lua |
+
+## Customization
+
+### Via mkNixCats Parameters
+
+```nix
+nixcatsLib.mkNixCats {
+  languages = [ "nix" "rust" ];     # Enable languages
+  extraPlugins = [ ... ];           # Additional plugins
+  extraPackages = [ ... ];          # Additional runtime deps
+  extraCategories = { debug = true; };  # Enable debug plugins
+  wrapRc = false;                   # Dev mode
+}
+```
+
+### Available Languages
+
+- `nix` - nixd, alejandra
+- `dotnet` - roslyn-ls, easy-dotnet, netcoredbg, csharpier
+- `rust` - rust-analyzer, rustaceanvim
+- `python` - pyright, black, ruff, isort
+- `typescript` - ts_ls, eslint, prettier
+- `json` - jsonls with schemastore
+- `sql` - sqls, pgformatter
 
 ## Comparison with nixvim
 
@@ -178,7 +228,7 @@ nix run .#nixcats-full
 | Config style | Nix DSL | Native Lua |
 | Plugin config | Nix options | Lua setup() calls |
 | Portability | Nix-only | Lua portable anywhere |
-| Learning curve | nixvim DSL | Standard Neovim |
-| Dev workflow | Always rebuild | Dev mode available |
+| Learning curve | Learn nixvim DSL | Standard Neovim |
+| Flexibility | Constrained by options | Full Lua freedom |
 
-Both coexist during transition: `nix run .#nixvim` vs `nix run .#nixcats-full`
+Both coexist in this repo during transition. nixvim: `nix run .#nixvim`, nixcats: `nix run .#nixcats-full`.

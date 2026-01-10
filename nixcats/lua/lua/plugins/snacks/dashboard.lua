@@ -5,14 +5,13 @@ return {
   enabled = true,
   preset = {
     keys = {
-      { icon = '󰈔 ', key = 'n', desc = 'New File', action = ':ene | startinsert' },
-      { icon = '󰋚 ', key = 'r', desc = 'Recent Files', action = ':Telescope oldfiles' },
-      { icon = '󰈞 ', key = 'f', desc = 'Find File', action = ':Telescope find_files' },
-      { icon = '󰊄 ', key = 'g', desc = 'Live Grep', action = ':Telescope live_grep' },
-      { icon = '󰊢 ', key = 'h', desc = 'Git Status', action = function() Snacks.lazygit() end },
-      { icon = '󱖫 ', key = 't', desc = 'Todo Comments', action = ':TodoTelescope' },
-      { icon = '󰋼 ', key = 'd', desc = 'Diagnostics', action = ':Trouble diagnostics toggle' },
-      { icon = '󰩈 ', key = 'q', desc = 'Quit', action = ':qa' },
+      { icon = ' ', key = 'i', desc = 'New File', action = ':ene | startinsert' },
+      { icon = ' ', key = 'o', desc = 'Recent Files', action = ':Telescope oldfiles' },
+      { icon = '󰥨 ', key = 'f', desc = 'Find File', action = ':Telescope find_files' },
+      { icon = '󰱼 ', key = 'g', desc = 'Find Text', action = ':Telescope live_grep' },
+      { icon = ' ', key = 'h', desc = 'Git', action = function() Snacks.lazygit() end },
+      { icon = ' ', key = 'c', desc = 'Config', action = ':e $MYVIMRC' },
+      { icon = '󰭿 ', key = 'q', desc = 'Quit', action = ':qa' },
     },
   },
   sections = {
@@ -20,7 +19,7 @@ return {
     { section = 'keys', gap = 1, padding = 1 },
     {
       pane = 2,
-      icon = '󰋚 ',
+      icon = ' ',
       title = 'Recent Files',
       section = 'recent_files',
       indent = 2,
@@ -28,7 +27,7 @@ return {
     },
     {
       pane = 2,
-      icon = '󰉋 ',
+      icon = ' ',
       title = 'Projects',
       section = 'projects',
       indent = 2,
@@ -36,7 +35,7 @@ return {
     },
     {
       pane = 2,
-      icon = '󰊢 ',
+      icon = ' ',
       title = 'Git Status',
       section = 'terminal',
       enabled = function()

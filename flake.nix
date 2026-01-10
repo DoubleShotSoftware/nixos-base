@@ -185,7 +185,7 @@
             nixcats-full = nixcatsLib.mkNixCats {
               inherit system stablePkgs;
               pkgs = unstablePkgs;
-              languages = [ "nix" "dotnet" "rust" "python" "typescript" "json" "sql" "terraform" ];  # aws removed: sam-cli dependency conflicts
+              languages = [ "nix" "dotnet" "rust" "python" "typescript" "json" "sql" "terraform" "aws" ];
             };
             nixcats-dev = nixcatsLib.mkNixCats {
               inherit system stablePkgs;
