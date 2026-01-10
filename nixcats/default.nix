@@ -53,6 +53,8 @@ in {
             fzf
             git
             lazygit
+            nodejs  # Required for copilot
+            stylua  # Lua formatter
           ];
         } // langConfigs.lspsAndRuntimeDeps;
 
@@ -106,6 +108,10 @@ in {
             tabby-nvim
             # Markdown preview
             render-markdown-nvim
+            # AI assistance
+            copilot-lua
+            # Formatting
+            conform-nvim
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
           ] ++ extraPlugins;

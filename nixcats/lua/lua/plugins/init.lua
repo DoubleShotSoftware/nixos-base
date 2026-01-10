@@ -12,6 +12,8 @@ require('plugins.git')
 require('plugins.ui')
 require('plugins.editor')
 require('plugins.snacks')
+require('plugins.copilot')
+require('plugins.formatting')
 
 -- Language-specific configs (guarded by nixCats categories)
 require('languages')
