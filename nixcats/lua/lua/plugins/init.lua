@@ -17,3 +17,9 @@ require('plugins.formatting')
 
 -- Language-specific configs (guarded by nixCats categories)
 require('languages')
+
+-- DAP (only if a debuggable language is enabled)
+local nixCats = require('nixCats')
+if nixCats.cats["languages.dotnet"] then
+  require('plugins.dap')
+end

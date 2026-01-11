@@ -75,6 +75,19 @@ if hasLang('terraform') then
   formatters_by_ft.hcl = { 'terraform_fmt' }
 end
 
+-- Custom formatter overrides
+local formatters = {}
+
+-- Configure csharpier with nix store path if available
+local csharpierPath = nixCats('csharpierPath')
+if csharpierPath then
+  formatters.csharpier = {
+    command = csharpierPath,
+    args = { '--write-stdout' },
+    stdin = true,
+  }
+end
+
 conform.setup({
   formatters_by_ft = formatters_by_ft,
 
@@ -83,14 +96,15 @@ conform.setup({
     lsp_format = 'fallback',
   },
 
-  -- Format on save (optional - disabled by default)
-  -- format_on_save = {
-  --   timeout_ms = 500,
-  --   lsp_format = 'fallback',
-  -- },
+  -- Log to help debug formatting issues
+  log_level = vim.log.levels.DEBUG,
 
   -- Notify on format errors
   notify_on_error = true,
+  notify_no_formatters = true,
+
+  -- Custom formatter configs
+  formatters = formatters,
 })
 
 -- Keymaps

@@ -41,3 +41,7 @@ end, { desc = 'Git blame line' })
 map('n', '<leader>un', function()
   Snacks.notifier.hide()
 end, { desc = 'Dismiss notifications' })
+
+map('n', '<leader>uN', function()
+  Snacks.notifier.show_history()
+end, { desc = 'Notification history' })

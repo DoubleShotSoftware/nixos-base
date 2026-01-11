@@ -31,5 +31,8 @@
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
   };
 
-  # extra removed: no longer passing roslyn paths to Lua config
+  # Pass tool paths to Lua for conform formatter config
+  extra = {
+    csharpierPath = "${pkgs.csharpier}/bin/csharpier";
+  };
 }
