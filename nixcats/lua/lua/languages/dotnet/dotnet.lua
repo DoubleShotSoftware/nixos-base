@@ -30,9 +30,11 @@ local function on_attach(client, bufnr)
 
   -- Actions
   map('n', '<leader>la', vim.lsp.buf.code_action, 'Code action')
-  map('n', '<leader>lr', vim.lsp.buf.rename, 'Rename symbol')
+  map('n', '<leader>lr', vim.lsp.buf.references, 'References')
+  map('n', '<leader>lR', vim.lsp.buf.rename, 'Rename symbol')
   map('n', '<leader>lf', function() vim.lsp.buf.format({ async = true }) end, 'Format buffer')
   map('n', '<leader>li', '<cmd>LspInfo<CR>', 'LSP info')
+  map('n', '<leader>lo', vim.lsp.buf.document_symbol, 'Document symbols')
 
   -- Diagnostics
   map('n', '<leader>ld', vim.diagnostic.open_float, 'Line diagnostics')
@@ -127,11 +129,17 @@ require("easy-dotnet").setup({
   auto_bootstrap_namespace = { enabled = false },
 })
 
--- Auto-load .vscode/launch.json if present (standard VS Code debug config)
-local dap_vscode = require('dap.ext.vscode')
-if vim.fn.filereadable('.vscode/launch.json') == 1 then
-  -- Map coreclr type to cs filetype
-  dap_vscode.load_launchjs(nil, { coreclr = { 'cs' } })
+-- Load .vscode/launch.json when DAP is first required
+local launch_json_loaded = false
+local function ensure_launch_json()
+  if launch_json_loaded then return end
+  launch_json_loaded = true
+  if vim.fn.filereadable('.vscode/launch.json') == 1 then
+    local ok, dap_vscode = pcall(require, 'dap.ext.vscode')
+    if ok then
+      dap_vscode.load_launchjs(nil, { coreclr = { 'cs' } })
+    end
+  end
 end
 
 -- Keybindings for dotnet files
@@ -143,7 +151,10 @@ local function setup_dotnet_keymaps()
   vim.keymap.set("n", "<leader>lbr", "<cmd>Dotnet restore<CR>", vim.tbl_extend("force", opts, { desc = "Restore" }))
   vim.keymap.set("n", "<leader>lbc", "<cmd>Dotnet clean<CR>", vim.tbl_extend("force", opts, { desc = "Clean" }))
   vim.keymap.set("n", "<leader>lbt", "<cmd>Dotnet testrunner<CR>", vim.tbl_extend("force", opts, { desc = "Test runner" }))
-  vim.keymap.set("n", "<leader>lbd", "<cmd>Dotnet debug<CR>", vim.tbl_extend("force", opts, { desc = "Debug" }))
+  vim.keymap.set("n", "<leader>lbd", function()
+    ensure_launch_json()
+    vim.cmd("Dotnet debug")
+  end, vim.tbl_extend("force", opts, { desc = "Debug" }))
   vim.keymap.set("n", "<leader>lbf", "<cmd>split | terminal dotnet format<CR>", vim.tbl_extend("force", opts, { desc = "Dotnet format" }))
   -- Buffer format with <leader>bf (matches nixvim)
   vim.keymap.set("n", "<leader>bf", function() vim.lsp.buf.format({ async = true }) end, vim.tbl_extend("force", opts, { desc = "Format buffer" }))
