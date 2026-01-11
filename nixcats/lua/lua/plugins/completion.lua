@@ -52,7 +52,6 @@ blink.setup({
     ghost_text = { enabled = vim.g.ai_cmp },
   },
   sources = {
-    compat = {},
     default = default_sources,
     providers = providers,
   },

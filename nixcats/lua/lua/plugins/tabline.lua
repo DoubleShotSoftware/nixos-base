@@ -35,31 +35,22 @@ end
 
 vim.api.nvim_create_user_command('TabRenamePopup', tab_rename_popup, {})
 
--- Theme-aware tabby configuration
-local theme_name = nixCats.extra.theme or 'tokyonight'
-
-local theme
-if theme_name == 'catppuccin' then
-  theme = {
-    fill = 'TabLineFill',
-    head = { fg = '#8aadf4', bg = '#24273a', style = 'italic' },
-    current_tab = { fg = '#1e2030', bg = '#8aadf4', style = 'italic' },
-    tab = { fg = '#8aadf4', bg = '#24273a', style = 'italic' },
-    tail = { fg = '#8aadf4', bg = '#24273a', style = 'italic' },
-  }
-else -- tokyonight
-  theme = {
-    fill = 'TabLineFill',
-    head = { fg = '#7aa2f7', bg = '#1a1b26', style = 'italic' },
-    current_tab = { fg = '#1a1b26', bg = '#7aa2f7', style = 'italic' },
-    tab = { fg = '#7aa2f7', bg = '#1a1b26', style = 'italic' },
-    tail = { fg = '#7aa2f7', bg = '#1a1b26', style = 'italic' },
-  }
-end
+-- Theme configuration (matching nixvim catppuccin mocha colors)
+local theme = {
+  fill = 'TabLineFill',
+  head = { fg = '#8aadf4', bg = '#24273a', style = 'italic' },
+  current_tab = { fg = '#1e2030', bg = '#8aadf4', style = 'italic' },
+  tab = { fg = '#8aadf4', bg = '#24273a', style = 'italic' },
+  win = { fg = '#1e2030', bg = '#8aadf4', style = 'italic' },
+  tail = { fg = '#8aadf4', bg = '#24273a', style = 'italic' },
+}
 
 require('tabby.tabline').set(function(line)
   return {
-    { { '  ', hl = theme.head }, line.sep('', theme.head, theme.fill) },
+    {
+      { '  ', hl = theme.head },
+      line.sep('', theme.head, theme.fill),
+    },
     line.tabs().foreach(function(tab)
       local hl = tab.is_current() and theme.current_tab or theme.tab
       return {
@@ -73,7 +64,10 @@ require('tabby.tabline').set(function(line)
       }
     end),
     line.spacer(),
-    { line.sep('', theme.tail, theme.fill), { '  ', hl = theme.tail } },
+    {
+      line.sep('', theme.tail, theme.fill),
+      { '  ', hl = theme.tail },
+    },
     hl = theme.fill,
   }
 end)

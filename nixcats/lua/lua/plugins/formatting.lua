@@ -25,7 +25,7 @@ if hasLang('nix') then
   formatters_by_ft.nix = { 'alejandra' }
 end
 
--- .NET/C#
+-- .NET/C# (csharpier only, no LSP fallback)
 if hasLang('dotnet') then
   formatters_by_ft.cs = { 'csharpier' }
 end
@@ -97,11 +97,11 @@ conform.setup({
 vim.keymap.set({ 'n', 'v' }, '<leader>bf', function()
   conform.format({
     async = true,
-    lsp_format = 'fallback',
+    lsp_format = 'never',  -- Use configured formatters only, no LSP
   })
-end, { desc = 'Format buffer' })
+end, { desc = 'Format buffer (conform)' })
 
--- Also keep <leader>lf for LSP-only format
+-- <leader>lf for LSP-only format (when you explicitly want LSP)
 vim.keymap.set('n', '<leader>lf', function()
   vim.lsp.buf.format({ async = true })
-end, { desc = 'LSP format' })
+end, { desc = 'Format buffer (LSP)' })
