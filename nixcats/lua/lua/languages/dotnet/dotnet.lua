@@ -127,6 +127,13 @@ require("easy-dotnet").setup({
   auto_bootstrap_namespace = { enabled = false },
 })
 
+-- Auto-load .vscode/launch.json if present (standard VS Code debug config)
+local dap_vscode = require('dap.ext.vscode')
+if vim.fn.filereadable('.vscode/launch.json') == 1 then
+  -- Map coreclr type to cs filetype
+  dap_vscode.load_launchjs(nil, { coreclr = { 'cs' } })
+end
+
 -- Keybindings for dotnet files
 local function setup_dotnet_keymaps()
   local opts = { buffer = true }
