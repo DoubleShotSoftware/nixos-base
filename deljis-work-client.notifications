@@ -1,0 +1,9 @@
+Defining diagnostic signs with :sign-define or sign_define() is deprecated. Run ":checkhealth vim.deprecated" for more information
+Workspace ready
+Plugin may not work without libgomp installed on your system
+Failed to download libgomp: Download failed: curl: (23) client returned ERROR on write of 1297 bytes
+
+Downloading libgomp from: https://github.com/esmuellert/vscode-diff.nvim/releases/download/v2.7.0/libgomp_linux_x64_2.7.0.so.1
+System libgomp.so.1 not found, downloading...
+libvscode-diff (manual build) found at: /nix/store/939j9i35rm9rg4w3d26dfs5vj7famari-vim-pack-dir/pack/myNeovimPackages/start/codediff-nvim/libvscode_diff.so
+

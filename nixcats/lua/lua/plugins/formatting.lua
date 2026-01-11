@@ -83,7 +83,7 @@ local csharpierPath = nixCats('csharpierPath')
 if csharpierPath then
   formatters.csharpier = {
     command = csharpierPath,
-    args = { '--write-stdout' },
+    args = { 'format', '--write-stdout', '--stdin-path', '$FILENAME' },
     stdin = true,
   }
 end

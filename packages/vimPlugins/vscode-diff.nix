@@ -42,10 +42,14 @@ in
 
     dependencies = with pkgs.vimPlugins; [ nui-nvim ];
 
-    # Copy the pre-built library into the plugin root
+    # Copy the pre-built library and libgomp into the plugin root
     # The unversioned name (libvscode_diff.so) tells installer.needs_update() to skip auto-install
+    # Bundling libgomp.so.1 prevents the installer from trying to download it on Nix systems
     postInstall = ''
       cp ${libvscode-diff}/lib/libvscode_diff.* $out/ 2>/dev/null || true
+      ${pkgs.lib.optionalString pkgs.stdenv.isLinux ''
+        cp ${pkgs.llvmPackages.openmp}/lib/libomp.so $out/libgomp.so.1 2>/dev/null || true
+      ''}
     '';
 
     # Skip require check - library loading happens at runtime
