@@ -45,7 +45,7 @@ copilot.setup({
     hgcommit = false,
     svn = false,
     cvs = false,
-    ['.'] = false,
+    -- Note: ['.'] = false would disable ALL filetypes not listed above
   },
 })
 

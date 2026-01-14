@@ -113,7 +113,7 @@ in {
             # AI assistance
             copilot-lua
             # Formatting
-            conform-nvim
+            neoformat
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
             codediff       # VSCode-style diff viewer
