@@ -6,4 +6,5 @@
   telescope-tabs = pkgs.callPackage ./telescope-tabs.nix { };
   easy-dotnet = pkgs.callPackage ./easy-dotnet.nix { };
   codediff = pkgs.callPackage ./vscode-diff.nix { };
+  deltaview = pkgs.callPackage ./deltaview.nix { };
 }

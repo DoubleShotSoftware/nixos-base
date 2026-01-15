@@ -31,6 +31,7 @@ in {
     # Custom plugins from overlay (using outer pkgs which has the overlay)
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
     codediff = pkgs.customVimPlugins.codediff;
+    deltaview = pkgs.customVimPlugins.deltaview;
 
     # Convert languages list to category enables
     # e.g., ["dotnet" "rust"] -> { "languages.dotnet" = true; "languages.rust" = true; }
@@ -54,6 +55,7 @@ in {
             fzf
             git
             lazygit
+            delta   # Required for deltaview
             nodejs  # Required for copilot
             stylua  # Lua formatter
             lua-language-server  # Lua LSP
@@ -117,6 +119,7 @@ in {
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
             codediff       # VSCode-style diff viewer
+            deltaview      # Inline diff viewer using delta
           ] ++ extraPlugins;
         } // langConfigs.startupPlugins;
 
