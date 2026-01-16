@@ -7,4 +7,5 @@
   easy-dotnet = pkgs.callPackage ./easy-dotnet.nix { };
   codediff = pkgs.callPackage ./vscode-diff.nix { };
   deltaview = pkgs.callPackage ./deltaview.nix { };
+  git-worktree = pkgs.callPackage ./git-worktree.nix { };
 }

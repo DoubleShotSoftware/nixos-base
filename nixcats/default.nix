@@ -32,6 +32,7 @@ in {
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
     codediff = pkgs.customVimPlugins.codediff;
     deltaview = pkgs.customVimPlugins.deltaview;
+    gitWorktree = pkgs.customVimPlugins.git-worktree;
 
     # Convert languages list to category enables
     # e.g., ["dotnet" "rust"] -> { "languages.dotnet" = true; "languages.rust" = true; }
@@ -120,6 +121,7 @@ in {
             telescopeTabs  # Custom plugin from overlay (outer scope)
             codediff       # VSCode-style diff viewer
             deltaview      # Inline diff viewer using delta
+            gitWorktree    # Git worktree management
           ] ++ extraPlugins;
         } // langConfigs.startupPlugins;
 

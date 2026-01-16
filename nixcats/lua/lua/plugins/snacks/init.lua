@@ -32,11 +32,6 @@ Snacks.setup({
 -- Snacks keymaps
 local map = vim.keymap.set
 
--- Git
-map('n', '<leader>gl', function()
-  Snacks.git.blame_line()
-end, { desc = 'Git blame line' })
-
 -- Notifier
 map('n', '<leader>un', function()
   Snacks.notifier.hide()
