@@ -55,6 +55,51 @@ require('neo-tree').setup({
   popup_border_style = 'rounded',
   enable_git_status = true,
   enable_diagnostics = true,
+
+  -- Source selector (tabs at top of neo-tree)
+  source_selector = {
+    winbar = true,
+    content_layout = 'center',
+    separator = '',
+    sources = {
+      { source = 'filesystem', display_name = ' Files' },
+      { source = 'buffers', display_name = ' Bufs' },
+      { source = 'git_status', display_name = ' Git' },
+    },
+  },
+
+  -- Event handlers for better styling
+  event_handlers = {
+    {
+      event = 'neo_tree_buffer_enter',
+      handler = function()
+        vim.opt_local.signcolumn = 'auto'
+        vim.opt_local.foldcolumn = '0'
+      end,
+    },
+  },
+
+  -- Default component configs
+  default_component_configs = {
+    indent = {
+      padding = 1,
+      with_expanders = true,
+    },
+    git_status = {
+      symbols = {
+        added = '',
+        modified = '',
+        deleted = '',
+        renamed = '',
+        untracked = '',
+        ignored = '',
+        unstaged = '',
+        staged = '',
+        conflict = '',
+      },
+    },
+  },
+
   filesystem = {
     filtered_items = {
       visible = false,
@@ -68,11 +113,20 @@ require('neo-tree').setup({
     follow_current_file = {
       enabled = true,
     },
+    hijack_netrw_behavior = 'open_current',
     use_libuv_file_watcher = true,
   },
+
   window = {
     position = 'left',
     width = 35,
+    mappings = {
+      ['<Space>'] = false,  -- Disable space toggle
+      ['h'] = 'close_node',
+      ['l'] = 'open',
+      ['[b'] = 'prev_source',
+      [']b'] = 'next_source',
+    },
   },
 })
 

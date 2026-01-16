@@ -65,6 +65,15 @@ if theme == 'tokyonight' then
       hl.LspDiagnosticsSignHint = { fg = colors.yellow, bg = colors.bg_dark }
       hl.LspDiagnosticsSignError = { fg = colors.red, bg = colors.bg_dark }
       hl.LspDiagnosticsSignWarning = { fg = colors.yellow, bg = colors.bg_dark }
+
+      -- Window separators (thicker dividers)
+      hl.WinSeparator = { fg = colors.blue0, bg = colors.bg_dark }
+
+      -- Neo-tree backgrounds
+      hl.NeoTreeNormal = { bg = colors.bg_dark }
+      hl.NeoTreeNormalNC = { bg = colors.bg_dark }
+      hl.NeoTreeWinSeparator = { fg = colors.blue0, bg = colors.bg_dark }
+      hl.NeoTreeEndOfBuffer = { fg = colors.bg_dark, bg = colors.bg_dark }
     end,
   })
   vim.cmd.colorscheme('tokyonight')
@@ -124,6 +133,14 @@ elseif theme == 'catppuccin' then
         DiagnosticSignInfo = { fg = colors.blue, bg = colors.mantle },
         DiagnosticSignHint = { fg = colors.teal, bg = colors.mantle },
 
+        -- Window separators (thicker dividers)
+        WinSeparator = { fg = colors.blue, bg = colors.mantle },
+
+        -- Neo-tree backgrounds
+        NeoTreeNormal = { bg = colors.mantle },
+        NeoTreeNormalNC = { bg = colors.mantle },
+        NeoTreeWinSeparator = { fg = colors.blue, bg = colors.mantle },
+        NeoTreeEndOfBuffer = { fg = colors.mantle, bg = colors.mantle },
       }
     end,
   })
