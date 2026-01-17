@@ -40,7 +40,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('n', '<leader>lR', vim.lsp.buf.rename, 'Rename symbol')
     map('n', '<leader>lf', function() vim.lsp.buf.format({ async = true }) end, 'Format buffer')
     map('n', '<leader>li', '<cmd>checkhealth lsp<CR>', 'LSP info')
-    map('n', '<leader>lo', vim.lsp.buf.document_symbol, 'Document symbols')
+    -- Note: <leader>lo is handled by lspsaga outline below
 
     -- Diagnostics
     map('n', '<leader>ld', vim.diagnostic.open_float, 'Line diagnostics')
@@ -205,3 +205,87 @@ vim.lsp.enable(servers_to_enable)
 
 -- Fidget (LSP progress)
 require('fidget').setup({})
+
+-- =============================================================================
+-- LSPSaga - enhanced LSP UI
+-- =============================================================================
+require('lspsaga').setup({
+  -- Breadcrumbs (symbol path in winbar)
+  symbol_in_winbar = {
+    enable = true,
+    separator = '  ',
+    hide_keyword = true,
+    show_file = true,
+    folder_level = 2,
+  },
+
+  -- Outline (symbol tree)
+  outline = {
+    win_position = 'right',
+    win_width = 40,
+    auto_preview = false,
+    detail = true,
+    auto_close = true,
+    close_after_jump = false,
+    layout = 'normal',  -- normal or float
+    keys = {
+      toggle_or_jump = '<CR>',
+      quit = 'q',
+      jump = 'e',
+    },
+  },
+
+  -- Code action lightbulb
+  lightbulb = {
+    enable = true,
+    sign = true,
+    virtual_text = false,
+  },
+
+  -- Finder (references/definitions)
+  finder = {
+    max_height = 0.5,
+    left_width = 0.3,
+    right_width = 0.5,
+    default = 'ref+imp',
+    keys = {
+      toggle_or_open = '<CR>',
+      vsplit = 'v',
+      split = 's',
+      quit = 'q',
+    },
+  },
+
+  -- UI settings
+  ui = {
+    border = 'rounded',
+    title = true,
+    winblend = 0,
+    expand = '',
+    collapse = '',
+    code_action = '💡',
+    actionfix = ' ',
+    imp_sign = '󰳛 ',
+  },
+})
+
+-- LSPSaga keymaps
+local map = vim.keymap.set
+
+-- Outline (symbol tree) - <leader>lo
+map('n', '<leader>lo', '<cmd>Lspsaga outline<CR>', { desc = 'LSP outline' })
+
+-- Enhanced hover and diagnostics
+map('n', '<leader>lk', '<cmd>Lspsaga hover_doc<CR>', { desc = 'Hover doc (saga)' })
+map('n', '<leader>lD', '<cmd>Lspsaga show_line_diagnostics<CR>', { desc = 'Line diagnostics (saga)' })
+
+-- Finder (references + implementations)
+map('n', '<leader>lF', '<cmd>Lspsaga finder<CR>', { desc = 'LSP finder' })
+
+-- Peek definition (without jumping)
+map('n', '<leader>lp', '<cmd>Lspsaga peek_definition<CR>', { desc = 'Peek definition' })
+map('n', '<leader>lP', '<cmd>Lspsaga peek_type_definition<CR>', { desc = 'Peek type definition' })
+
+-- Call hierarchy
+map('n', '<leader>lci', '<cmd>Lspsaga incoming_calls<CR>', { desc = 'Incoming calls' })
+map('n', '<leader>lco', '<cmd>Lspsaga outgoing_calls<CR>', { desc = 'Outgoing calls' })

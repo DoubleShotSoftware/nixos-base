@@ -151,6 +151,7 @@ require('which-key').add({
   { '<leader>f', group = 'Find' },
   { '<leader>g', group = 'Git' },
   { '<leader>l', group = 'LSP' },
+  { '<leader>lc', group = 'Call hierarchy' },
   { '<leader>T', group = 'Tabs' },
   { '<leader>Tm', group = 'Move tab' },
   { '<leader>x', group = 'Trouble' },

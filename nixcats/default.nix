@@ -86,6 +86,7 @@ in {
             # LSP
             nvim-lspconfig
             fidget-nvim
+            lspsaga-nvim
             # Completion
             blink-cmp
             # Telescope
