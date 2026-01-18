@@ -1,11 +1,11 @@
 # nixcats/languages/dotnet.nix - .NET/C# language support
 # Uses pkgs.dotnetSDK, pkgs.easy-dotnet-tool from flake overlay
-# Note: Roslyn LSP is now handled by easy-dotnet plugin (no longer need roslyn-ls/roslyn-nvim)
+# Note: roslyn-nvim for LSP (better diagnostics), easy-dotnet for test/debug/build
 { pkgs, ... }:
 {
   lspsAndRuntimeDeps = with pkgs; [
     dotnetSDK              # From overlay
-    # roslyn-ls           # Removed: easy-dotnet handles Roslyn LSP
+    roslyn-ls              # Roslyn language server
     csharpier
     netcoredbg             # Fallback, easy-dotnet bundles its own
     dotnet-outdated
@@ -15,8 +15,8 @@
   ];
 
   startupPlugins = with pkgs.vimPlugins; [
-    easy-dotnet-nvim
-    # roslyn-nvim         # Removed: using easy-dotnet built-in LSP
+    easy-dotnet-nvim       # Test runner, debugger, build commands
+    roslyn-nvim            # LSP client (better diagnostic responsiveness)
   ];
 
   optionalPlugins = with pkgs.vimPlugins; [

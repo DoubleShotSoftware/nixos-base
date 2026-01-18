@@ -1,5 +1,6 @@
 -- nixcats/lua/lua/languages/dotnet/dotnet.lua
--- .NET development setup using easy-dotnet
+-- .NET development setup
+-- roslyn.nvim for LSP (better diagnostics), easy-dotnet for test/debug/build
 
 local nixCats = require('nixCats')
 
@@ -8,48 +9,9 @@ if not nixCats.cats["languages.dotnet"] then
   return
 end
 
--- Load LSP settings for Roslyn
-local lsp_settings = require('lsp.easy_dotnet')
-
--- Get shared on_attach from lsp.lua pattern
-local function on_attach(client, bufnr)
-  local map = function(mode, lhs, rhs, desc)
-    vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
-  end
-
-  -- Navigation
-  map('n', 'gd', vim.lsp.buf.definition, 'Go to definition')
-  map('n', 'gD', vim.lsp.buf.declaration, 'Go to declaration')
-  map('n', 'gi', vim.lsp.buf.implementation, 'Go to implementation')
-  map('n', 'gr', vim.lsp.buf.references, 'Go to references')
-  map('n', 'gy', vim.lsp.buf.type_definition, 'Go to type definition')
-
-  -- Information
-  map('n', 'K', vim.lsp.buf.hover, 'Hover documentation')
-  map('n', 'gl', vim.lsp.buf.signature_help, 'Signature help')
-
-  -- Actions
-  map('n', '<leader>la', vim.lsp.buf.code_action, 'Code action')
-  map('n', '<leader>lr', vim.lsp.buf.references, 'References')
-  map('n', '<leader>lR', vim.lsp.buf.rename, 'Rename symbol')
-  map('n', '<leader>lf', function() vim.lsp.buf.format({ async = true }) end, 'Format buffer')
-  map('n', '<leader>li', '<cmd>LspInfo<CR>', 'LSP info')
-  map('n', '<leader>lo', vim.lsp.buf.document_symbol, 'Document symbols')
-
-  -- Diagnostics
-  map('n', '<leader>ld', vim.diagnostic.open_float, 'Line diagnostics')
-  map('n', '[d', vim.diagnostic.goto_prev, 'Previous diagnostic')
-  map('n', ']d', vim.diagnostic.goto_next, 'Next diagnostic')
-
-  -- CodeLens
-  map('n', '<leader>ll', vim.lsp.codelens.refresh, 'CodeLens refresh')
-  map('n', '<leader>lL', vim.lsp.codelens.run, 'CodeLens run')
-
-  -- Inlay hints (if supported)
-  if client.server_capabilities.inlayHintProvider then
-    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-  end
-end
+-- =============================================================================
+-- Roslyn LSP Setup (using roslyn.nvim)
+-- =============================================================================
 
 -- Common capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -58,35 +20,67 @@ if ok_blink then
   capabilities = blink.get_lsp_capabilities(capabilities)
 end
 
--- Pre-configure vim.lsp.config for easy_dotnet BEFORE setup
--- easy-dotnet merges capabilities from existing vim.lsp.config["easy_dotnet"]
-vim.lsp.config.easy_dotnet = {
-  capabilities = capabilities,
-}
+-- Roslyn.nvim setup
+require('roslyn').setup({
+  config = {
+    capabilities = capabilities,
+  },
+  -- File watching mode: "auto" uses neovim's built-in file watching
+  filewatching = "auto",
+  -- Settings matching nixvim config
+  settings = {
+    ["csharp|background_analysis"] = {
+      dotnet_analyzer_diagnostics_scope = "fullSolution",
+      dotnet_compiler_diagnostics_scope = "fullSolution",
+    },
+    ["csharp|completion"] = {
+      dotnet_provide_regex_completions = true,
+      dotnet_show_completion_items_from_unimported_namespaces = true,
+      dotnet_show_name_completion_suggestions = true,
+    },
+    ["csharp|inlay_hints"] = {
+      csharp_enable_inlay_hints_for_implicit_object_creation = true,
+      csharp_enable_inlay_hints_for_implicit_variable_types = true,
+      csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+      csharp_enable_inlay_hints_for_types = true,
+      dotnet_enable_inlay_hints_for_indexer_parameters = true,
+      dotnet_enable_inlay_hints_for_literal_parameters = true,
+      dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+      dotnet_enable_inlay_hints_for_other_parameters = true,
+      dotnet_enable_inlay_hints_for_parameters = true,
+      dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+      dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+      dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+    },
+    ["csharp|code_lens"] = {
+      dotnet_enable_references_code_lens = true,
+    },
+  },
+})
 
--- Set up LspAttach autocmd for easy_dotnet (easy-dotnet has its own on_attach we can't override)
+-- Roslyn-specific LspAttach for inlay hints
 vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('EasyDotnetLspAttach', { clear = true }),
+  group = vim.api.nvim_create_augroup('RoslynLspAttach', { clear = true }),
   callback = function(ev)
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if not client or client.name ~= 'easy_dotnet' then
+    if not client or client.name ~= 'roslyn' then
       return
     end
-    -- Apply our on_attach for easy_dotnet client
-    on_attach(client, ev.buf)
+    -- Enable inlay hints if supported
+    if client.server_capabilities.inlayHintProvider then
+      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+    end
   end,
 })
 
--- Easy-dotnet setup (includes built-in Roslyn LSP)
+-- =============================================================================
+-- Easy-dotnet Setup (test runner, debugger, build commands - NO LSP)
+-- =============================================================================
+
 require("easy-dotnet").setup({
-  -- LSP configuration - settings go inside config.settings
+  -- DISABLE built-in LSP - using roslyn.nvim instead
   lsp = {
-    enabled = true,
-    roslynator_enabled = true,
-    -- Settings must be inside config.settings (see roslyn/lsp.lua:330)
-    config = {
-      settings = lsp_settings.settings,
-    },
+    enabled = false,
   },
 
   -- Zero-config debugging with bundled NetCoreDbg
@@ -104,11 +98,6 @@ require("easy-dotnet").setup({
 
   -- Keep telescope
   picker = "telescope",
-
-  -- Disable server features that might cause issues
-  server = {
-    use_visual_studio = false,
-  },
 
   -- Terminal configuration for build output
   terminal = function(path, action, args, ctx)
@@ -129,6 +118,10 @@ require("easy-dotnet").setup({
   auto_bootstrap_namespace = { enabled = false },
 })
 
+-- =============================================================================
+-- DAP Setup
+-- =============================================================================
+
 -- Load .vscode/launch.json when DAP is first required
 local launch_json_loaded = false
 local function ensure_launch_json()
@@ -142,7 +135,10 @@ local function ensure_launch_json()
   end
 end
 
--- Keybindings for dotnet files
+-- =============================================================================
+-- Keybindings (dotnet-specific, NOT overriding <leader>bf)
+-- =============================================================================
+
 local function setup_dotnet_keymaps()
   local opts = { buffer = true }
   -- Dotnet commands under <leader>lb
@@ -155,9 +151,6 @@ local function setup_dotnet_keymaps()
     ensure_launch_json()
     vim.cmd("Dotnet debug")
   end, vim.tbl_extend("force", opts, { desc = "Debug" }))
-  vim.keymap.set("n", "<leader>lbf", "<cmd>split | terminal dotnet format<CR>", vim.tbl_extend("force", opts, { desc = "Dotnet format" }))
-  -- Buffer format with <leader>bf (matches nixvim)
-  vim.keymap.set("n", "<leader>bf", function() vim.lsp.buf.format({ async = true }) end, vim.tbl_extend("force", opts, { desc = "Format buffer" }))
 end
 
 -- Set up keymaps for C# and project files
