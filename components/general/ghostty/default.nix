@@ -8,7 +8,7 @@ let
   mkGhosttyConfig = user: userConfig: ''
     font-family = VictorMono Nerd Font Mono
     font-size = 16
-    theme = catppuccin-mocha
+    theme = Catppuccin Mocha
     shell-integration = ${userConfig.shell}
     background-opacity = 0.85
     background-blur = false
