@@ -30,6 +30,9 @@ in {
   let
     # Custom plugins from overlay (using outer pkgs which has the overlay)
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
+    codediff = pkgs.customVimPlugins.codediff;
+    deltaview = pkgs.customVimPlugins.deltaview;
+    gitWorktree = pkgs.customVimPlugins.git-worktree;
 
     # Convert languages list to category enables
     # e.g., ["dotnet" "rust"] -> { "languages.dotnet" = true; "languages.rust" = true; }
@@ -53,6 +56,10 @@ in {
             fzf
             git
             lazygit
+            delta   # Required for deltaview
+            nodejs  # Required for copilot
+            stylua  # Lua formatter
+            lua-language-server  # Lua LSP
           ];
         } // langConfigs.lspsAndRuntimeDeps;
 
@@ -79,6 +86,7 @@ in {
             # LSP
             nvim-lspconfig
             fidget-nvim
+            lspsaga-nvim
             # Completion
             blink-cmp
             # Telescope
@@ -106,8 +114,15 @@ in {
             tabby-nvim
             # Markdown preview
             render-markdown-nvim
+            # AI assistance
+            copilot-lua
+            # Formatting
+            neoformat
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
+            codediff       # VSCode-style diff viewer
+            deltaview      # Inline diff viewer using delta
+            gitWorktree    # Git worktree management
           ] ++ extraPlugins;
         } // langConfigs.startupPlugins;
 
@@ -157,7 +172,7 @@ in {
         settings = {
           inherit wrapRc;
           configDirName = "nixcats";
-          aliases = [ "vim" "vi" ];
+          aliases = [ "e" "nvim" "vim" "vi" ];
           neovim-unwrapped = pkgs.neovim-unwrapped;
           # For wrapRc = false, use this path for lua config
           unwrappedCfgPath = ./lua;

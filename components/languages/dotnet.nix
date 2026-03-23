@@ -1,5 +1,5 @@
 # Dotnet language configuration function
-{ pkgs, username, lib, settings ? {} }:
+{ pkgs, username, lib ? null, settings ? {} }:
 {
   packages = with pkgs; [
     dotnetPackages.Nuget

@@ -22,8 +22,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvim = {
-      url = "github:nix-community/nixvim?ref=8e2bbc6b0bcec4154e3c18f20c6da1ba6caa7810";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      url = "github:nix-community/nixvim/nixos-25.11";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nixCats = {
       url = "github:BirdeeHub/nixCats-nvim";
@@ -229,13 +229,37 @@
             ]));
           in
           {
-            nvim-ide = self.packages.${prev.system}.nixvim;
-            nvim-ide-lite = self.packages.${prev.system}.nixvim-lite;
             inherit unstable dotnetSDK;
             # Custom vim plugins shared between nixvim and nixcats
             customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
             # Easy-dotnet CLI tool
             easy-dotnet-tool = unstable.callPackage ./packages/easy-dotnet-tool.nix { };
+
+            # Dynamic nixcats builder - builds slim editor with only specified languages
+            # Usage: pkgs.mkNixCatsIDE { languages = ["dotnet" "typescript"]; }
+            mkNixCatsIDE = {
+              languages ? [ ],
+              theme ? "catppuccin",
+              wrapRc ? true,
+              extraCategories ? { },
+              extraPlugins ? [ ],
+              extraPackages ? [ ],
+            }:
+              let
+                # Extend unstable with overlay packages needed by nixcats language modules
+                customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
+                easy-dotnet-tool = unstable.callPackage ./packages/easy-dotnet-tool.nix { };
+                pkgsForNixcats = unstable // {
+                  inherit dotnetSDK customVimPlugins easy-dotnet-tool;
+                };
+              in
+              nixcatsLib.mkNixCats {
+                system = prev.system;
+                pkgs = pkgsForNixcats;
+                stablePkgs = prev;
+                languages = [ "nix" ] ++ languages;  # always include nix
+                inherit theme wrapRc extraCategories extraPlugins extraPackages;
+              };
           }
           // (customPackages { pkgs = final; inherit dotnetSDK; });
       };

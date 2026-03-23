@@ -5,5 +5,7 @@
   roslyn-nvim = pkgs.callPackage ./roslyn-nvim.nix { };
   telescope-tabs = pkgs.callPackage ./telescope-tabs.nix { };
   easy-dotnet = pkgs.callPackage ./easy-dotnet.nix { };
-  vscode-diff = pkgs.callPackage ./vscode-diff.nix { };
+  codediff = pkgs.callPackage ./vscode-diff.nix { };
+  deltaview = pkgs.callPackage ./deltaview.nix { };
+  git-worktree = pkgs.callPackage ./git-worktree.nix { };
 }

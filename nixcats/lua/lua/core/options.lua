@@ -47,6 +47,18 @@ opt.incsearch = true
 opt.splitbelow = true
 opt.splitright = true
 
+-- Window separators (thicker dividers)
+opt.fillchars = {
+  horiz = '━',
+  horizup = '┻',
+  horizdown = '┳',
+  vert = '┃',
+  vertleft = '┫',
+  vertright = '┣',
+  verthoriz = '╋',
+  eob = ' ',  -- Remove ~ at end of buffer
+}
+
 -- Performance
 opt.timeoutlen = 1000
 opt.updatetime = 50

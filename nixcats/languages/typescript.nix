@@ -5,6 +5,7 @@
     typescript
     nodePackages.typescript-language-server
     nodePackages.eslint
+    vscode-langservers-extracted  # eslint, html, css, json LSPs
     nodePackages.prettier
     # nodejs provided by components/languages/typescript.nix in home.packages
   ];

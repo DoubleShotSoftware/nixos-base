@@ -55,6 +55,51 @@ require('neo-tree').setup({
   popup_border_style = 'rounded',
   enable_git_status = true,
   enable_diagnostics = true,
+
+  -- Source selector (tabs at top of neo-tree)
+  source_selector = {
+    winbar = true,
+    content_layout = 'center',
+    separator = '',
+    sources = {
+      { source = 'filesystem', display_name = ' Files' },
+      { source = 'buffers', display_name = ' Bufs' },
+      { source = 'git_status', display_name = ' Git' },
+    },
+  },
+
+  -- Event handlers for better styling
+  event_handlers = {
+    {
+      event = 'neo_tree_buffer_enter',
+      handler = function()
+        vim.opt_local.signcolumn = 'auto'
+        vim.opt_local.foldcolumn = '0'
+      end,
+    },
+  },
+
+  -- Default component configs
+  default_component_configs = {
+    indent = {
+      padding = 1,
+      with_expanders = true,
+    },
+    git_status = {
+      symbols = {
+        added = '',
+        modified = '',
+        deleted = '',
+        renamed = '',
+        untracked = '',
+        ignored = '',
+        unstaged = '',
+        staged = '',
+        conflict = '',
+      },
+    },
+  },
+
   filesystem = {
     filtered_items = {
       visible = false,
@@ -68,11 +113,20 @@ require('neo-tree').setup({
     follow_current_file = {
       enabled = true,
     },
+    hijack_netrw_behavior = 'open_current',
     use_libuv_file_watcher = true,
   },
+
   window = {
     position = 'left',
     width = 35,
+    mappings = {
+      ['<Space>'] = false,  -- Disable space toggle
+      ['h'] = 'close_node',
+      ['l'] = 'open',
+      ['[b'] = 'prev_source',
+      [']b'] = 'next_source',
+    },
   },
 })
 
@@ -97,6 +151,7 @@ require('which-key').add({
   { '<leader>f', group = 'Find' },
   { '<leader>g', group = 'Git' },
   { '<leader>l', group = 'LSP' },
+  { '<leader>lc', group = 'Call hierarchy' },
   { '<leader>T', group = 'Tabs' },
   { '<leader>Tm', group = 'Move tab' },
   { '<leader>x', group = 'Trouble' },
@@ -109,11 +164,15 @@ require('trouble').setup({
   use_diagnostic_signs = true,
 })
 
+-- Main trouble keymaps under <leader>x
 vim.keymap.set('n', '<leader>xx', '<cmd>Trouble diagnostics toggle<CR>', { desc = 'Diagnostics (Trouble)' })
 vim.keymap.set('n', '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<CR>', { desc = 'Buffer diagnostics' })
 vim.keymap.set('n', '<leader>xs', '<cmd>Trouble symbols toggle<CR>', { desc = 'Symbols (Trouble)' })
 vim.keymap.set('n', '<leader>xl', '<cmd>Trouble lsp toggle<CR>', { desc = 'LSP refs (Trouble)' })
 vim.keymap.set('n', '<leader>xq', '<cmd>Trouble qflist toggle<CR>', { desc = 'Quickfix (Trouble)' })
+
+-- LSP group shortcut (matches nixvim)
+vim.keymap.set('n', '<leader>lx', '<cmd>Trouble diagnostics toggle focus=false filter.buf=0<CR>', { desc = 'Buffer diagnostics' })
 
 -- Indent blankline
 require('ibl').setup({

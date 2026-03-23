@@ -34,14 +34,15 @@ let
   ];
   
   # Development packages (language servers, formatters, linters)
+  # Note: Editor (nixcats) is handled by nvim.nix based on user's languages
   dev-packages = with pkgs; [
     tree-sitter
-    
+
     # language servers
     nodePackages.vscode-langservers-extracted # html, css, json, eslint
     nodePackages.yaml-language-server
     nil # nix
-    
+
     # formatters and linters
     alejandra # nix
     deadnix # nix
@@ -49,7 +50,7 @@ let
     shellcheck
     shfmt
     statix # nix
-  ] ++ lib.optional (pkgs ? nvim-ide) pkgs.nvim-ide;
+  ];
   
   # Auto-detect if we're on NixOS
   isNixOs = pkgs.stdenv.isLinux && builtins.pathExists /etc/NIXOS;

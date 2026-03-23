@@ -13,14 +13,17 @@
     closeIfLastWindow = true;
 
     # Disable fold column (gutter)
-    eventHandlers = {
-      neo_tree_buffer_enter = ''
-        function(_)
-          vim.opt_local.signcolumn = "auto"
-          vim.opt_local.foldcolumn = "0"
-        end
-      '';
-    };
+    settings.event_handlers = [
+      {
+        event = "neo_tree_buffer_enter";
+        handler.__raw = ''
+          function(_)
+            vim.opt_local.signcolumn = "auto"
+            vim.opt_local.foldcolumn = "0"
+          end
+        '';
+      }
+    ];
 
     # Extra options not exposed by the plugin
     extraOptions = {
@@ -175,23 +178,23 @@
 
       # Show tabs on winbar
       winbar = true;
-
-      # Sources to show and their labels
-      sources = [
-        {
-          displayName = "${icons.FolderClosed} Files";
-          source = "filesystem";
-        }
-        {
-          displayName = "${icons.DefaultFile} Bufs";
-          source = "buffers";
-        }
-        {
-          displayName = "${icons.Git} Git";
-          source = "git_status";
-        }
-      ];
     };
+
+    # Sources to show and their labels (moved to settings for new API)
+    settings.source_selector.sources = [
+      {
+        display_name = "${icons.FolderClosed} Files";
+        source = "filesystem";
+      }
+      {
+        display_name = "${icons.DefaultFile} Bufs";
+        source = "buffers";
+      }
+      {
+        display_name = "${icons.Git} Git";
+        source = "git_status";
+      }
+    ];
   };
 
   rootOpts = {
