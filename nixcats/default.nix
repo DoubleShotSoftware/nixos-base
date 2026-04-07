@@ -28,6 +28,11 @@ in {
     extraPackages ? [ ],       # Additional runtime packages
   }:
   let
+    # Alias outer pkgs — the package function args below shadow `pkgs` with
+    # nixCats's builder pkgs (derived from stable nixpkgs input), so we need
+    # a distinct name to reach the unstable pkgs we were passed.
+    unstablePkgs = pkgs;
+
     # Custom plugins from overlay (using outer pkgs which has the overlay)
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
     codediff = pkgs.customVimPlugins.codediff;
@@ -58,6 +63,7 @@ in {
             lazygit
             delta   # Required for deltaview
             nodejs  # Required for copilot
+            copilot-language-server
             stylua  # Lua formatter
             lua-language-server  # Lua LSP
           ];
@@ -117,7 +123,7 @@ in {
             # AI assistance
             copilot-lua
             # Formatting
-            neoformat
+            conform-nvim
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
             codediff       # VSCode-style diff viewer
@@ -173,7 +179,9 @@ in {
           inherit wrapRc;
           configDirName = "nixcats";
           aliases = [ "e" "nvim" "vim" "vi" ];
-          neovim-unwrapped = pkgs.neovim-unwrapped;
+          # Use neovim from unstable (0.12) rather than nixCats's default pkgs
+          # (which is derived from the stable nixpkgs input = 25.11 = 0.11.x)
+          neovim-unwrapped = unstablePkgs.neovim-unwrapped;
           # For wrapRc = false, use this path for lua config
           unwrappedCfgPath = ./lua;
         };

@@ -178,7 +178,16 @@
       };
       throttle = 33; # how frequently does Noice need to check for ui updates? This has no effect when in blocking mode.
       views = { };
-      routes = [ ];
+      routes = [
+        # Suppress inlay hint col out-of-range errors (Neovim 0.11 bug with Roslyn)
+        {
+          filter = {
+            event = "msg_show";
+            find = "inlay_hint";
+          };
+          opts = { skip = true; };
+        }
+      ];
       status = { };
       format = { };
     };

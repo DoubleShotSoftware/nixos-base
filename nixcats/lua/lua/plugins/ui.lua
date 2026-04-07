@@ -9,6 +9,26 @@ if nixCats.cats["languages.dotnet"] then
   table.insert(lualine_a, require("easy-dotnet.ui-modules.jobs").lualine)
 end
 
+-- Build lualine_c section
+local lualine_c = { { 'filename', path = 1 } }
+
+-- Dotnet solution indicator (lualine_z, far right)
+local lualine_z = { 'location' }
+if nixCats.cats["languages.dotnet"] then
+  table.insert(lualine_z, {
+    function()
+      local ok, sln = pcall(require("easy-dotnet.current_solution").try_get_selected_solution)
+      if ok and sln then
+        return '\u{f0399} ' .. vim.fs.basename(sln)
+      end
+      return ''
+    end,
+    cond = function()
+      return vim.bo.filetype == 'cs'
+    end,
+  })
+end
+
 -- Lualine
 require('lualine').setup({
   options = {
@@ -20,10 +40,10 @@ require('lualine').setup({
   sections = {
     lualine_a = lualine_a,
     lualine_b = { 'branch', 'diff', 'diagnostics' },
-    lualine_c = { { 'filename', path = 1 } },
+    lualine_c = lualine_c,
     lualine_x = { 'encoding', 'fileformat', 'filetype' },
     lualine_y = { 'progress' },
-    lualine_z = { 'location' },
+    lualine_z = lualine_z,
   },
 })
 

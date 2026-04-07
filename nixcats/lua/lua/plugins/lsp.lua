@@ -1,6 +1,18 @@
 -- nixcats/lua/plugins/lsp.lua
 -- LSP configuration using vim.lsp.config (nvim 0.11+)
 
+-- Register compound filetypes that lspconfig server definitions reference
+vim.filetype.add({
+  filename = {
+    ['.gitlab-ci.yml'] = 'yaml.gitlab',
+    ['.gitlab-ci.yaml'] = 'yaml.gitlab',
+  },
+  pattern = {
+    ['docker%-compose[^/]*%.ya?ml'] = 'yaml.docker-compose',
+    ['.*%.tfvars'] = 'terraform-vars',
+  },
+})
+
 local nixCats = require('nixCats')
 
 -- Common capabilities
@@ -38,7 +50,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('n', '<leader>la', vim.lsp.buf.code_action, 'Code action')
     map('n', '<leader>lr', vim.lsp.buf.references, 'References')
     map('n', '<leader>lR', vim.lsp.buf.rename, 'Rename symbol')
-    map('n', '<leader>lf', function() vim.lsp.buf.format({ async = true }) end, 'Format buffer')
+    -- Note: <leader>lf is handled by conform in formatting.lua
     map('n', '<leader>li', '<cmd>checkhealth lsp<CR>', 'LSP info')
     -- Note: <leader>lo is handled by lspsaga outline below
 

@@ -1,17 +1,15 @@
-require("roslyn").setup({
-    config = {
-        capabilities = require('blink.cmp').get_lsp_capabilities(),
-        cmd = {
-            roslynDotnetPath, roslynDLLPath, "--stdio", "--telemetryLevel=off",
-            "--logLevel=Debug",
-            "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path())
-        }
+-- LSP client configuration via vim.lsp.config (new roslyn.nvim API)
+vim.lsp.config("roslyn", {
+    capabilities = require('blink.cmp').get_lsp_capabilities(),
+    cmd = {
+        roslynDotnetPath, roslynDLLPath, "--stdio", "--telemetryLevel=off",
+        "--logLevel=Information",
+        "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path())
     },
-    filewatching = "auto",
     settings = {
         ["csharp|background_analysis"] = {
-            dotnet_analyzer_diagnostics_scope = "fullSolution",
-            dotnet_compiler_diagnostics_scope = "fullSolution"
+            dotnet_analyzer_diagnostics_scope = "openFiles",
+            dotnet_compiler_diagnostics_scope = "openFiles"
         },
         ["csharp|completion"] = {
             dotnet_provide_regex_completions = true,
@@ -34,4 +32,10 @@ require("roslyn").setup({
         },
         ["csharp|code_lens"] = {dotnet_enable_references_code_lens = true}
     }
+})
+
+-- Plugin configuration (filewatching, target selection)
+-- Pull diagnostics handled automatically by the plugin on BufWritePost/InsertLeave
+require("roslyn").setup({
+    filewatching = "auto",
 })

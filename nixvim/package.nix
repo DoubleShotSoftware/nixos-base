@@ -29,9 +29,11 @@ let
           };
         };
 
-        # Override vimPlugins to disable require check for treesitter-textobjects
-        # (it requires nvim-treesitter to be loaded first)
+        # Override vimPlugins for nixvim 25.11 compatibility:
+        # - nvim-treesitter from stable (unstable removed nvim-treesitter.configs module)
+        # - nvim-treesitter-textobjects: disable require check (needs nvim-treesitter loaded first)
         vimPlugins = prev.vimPlugins // {
+          inherit (_final.stable.vimPlugins) nvim-treesitter;
           nvim-treesitter-textobjects = prev.vimPlugins.nvim-treesitter-textobjects.overrideAttrs {
             doCheck = false;
           };

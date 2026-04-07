@@ -77,11 +77,31 @@ opt.foldenable = true
 opt.foldlevel = 99
 opt.foldlevelstart = 99
 
--- Diagnostics
+-- Diagnostics (nvim 0.11+: signs defined via vim.diagnostic.config instead of sign_define)
+local severity = vim.diagnostic.severity
 vim.diagnostic.config({
   virtual_text = true,
   virtual_lines = { current_line = true },
-  signs = true,
+  signs = {
+    text = {
+      [severity.ERROR] = '󰅚 ', -- nf-md-close_circle_outline
+      [severity.WARN]  = '󰀪 ', -- nf-md-alert
+      [severity.INFO]  = '󰋽 ', -- nf-md-information_outline
+      [severity.HINT]  = '󰌵 ', -- nf-md-lightbulb_outline
+    },
+    texthl = {
+      [severity.ERROR] = 'DiagnosticSignError',
+      [severity.WARN]  = 'DiagnosticSignWarn',
+      [severity.INFO]  = 'DiagnosticSignInfo',
+      [severity.HINT]  = 'DiagnosticSignHint',
+    },
+    numhl = {
+      [severity.ERROR] = 'DiagnosticSignError',
+      [severity.WARN]  = 'DiagnosticSignWarn',
+      [severity.INFO]  = 'DiagnosticSignInfo',
+      [severity.HINT]  = 'DiagnosticSignHint',
+    },
+  },
   underline = true,
   update_in_insert = false,
   severity_sort = true,
@@ -90,10 +110,3 @@ vim.diagnostic.config({
     source = 'always',
   },
 })
-
--- Diagnostic signs
-local signs = { Error = ' ', Warn = ' ', Info = ' ', Hint = '󰌵 ' }
-for type, icon in pairs(signs) do
-  local hl = 'DiagnosticSign' .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end

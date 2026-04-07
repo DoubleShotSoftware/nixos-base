@@ -14,6 +14,7 @@ require('plugins.editor')
 require('plugins.snacks')
 require('plugins.copilot')
 require('plugins.formatting')
+require('plugins.codediff')
 
 -- Language-specific configs (guarded by nixCats categories)
 require('languages')

@@ -1,20 +1,21 @@
 # TypeScript language configuration function
 { pkgs, username, lib, settings ? {} }:
 let
-  # Only include nodejs if explicitly provided via settings
-  # Otherwise let nodePackages dependencies provide it
-  providedNodeJs = lib.optional (settings.nodePackage != null) (lib.hiPrio settings.nodePackage);
+  # nodejs is required — either the user-supplied package or a sensible default.
+  # npm ships inside the nodejs derivation, so no separate npm package.
+  nodejsPkg = if (settings.nodePackage or null) != null
+    then lib.hiPrio settings.nodePackage
+    else pkgs.nodejs;
   extraPackages = settings.extraPackages or [];
 in
 {
-  # Use stable packages to avoid nodejs build from source issues in unstable
   packages = with pkgs; [
+    nodejsPkg
     yarn
     pnpm
-    nodePackages.npm
-    nodePackages.typescript
-    nodePackages.prettier
-  ] ++ providedNodeJs ++ extraPackages;
+    typescript
+    prettier
+  ] ++ extraPackages;
   sessionVariables = {};
   shellPlugins = {
     zsh = [ "npm" "node" "yarn" ];

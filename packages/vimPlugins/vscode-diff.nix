@@ -2,13 +2,13 @@
 # VSCode-style diff viewer for Neovim (esmuellert/codediff.nvim)
 # Builds the native C library for character-level diff
 {pkgs}: let
-  version = "c841f1d7756c9e7224f9c0001f0f775518914150";
+  version = "832f1ecc5f8b15a44cf7537e31d3266d657775b1";
 
   src = pkgs.fetchFromGitHub {
     owner = "esmuellert";
     repo = "codediff.nvim";
     rev = version;
-    hash = "sha256-dbc0YgsoGat8g9TFZva2C9oup40YXvTyxf+pFhAG5to=";
+    hash = "sha256-iiDf5rbRHJePlv8kBtAID8qVGNBCKi1iipQ9nmMXI18=";
   };
 
   # Build the native library separately
@@ -40,7 +40,7 @@ in
     pname = "codediff-nvim";
     inherit src;
 
-    dependencies = with pkgs.vimPlugins; [ nui-nvim ];
+    dependencies = [];
 
     # Copy the pre-built library and libgomp into the plugin root
     # The unversioned name (libvscode_diff.so) tells installer.needs_update() to skip auto-install

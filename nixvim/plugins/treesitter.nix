@@ -33,16 +33,10 @@
       hyprlang
     ];
     settings = {
-      auto_install = true;
-      ensure_installed =
-        [ "c_sharp" "bash" "dockerfile" "typescript" "python" ];
       highlight = {
         additional_vim_regex_highlighting = true;
-        custom_captures = { };
-        disable = [ ];
         enable = true;
       };
-      ignore_install = [ ];
       incremental_selection = {
         enable = true;
         keymaps = {
@@ -53,10 +47,6 @@
         };
       };
       indent = { enable = true; };
-      parser_install_dir = {
-        __raw = "vim.fs.joinpath(vim.fn.stdpath('data'), 'treesitter')";
-      };
-      sync_install = false;
     };
   };
 

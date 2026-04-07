@@ -9,9 +9,6 @@ with builtins; let
   users = config.personalConfig.users;
 
   linuxOpts = ''
-    linux-cgroup = single-instance
-    linux-cgroup-memory-limit = 2147483648  # 2gb max
-    linux-cgroup-processes-limit = 1000
     gtk-single-instance = desktop
   '';
 

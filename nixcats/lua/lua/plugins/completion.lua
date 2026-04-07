@@ -59,6 +59,7 @@ blink.setup({
   fuzzy = { implementation = "prefer_rust_with_warning" },
   keymap = {
     preset = "super-tab",
+    ["<CR>"] = { "accept", "fallback" },
     ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
     ["<C-k>"] = { "show_signature", "hide_signature", "fallback" },
   },

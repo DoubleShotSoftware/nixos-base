@@ -1,79 +1,88 @@
 -- nixcats/lua/plugins/formatting.lua
--- Neoformat configuration
+-- conform.nvim configuration (replaces neoformat)
+
+local ok, conform = pcall(require, 'conform')
+if not ok then
+  vim.notify('conform.nvim not found', vim.log.levels.WARN)
+  return
+end
 
 local nixCats = require('nixCats')
-
--- Helper to check language categories
 local function hasLang(lang)
   return nixCats.cats["languages." .. lang]
 end
 
--- Only message on errors
-vim.g.neoformat_only_msg_on_error = 1
+-- Per-filetype formatters. Only register those whose language category is
+-- enabled — avoids conform complaining about missing external binaries.
+local formatters_by_ft = {
+  lua = { 'stylua' },
+}
 
--- Lua is always available
-vim.g.neoformat_enabled_lua = { 'stylua' }
-
--- Configure formatters based on enabled languages
 if hasLang('nix') then
-  vim.g.neoformat_enabled_nix = { 'alejandra' }
+  formatters_by_ft.nix = { 'alejandra' }
 end
 
 if hasLang('dotnet') then
-  -- Define custom csharpier formatter with nix store path
-  local csharpierPath = nixCats('csharpierPath')
-  if csharpierPath then
-    vim.g.neoformat_cs_csharpier = {
-      exe = csharpierPath,
-      args = { '--write-stdout' },
-      stdin = 1,
-    }
-  end
-  vim.g.neoformat_enabled_cs = { 'csharpier' }
+  formatters_by_ft.cs = { 'csharpier' }
 end
 
 if hasLang('python') then
-  vim.g.neoformat_enabled_python = { 'black' }
+  formatters_by_ft.python = { 'black' }
 end
 
 if hasLang('rust') then
-  vim.g.neoformat_enabled_rust = { 'rustfmt' }
+  formatters_by_ft.rust = { 'rustfmt' }
 end
 
 if hasLang('typescript') then
-  vim.g.neoformat_enabled_javascript = { 'prettier' }
-  vim.g.neoformat_enabled_javascriptreact = { 'prettier' }
-  vim.g.neoformat_enabled_typescript = { 'prettier' }
-  vim.g.neoformat_enabled_typescriptreact = { 'prettier' }
-  vim.g.neoformat_enabled_vue = { 'prettier' }
-  vim.g.neoformat_enabled_css = { 'prettier' }
-  vim.g.neoformat_enabled_scss = { 'prettier' }
-  vim.g.neoformat_enabled_html = { 'prettier' }
+  local prettier = { 'prettier' }
+  formatters_by_ft.javascript = prettier
+  formatters_by_ft.javascriptreact = prettier
+  formatters_by_ft.typescript = prettier
+  formatters_by_ft.typescriptreact = prettier
+  formatters_by_ft.vue = prettier
+  formatters_by_ft.css = prettier
+  formatters_by_ft.scss = prettier
+  formatters_by_ft.html = prettier
 end
 
 if hasLang('json') then
-  vim.g.neoformat_enabled_json = { 'prettier' }
-  vim.g.neoformat_enabled_jsonc = { 'prettier' }
+  formatters_by_ft.json = { 'prettier' }
+  formatters_by_ft.jsonc = { 'prettier' }
 end
 
 if hasLang('markdown') then
-  vim.g.neoformat_enabled_markdown = { 'prettier' }
+  formatters_by_ft.markdown = { 'prettier' }
 end
 
 if hasLang('sql') then
-  vim.g.neoformat_enabled_sql = { 'pg_format' }
+  formatters_by_ft.sql = { 'pg_format' }
 end
 
 if hasLang('terraform') then
-  vim.g.neoformat_enabled_terraform = { 'terraform_fmt' }
-  vim.g.neoformat_enabled_tf = { 'terraform_fmt' }
-  vim.g.neoformat_enabled_hcl = { 'terraform_fmt' }
+  formatters_by_ft.terraform = { 'terraform_fmt' }
+  formatters_by_ft.tf = { 'terraform_fmt' }
+  formatters_by_ft.hcl = { 'terraform_fmt' }
 end
 
--- Keymaps
-vim.keymap.set({ 'n', 'v' }, '<leader>bf', '<cmd>Neoformat<CR>', { desc = 'Format buffer' })
+conform.setup({
+  formatters_by_ft = formatters_by_ft,
+  default_format_opts = {
+    timeout_ms = 3000,
+  },
+  -- No custom formatter overrides needed — csharpier is on PATH via nixcats
+  -- wrapper (lspsAndRuntimeDeps in dotnet.nix), and conform's built-in
+  -- csharpier formatter handles the correct args automatically.
+})
 
--- <leader>lf for LSP-only format (when you explicitly want LSP)
+-- <leader>lf: prefer LSP formatting, fall back to external formatter.
+-- Fast path for C# (Roslyn), TS (ts_ls), etc.
 vim.keymap.set('n', '<leader>lf', function()
-  vim.lsp.buf.format({ async = true })
+  conform.format({ async = true, lsp_format = 'prefer' })
 end, { desc = 'Format buffer (LSP)' })
+
+-- <leader>bf: always use external formatter, skip LSP.
+-- For when you specifically want csharpier/prettier/etc. over the LSP.
+vim.keymap.set({ 'n', 'v' }, '<leader>bf', function()
+  conform.format({ async = true, lsp_format = 'never' })
+end, { desc = 'Format buffer (external)' })

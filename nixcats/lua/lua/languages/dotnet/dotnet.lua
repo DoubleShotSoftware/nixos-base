@@ -1,6 +1,6 @@
 -- nixcats/lua/lua/languages/dotnet/dotnet.lua
 -- .NET development setup
--- roslyn.nvim for LSP (better diagnostics), easy-dotnet for test/debug/build
+-- easy-dotnet.nvim handles LSP (built-in roslyn), test runner, debugger, build
 
 local nixCats = require('nixCats')
 
@@ -10,28 +10,38 @@ if not nixCats.cats["languages.dotnet"] then
 end
 
 -- =============================================================================
--- Roslyn LSP Setup (using roslyn.nvim)
+-- Easy-dotnet Setup (LSP + test runner + debugger + build)
 -- =============================================================================
 
--- Common capabilities
+-- Capabilities (with blink.cmp integration)
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local ok_blink, blink = pcall(require, 'blink.cmp')
 if ok_blink then
   capabilities = blink.get_lsp_capabilities(capabilities)
 end
 
--- Roslyn.nvim setup
-require('roslyn').setup({
-  config = {
-    capabilities = capabilities,
-  },
-  -- File watching mode: "auto" uses neovim's built-in file watching
-  filewatching = "auto",
-  -- Settings matching nixvim config
+-- Cap Roslyn's memory footprint. Roslyn has been observed to consume all
+-- available RAM on this machine.
+--
+-- NOTE: easy-dotnet's lsp.enable() rewrites vim.lsp.config[easy_dotnet] and
+-- hard-resets cmd_env to {}, so setting cmd_env here is a no-op. Instead we
+-- set these on the nvim process environment; the LSP subprocess inherits
+-- them because easy-dotnet's empty cmd_env leaves process env untouched.
+--
+-- DOTNET_GCHeapHardLimit is in bytes (hex). 0x300000000 = 12 GiB.
+-- Set DOTNET_GCConserveMemory to 0 (disabled) to avoid GC thrashing that
+-- causes extreme latency on hover/definition requests.
+vim.env.DOTNET_GCHeapHardLimit = vim.env.DOTNET_GCHeapHardLimit or "0x300000000"
+vim.env.DOTNET_gcServer = vim.env.DOTNET_gcServer or "1"
+
+-- Pre-configure the easy_dotnet LSP with our settings before easy-dotnet.setup()
+-- This gets merged in by easy-dotnet's lsp.enable() via vim.lsp.config
+vim.lsp.config("easy_dotnet", {
+  capabilities = capabilities,
   settings = {
     ["csharp|background_analysis"] = {
-      dotnet_analyzer_diagnostics_scope = "fullSolution",
-      dotnet_compiler_diagnostics_scope = "fullSolution",
+      dotnet_analyzer_diagnostics_scope = "openFiles",
+      dotnet_compiler_diagnostics_scope = "openFiles",
     },
     ["csharp|completion"] = {
       dotnet_provide_regex_completions = true,
@@ -58,64 +68,55 @@ require('roslyn').setup({
   },
 })
 
--- Roslyn-specific LspAttach for inlay hints
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('RoslynLspAttach', { clear = true }),
-  callback = function(ev)
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if not client or client.name ~= 'roslyn' then
-      return
-    end
-    -- Enable inlay hints if supported
-    if client.server_capabilities.inlayHintProvider then
-      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
-    end
-  end,
-})
-
--- =============================================================================
--- Easy-dotnet Setup (test runner, debugger, build commands - NO LSP)
--- =============================================================================
-
 require("easy-dotnet").setup({
-  -- DISABLE built-in LSP - using roslyn.nvim instead
+  -- Enable built-in Roslyn LSP
   lsp = {
-    enabled = false,
+    enabled = true,
+    preload_roslyn = true,
+    roslynator_enabled = true,
+    easy_dotnet_analyzer_enabled = true,
+    auto_refresh_codelens = true,
   },
 
-  -- Zero-config debugging with bundled NetCoreDbg
+  -- Debugger
   debugger = {
     auto_register_dap = true,
     apply_value_converters = true,
+    console = "integratedTerminal",
   },
 
-  -- Test runner with buffer execution
+  -- Test runner (v2 - removed noBuild, enable_buffer_test_execution)
   test_runner = {
     viewmode = "float",
-    enable_buffer_test_execution = true,
-    noBuild = true,
   },
 
   -- Keep telescope
   picker = "telescope",
 
-  -- Terminal configuration for build output
-  terminal = function(path, action, args, ctx)
-    args = args or ""
-    local commands = {
-      run = function() return string.format("%s %s", ctx.cmd, args) end,
-      test = function() return string.format("%s %s", ctx.cmd, args) end,
-      restore = function() return string.format("%s %s", ctx.cmd, args) end,
-      build = function() return string.format("%s %s", ctx.cmd, args) end,
-      watch = function() return string.format("dotnet watch --project %s %s", path, args) end,
-    }
-    local command = commands[action]()
-    vim.cmd("vsplit")
-    vim.cmd("term " .. command)
-  end,
-
   -- Other settings
   auto_bootstrap_namespace = { enabled = false },
+})
+
+-- Roslyn registers capabilities dynamically via client/registerCapability after
+-- solution load. Declare standard capabilities upfront so nvim allows requests
+-- (like gd) before the dynamic registration completes.
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('DotnetLspAttach', { clear = true }),
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if not client or client.name ~= 'easy_dotnet' then
+      return
+    end
+    local sc = client.server_capabilities
+    sc.definitionProvider = sc.definitionProvider or true
+    sc.referencesProvider = sc.referencesProvider or true
+    sc.implementationProvider = sc.implementationProvider or true
+    sc.typeDefinitionProvider = sc.typeDefinitionProvider or true
+
+    if sc.inlayHintProvider then
+      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+    end
+  end,
 })
 
 -- =============================================================================
@@ -136,7 +137,7 @@ local function ensure_launch_json()
 end
 
 -- =============================================================================
--- Keybindings (dotnet-specific, NOT overriding <leader>bf)
+-- Keybindings (dotnet-specific)
 -- =============================================================================
 
 local function setup_dotnet_keymaps()

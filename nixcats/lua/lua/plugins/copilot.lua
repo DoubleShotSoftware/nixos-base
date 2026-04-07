@@ -7,7 +7,29 @@ if not ok then
   return
 end
 
+-- Suppress copilot's logMessage handler noise (AbortError spam from cancelled
+-- async completion requests during fast typing). These are benign but flood the
+-- LSP log and trigger notifications.
+local orig_log_handler = vim.lsp.handlers['window/logMessage']
+vim.lsp.handlers['window/logMessage'] = function(err, result, ctx, config)
+  local client = vim.lsp.get_client_by_id(ctx.client_id)
+  if client and client.name == 'copilot' and result and type(result.message) == 'string' then
+    if result.message:find('AbortError')
+      or result.message:find('Cannot find request with id')
+      or result.message:find('AsyncCompletionManager') then
+      return
+    end
+  end
+  if orig_log_handler then
+    return orig_log_handler(err, result, ctx, config)
+  end
+end
+
 copilot.setup({
+  server = {
+    type = "binary",
+    custom_server_filepath = "copilot-language-server",
+  },
   panel = {
     enabled = true,
     auto_refresh = false,
@@ -26,7 +48,7 @@ copilot.setup({
   suggestion = {
     enabled = true,
     auto_trigger = true,
-    debounce = 75,
+    debounce = 200,
     keymap = {
       accept = '<M-l>',
       accept_word = false,
