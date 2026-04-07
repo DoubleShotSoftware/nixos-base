@@ -2,7 +2,7 @@
 # .NET development for Neovim (GustavEikaas/easy-dotnet.nvim)
 { pkgs }:
 let
-  version = "29441d4c4f5e2e8337e8810b09e55763c5aa803d";
+  version = "8f557b46d0954d216ce73c2f4ca7dcd04ff27b64";
 in pkgs.vimUtils.buildVimPlugin {
   inherit version;
   name = "easy-dotnet.nvim";
@@ -10,6 +10,8 @@ in pkgs.vimUtils.buildVimPlugin {
     owner = "GustavEikaas";
     repo = "easy-dotnet.nvim";
     rev = version;
-    hash = "sha256-5c7jWEQlq6EMM75Sbqt2q7djzZp4H4JZrdSl+oiEP8E=";
+    hash = "sha256-yeyQnJwnePmIiRR/7WGs1vc3amuuduTNkIcfLfIv364=";
   };
+  # Modules have runtime deps (telescope, roslyn server) unavailable at build time
+  doCheck = false;
 }

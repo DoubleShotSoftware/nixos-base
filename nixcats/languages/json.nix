@@ -2,7 +2,7 @@
 { pkgs, stablePkgs, ... }:
 {
   lspsAndRuntimeDeps = with pkgs; [
-    nodePackages.vscode-json-languageserver
+    vscode-json-languageserver
     jq
   ];
 

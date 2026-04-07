@@ -3,10 +3,10 @@
 {
   lspsAndRuntimeDeps = with pkgs; [
     typescript
-    nodePackages.typescript-language-server
-    nodePackages.eslint
+    typescript-language-server
+    eslint
     vscode-langservers-extracted  # eslint, html, css, json LSPs
-    nodePackages.prettier
+    prettier
     # nodejs provided by components/languages/typescript.nix in home.packages
   ];
 

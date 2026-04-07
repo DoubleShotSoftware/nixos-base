@@ -5,7 +5,7 @@
 
 buildDotnetGlobalTool {
   pname = "easydotnet";  # Use lowercase for the tool name
-  version = "2.3.41";
+  version = "3.0.9";
 
   # NuGet package name (case-sensitive as it appears on NuGet)
   nugetName = "EasyDotnet";
@@ -19,7 +19,7 @@ buildDotnetGlobalTool {
 
   # SHA256 hash of the NuGet package
   # This will need to be updated when updating the version
-  nugetSha256 = "sha256-N10h7LjJQxCby6NFHTrSFkWH1JxFB8gFfzaLYwDxIyc=";
+  nugetSha256 = "sha256-b9E+ziyzKgglK2dqWjy7+BwaNFju/7TNXIKROUtT6GU=";
 
   meta = with lib; {
     description = "Easy .NET CLI tool for managing .NET projects";

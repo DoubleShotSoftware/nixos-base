@@ -14,7 +14,7 @@ in {
       programs.zsh.enable = mkDefault (any (u: (u.shell or null) == "zsh") (attrValues users));
       programs.fish.enable = mkDefault (any (u: (u.shell or null) == "fish") (attrValues users));
     }
-    (lib.mkIf (pkgs.system == "aarch64-darwin") {
+    (lib.mkIf (pkgs.stdenv.hostPlatform.system == "aarch64-darwin") {
       users.users = mapAttrs (user: userConfig: {
           home = "/Users/${user}";
         }) users;

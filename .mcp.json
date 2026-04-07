@@ -19,7 +19,7 @@
         "--rm",
         "-i",
         "--mount",
-        "type=bind,src=/home/sobrien/dev/nix-base,dst=/workspace",
+        "type=bind,src=/home/sobrien/dev/nixos-base,dst=/workspace",
         "mcp/git"
       ]
     },
@@ -33,7 +33,7 @@
         "run",
         "-i",
         "--mount",
-        "type=bind,src=/home/sobrien/dev/nix-base/.claude/mcp-data/memory,dst=/data",
+        "type=bind,src=/home/sobrien/dev/nixos-base/.claude/mcp-data/memory,dst=/data",
         "-e",
         "MEMORY_FILE_PATH=/data/memory.json",
         "--rm",
@@ -47,24 +47,13 @@
         "--rm",
         "-i",
         "--mount",
-        "type=bind,src=/home/sobrien/dev/nix-base/.claude/mcp-data/sequentialthinking,dst=/data",
+        "type=bind,src=/home/sobrien/dev/nixos-base/.claude/mcp-data/sequentialthinking,dst=/data",
         "mcp/sequentialthinking"
       ]
     },
     "time": {
       "command": "docker",
       "args": ["run", "-i", "--rm", "mcp/time"]
-    },
-    "github": {
-      "command": "docker",
-      "args": [
-        "run",
-        "--rm",
-        "-i",
-        "-e",
-        "GITHUB_TOKEN=${GITHUB_TOKEN}",
-        "mcp/github"
-      ]
     },
     "nixos": {
       "command": "nix",

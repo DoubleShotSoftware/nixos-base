@@ -39,14 +39,14 @@ let
     tree-sitter
 
     # language servers
-    nodePackages.vscode-langservers-extracted # html, css, json, eslint
-    nodePackages.yaml-language-server
+    vscode-langservers-extracted # html, css, json, eslint
+    yaml-language-server
     nil # nix
 
     # formatters and linters
     alejandra # nix
     deadnix # nix
-    nodePackages.prettier
+    prettier
     shellcheck
     shfmt
     statix # nix

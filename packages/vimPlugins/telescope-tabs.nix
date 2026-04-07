@@ -1,7 +1,7 @@
 # packages/vimPlugins/telescope-tabs.nix
 # Telescope extension for tab management (LukasPietzschmann/telescope-tabs)
 {pkgs}: let
-  version = "777b1f630f3d6a12a2e71635a82581c988d6da2e";
+  version = "62c127346c04c698c0cbd1c1ba945609a0ad10db";
 in
   pkgs.vimUtils.buildVimPlugin {
     inherit version;
@@ -10,7 +10,7 @@ in
       owner = "LukasPietzschmann";
       repo = "telescope-tabs";
       rev = version;
-      hash = "sha256-5NpH9+0ECrcKi8quPLpCHLSPTuzGETWtq4E+2jqUKio=";
+      hash = "sha256-WIuY25GFqhVV5kD/2BYA1f5qniS0xQJ9iM2/2+6N2Iw=";
     };
     dependencies = with pkgs; [vimPlugins.telescope-nvim];
     nvimRequireCheck = "telescope";
