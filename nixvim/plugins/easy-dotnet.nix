@@ -61,9 +61,6 @@ in {
       dotnetPackages.Nuget
       dotnet-ef
       netcoredbg
-    ] ++ [
-      # Add our custom packaged easy-dotnet-tool
-      (pkgs.callPackage ../../packages/easy-dotnet-tool.nix { })
     ];
 
     # Ensure dotnet environment is properly configured

@@ -108,7 +108,7 @@ let
         };
       };
     };
-  listenAddresses = map (interfaceConfig: interfaceConfig.listenOn) dnsMasqConfig;
+  listenAddresses = ["127.0.0.1"] ++ map (interfaceConfig: interfaceConfig.listenOn) dnsMasqConfig;
   interfaceConfigs = map (
     interfaceConfig:
     "interface:${interfaceConfig.interface},${interfaceConfig.lowerRange},${interfaceConfig.upperRange},${toString interfaceConfig.leaseTime}h"

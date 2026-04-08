@@ -232,8 +232,6 @@
             inherit unstable dotnetSDK;
             # Custom vim plugins shared between nixvim and nixcats
             customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
-            # Easy-dotnet CLI tool
-            easy-dotnet-tool = unstable.callPackage ./packages/easy-dotnet-tool.nix { };
 
             # Dynamic nixcats builder - builds slim editor with only specified languages
             # Usage: pkgs.mkNixCatsIDE { languages = ["dotnet" "typescript"]; }
@@ -248,9 +246,8 @@
               let
                 # Extend unstable with overlay packages needed by nixcats language modules
                 customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
-                easy-dotnet-tool = unstable.callPackage ./packages/easy-dotnet-tool.nix { };
                 pkgsForNixcats = unstable // {
-                  inherit dotnetSDK customVimPlugins easy-dotnet-tool;
+                  inherit dotnetSDK customVimPlugins;
                 };
               in
               nixcatsLib.mkNixCats {

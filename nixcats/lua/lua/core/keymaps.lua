@@ -50,3 +50,6 @@ map('n', '<leader>W', '<cmd>wa<CR>', { desc = 'Save all files' })
 -- Quick quit
 map('n', '<leader>q', '<cmd>q<CR>', { desc = 'Quit' })
 map('n', '<leader>Q', '<cmd>qa!<CR>', { desc = 'Force quit all' })
+
+vim.cmd("packadd nvim.undotree")
+vim.keymap.set("n", "<leader>U", require("undotree").open)

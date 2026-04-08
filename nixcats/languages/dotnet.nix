@@ -1,6 +1,7 @@
 # nixcats/languages/dotnet.nix - .NET/C# language support
-# Uses pkgs.dotnetSDK, pkgs.easy-dotnet-tool from flake overlay
+# Uses pkgs.dotnetSDK from flake overlay
 # easy-dotnet handles LSP (built-in roslyn), test runner, debugger, build
+# easy-dotnet-server (dotnet-easydotnet) installed via dotnet tool, managed by systemd timer
 { pkgs, ... }:
 {
   lspsAndRuntimeDeps = with pkgs; [
@@ -10,7 +11,6 @@
     dotnet-outdated
     dotnetPackages.Nuget
     dotnet-ef
-    easy-dotnet-tool       # From overlay (runs roslyn LSP server)
   ];
 
   startupPlugins = [
