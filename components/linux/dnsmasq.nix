@@ -198,7 +198,7 @@ in
     services = {
       dnsmasq = {
         enable = true;
-        resolveLocalQueries = false;
+        resolveLocalQueries = true;
         settings = {
           no-resolv = true;
           conf-file = "${pkgs.dnsmasq}/share/dnsmasq/trust-anchors.conf";
