@@ -72,6 +72,15 @@ in
           "net.bridge.bridge-nf-call-arptables" = 0;
         };
       })
+      # The nixpkgs-generated u9fs.socket declares After=network.target, which
+      # combined with sockets.target creates an ordering cycle that causes
+      # systemd to silently drop NetworkManager.service from boot. A listening
+      # socket doesn't need network routing, so strip the bogus After= — but
+      # only on hosts that actually use NetworkManager (systemd-networkd hosts
+      # don't hit this cycle).
+      (lib.mkIf config.networking.networkmanager.enable {
+        systemd.sockets.u9fs.unitConfig.After = lib.mkForce [ ];
+      })
     ]
   );
 }
