@@ -26,6 +26,7 @@ stdenv.mkDerivation {
       --set JAVA_HOME ${jdk17} \
       --set JDK_HOME ${jdk17} \
       --prefix PATH : ${lib.makeBinPath [ jdk17 ]}
+    chmod -R +x $out/bin/*
   '';
 
   meta = with lib; {
