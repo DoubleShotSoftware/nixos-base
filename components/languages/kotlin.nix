@@ -1,10 +1,6 @@
 {pkgs, ...}: {
   packages = with pkgs; [
-    jdk11_headless
-    jdk17_headless
     jdk25_headless
-    jetbrains.jdk
-    graalvmPackages.graalvm-ce
     gradle
     gradle-completion
     maven
@@ -14,8 +10,8 @@
     ktlint
   ];
   sessionVariables = {
-    JAVA_HOME = "${pkgs.jdk17_headless}";
-    JDK_HOME = "${pkgs.jdk17_headless}";
+    JAVA_HOME = "${pkgs.jdk25_headless}";
+    JDK_HOME = "${pkgs.jdk25_headless}";
     IDEA_JDK = "${pkgs.jetbrains.jdk}";
     GRAALVM_HOME = "${pkgs.graalvmPackages.graalvm-ce}";
     _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
