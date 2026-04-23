@@ -25,11 +25,13 @@ stdenv.mkDerivation {
   installPhase = ''
     mkdir -p $out/lib/kotlin-lsp $out/bin
 
-    # Copy the extracted contents
-    cp -r extracted/kotlin-lsp-${version}/* $out/lib/kotlin-lsp/
+    # Copy the extracted contents. JetBrains publishes the archive with
+    # top-level kotlin-lsp.sh, jre/, lib/, and native/ directories.
+    cp -r extracted/. $out/lib/kotlin-lsp/
+    chmod +x $out/lib/kotlin-lsp/kotlin-lsp.sh
 
     # Create a stable CLI wrapper around the upstream launcher.
-    makeWrapper $out/lib/kotlin-lsp/bin/intellij-server $out/bin/kotlin-lsp \
+    makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp \
       --prefix PATH : ${lib.makeBinPath [ jdk17 ]}
   '';
 
