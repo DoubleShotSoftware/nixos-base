@@ -249,7 +249,13 @@
                 # Keep NixCats on the unstable Neovim base, but merge in the
                 # repo's custom package set so language modules can see
                 # kotlin-lsp and the other overlay-defined helpers.
-                pkgsForNixcats = unstable // (customPackages { pkgs = final; inherit dotnetSDK; });
+                pkgsForNixcats =
+                  unstable
+                  // {
+                    # NixCats expects this attrset for shared plugin inputs.
+                    customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
+                  }
+                  // (customPackages { pkgs = final; inherit dotnetSDK; });
               in
               nixcatsLib.mkNixCats {
                 system = prev.system;
