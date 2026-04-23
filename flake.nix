@@ -246,9 +246,10 @@
               extraPackages ? [ ],
             }:
               let
-                # Use the fully overlaid package set so custom packages are
-                # visible to every NixCats language module.
-                pkgsForNixcats = final;
+                # Keep NixCats on the unstable Neovim base, but merge in the
+                # repo's custom package set so language modules can see
+                # kotlin-lsp and the other overlay-defined helpers.
+                pkgsForNixcats = unstable // (customPackages { pkgs = final; inherit dotnetSDK; });
               in
               nixcatsLib.mkNixCats {
                 system = prev.system;
