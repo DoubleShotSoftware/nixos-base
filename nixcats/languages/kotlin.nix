@@ -16,11 +16,6 @@ in
 
   optionalPlugins = [ ];
 
-  environmentVariables = {
-    JAVA_HOME = "${pkgs.jdk17_headless}";
-    JDK_HOME = "${pkgs.jdk17_headless}";
-  };
-
   extra = {
     kotlinLspBinary = "${kotlinLspPkg}/bin/kotlin-lsp";
   };
