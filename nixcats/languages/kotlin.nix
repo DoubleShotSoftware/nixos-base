@@ -2,7 +2,7 @@
 { pkgs, stablePkgs, ... }:
 {
   lspsAndRuntimeDeps = with pkgs; [
-    kotlin-lsp
+    kotlinLsp
     jdk17_headless
     gradle
     maven
@@ -20,6 +20,6 @@
   };
 
   extra = {
-    kotlinLspBinary = "${pkgs.kotlin-lsp}/bin/kotlin-lsp";
+    kotlinLspBinary = "${pkgs.kotlinLsp}/bin/kotlin-lsp";
   };
 }

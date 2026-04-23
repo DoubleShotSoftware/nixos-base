@@ -175,30 +175,38 @@
             config.allowUnfree = true;
           };
 
+          # Custom packages that nixCats language modules may want to reference.
+          customPackagesForNixcats = customPackages {
+            pkgs = unstablePkgs;
+            inherit dotnetSDK;
+          };
+
+          pkgsForNixcats = unstablePkgs // customPackagesForNixcats;
+
           # nixCats packages - pass pre-configured pkgs
           nixcatsPackages = {
             nixcats = nixcatsLib.mkNixCats {
               inherit system stablePkgs;
-              pkgs = unstablePkgs;
+              pkgs = pkgsForNixcats;
               languages = [ "nix" ];
             };
             nixcats-full = nixcatsLib.mkNixCats {
               inherit system stablePkgs;
-              pkgs = unstablePkgs;
-              languages = [ "nix" "dotnet" "rust" "python" "typescript" "json" "sql" "terraform" "aws" ];
+              pkgs = pkgsForNixcats;
+              languages = [ "nix" "dotnet" "rust" "python" "typescript" "json" "sql" "terraform" "aws" "kotlin" ];
             };
             nixcats-dev = nixcatsLib.mkNixCats {
               inherit system stablePkgs;
-              pkgs = unstablePkgs;
+              pkgs = pkgsForNixcats;
               languages = [ "nix" ];
               wrapRc = false;
             };
           };
 
-          # Base packages available on all systems
-          basePackages = {
-            nixvim = nixvimPackages.default;
-            nixvim-lite = nixvimPackages.lite;
+	          # Base packages available on all systems
+	          basePackages = {
+	            nixvim = nixvimPackages.default;
+	            nixvim-lite = nixvimPackages.lite;
           } // nixcatsPackages // (customPackages { inherit pkgs dotnetSDK; });
         in
         basePackages
