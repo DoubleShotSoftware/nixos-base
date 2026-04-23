@@ -94,6 +94,7 @@ with lib;
     languages = mkOption {
       type = types.listOf (types.enum [
         "aws"
+        "kotlin"
         "terraform"
         "tofu"
         "rust"
