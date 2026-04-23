@@ -1,0 +1,44 @@
+{pkgs, ...}: {
+  packages = with pkgs; [
+    jdk11_headless
+    jdk17_headless
+    jdk25_headless
+    jetbrains.jdk
+    graalvmPackages.graalvm-ce
+    gradle
+    gradle-completion
+    maven
+    mill
+    kotlin
+    ktor-cli
+    ktlint
+  ];
+  sessionVariables = {
+    JAVA_HOME = "${pkgs.jdk17_headless}";
+    JDK_HOME = "${pkgs.jdk17_headless}";
+    IDEA_JDK = "${pkgs.jetbrains.jdk}";
+    GRAALVM_HOME = "${pkgs.graalvmPackages.graalvm-ce}";
+    _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
+  };
+  shellPlugins = {
+    zsh = ["gradle" "mvn"];
+    fish = []; # TODO: Add fish Kotlin/Gradle completions if available
+    bash = []; # TODO: Add bash Kotlin/Gradle completions if available
+  };
+  shellInitExtra = {
+    zsh = "";
+    fish = "";
+    bash = "";
+  };
+  permittedInsecurePackages = [
+  ];
+  homeManager = {
+    home.file = {
+      ".jdks/openjdk11".source = pkgs.jdk11_headless;
+      ".jdks/openjdk17".source = pkgs.jdk17_headless;
+      ".jdks/openjdk25".source = pkgs.jdk25_headless;
+      ".jdks/jetbrains".source = pkgs.jetbrains.jdk;
+      ".jdks/graalvm".source = pkgs.graalvmPackages.graalvm-ce;
+    };
+  };
+}
