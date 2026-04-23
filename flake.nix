@@ -246,9 +246,9 @@
               extraPackages ? [ ],
             }:
               let
-                # `unstable` already has the repo overlay applied, so it carries
-                # custom packages and vim plugins consistently across modules.
-                pkgsForNixcats = unstable;
+                # Use the fully overlaid package set so custom packages are
+                # visible to every NixCats language module.
+                pkgsForNixcats = final;
               in
               nixcatsLib.mkNixCats {
                 system = prev.system;

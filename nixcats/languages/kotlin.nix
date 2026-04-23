@@ -1,6 +1,6 @@
 # nixcats/languages/kotlin.nix - Kotlin/JVM language support
 { pkgs, ... }:
-let kotlinLspPkg = pkgs.kotlinLsp;
+let kotlinLspPkg = pkgs."kotlin-lsp";
 in
 {
   lspsAndRuntimeDeps = with pkgs; [
