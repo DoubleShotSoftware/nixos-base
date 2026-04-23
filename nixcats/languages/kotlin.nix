@@ -1,8 +1,10 @@
 # nixcats/languages/kotlin.nix - Kotlin/JVM language support
-{ pkgs, stablePkgs, ... }:
+{ pkgs, ... }:
+let kotlinLspPkg = pkgs.kotlinLsp;
+in
 {
   lspsAndRuntimeDeps = with pkgs; [
-    kotlinLsp
+    kotlinLspPkg
     jdk17_headless
     gradle
     maven
@@ -20,6 +22,6 @@
   };
 
   extra = {
-    kotlinLspBinary = "${pkgs.kotlinLsp}/bin/kotlin-lsp";
+    kotlinLspBinary = "${kotlinLspPkg}/bin/kotlin-lsp";
   };
 }

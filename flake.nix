@@ -175,13 +175,7 @@
             config.allowUnfree = true;
           };
 
-          # Custom packages that nixCats language modules may want to reference.
-          customPackagesForNixcats = customPackages {
-            pkgs = unstablePkgs;
-            inherit dotnetSDK;
-          };
-
-          pkgsForNixcats = unstablePkgs // customPackagesForNixcats;
+          pkgsForNixcats = unstablePkgs;
 
           # nixCats packages - pass pre-configured pkgs
           nixcatsPackages = {
@@ -252,11 +246,9 @@
               extraPackages ? [ ],
             }:
               let
-                # Extend unstable with overlay packages needed by nixcats language modules
-                customVimPlugins = import ./packages/vimPlugins { pkgs = unstable; };
-                pkgsForNixcats = unstable // {
-                  inherit dotnetSDK customVimPlugins;
-                };
+                # `unstable` already has the repo overlay applied, so it carries
+                # custom packages and vim plugins consistently across modules.
+                pkgsForNixcats = unstable;
               in
               nixcatsLib.mkNixCats {
                 system = prev.system;
