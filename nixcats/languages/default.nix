@@ -16,6 +16,7 @@ let
     markdown = ./markdown.nix;
     terraform = ./terraform.nix;
     aws = ./aws.nix;
+    kotlin = ./kotlin.nix;
   };
 
   # Get editor config for a language

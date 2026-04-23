@@ -63,7 +63,6 @@ in {
             lazygit
             delta   # Required for deltaview
             nodejs  # Required for copilot
-            copilot-language-server
             stylua  # Lua formatter
             lua-language-server  # Lua LSP
           ];
@@ -120,8 +119,6 @@ in {
             tabby-nvim
             # Markdown preview
             render-markdown-nvim
-            # AI assistance
-            copilot-lua
             # Formatting
             conform-nvim
           ] ++ [

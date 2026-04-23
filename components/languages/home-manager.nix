@@ -11,6 +11,7 @@ let
     rust = ./rust.nix;
     sql = ./sql.nix;
     typescript = ./typescript.nix;
+    kotlin = ./kotlin.nix;
   };
   
   # Function to get language config
@@ -41,12 +42,14 @@ let
                else acc.shellInitExtra.bash;
       };
       permittedInsecurePackages = acc.permittedInsecurePackages ++ (cfg.permittedInsecurePackages or []);
+      homeManager = recursiveUpdate acc.homeManager (cfg.homeManager or {});
     }) {
       packages = [];
       sessionVariables = {};
       shellPlugins = { zsh = []; fish = []; bash = []; };
       shellInitExtra = { zsh = ""; fish = ""; bash = ""; };
       permittedInsecurePackages = [];
+      homeManager = {};
     } configs;
     
   # Get configs for enabled languages for a user
@@ -62,6 +65,7 @@ let
          shellPlugins = { zsh = []; fish = []; bash = []; };
          shellInitExtra = { zsh = ""; fish = ""; bash = ""; };
          permittedInsecurePackages = []; 
+         homeManager = {};
        }
        else mergeLanguageConfigs validConfigs;
        
@@ -105,5 +109,6 @@ in {
     (mkIf (languageConfig.userShell == "bash") {
       programs.bash.initExtra = mkIf (languageConfig.cfg.shellInitExtra.bash != "") languageConfig.cfg.shellInitExtra.bash;
     })
+    (languageConfig.cfg.homeManager or {})
   ]);
 }

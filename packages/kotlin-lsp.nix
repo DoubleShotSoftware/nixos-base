@@ -3,7 +3,7 @@
 { pkgs, lib, stdenv, fetchurl, makeWrapper, jdk17 }:
 
 let
-  version = "261.13587.0";
+  version = "262.2310.0";
   platform = if stdenv.isDarwin then "macos-aarch64" else "linux-x64";
 in
 stdenv.mkDerivation {
@@ -12,7 +12,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-${platform}.zip";
-    hash = "sha256-3A7S5wyw1h/auyau/Ogpm3p1wNz/+5QTcV6Syuxug+w=";
+    hash = "sha256-wAQkIVj0teHZF93YSOb2onlIT6WKPivOiEa4B9GtFrE=";
   };
 
   nativeBuildInputs = [ pkgs.unzip makeWrapper ];
@@ -28,8 +28,8 @@ stdenv.mkDerivation {
     # Copy the extracted contents
     cp -r extracted/kotlin-lsp-${version}/* $out/lib/kotlin-lsp/
 
-    # Create wrapper script
-    makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp \
+    # Create a stable CLI wrapper around the upstream launcher.
+    makeWrapper $out/lib/kotlin-lsp/bin/intellij-server $out/bin/kotlin-lsp \
       --prefix PATH : ${lib.makeBinPath [ jdk17 ]}
   '';
 

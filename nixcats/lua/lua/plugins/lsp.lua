@@ -156,6 +156,27 @@ if hasLang('sql') then
   table.insert(servers_to_enable, 'sqls')
 end
 
+-- Kotlin language support
+if hasLang('kotlin') then
+  local kotlin_lsp = nixCats('extra.kotlinLspBinary') or 'kotlin-lsp'
+
+  vim.lsp.config.kotlin_lsp = {
+    capabilities = capabilities,
+    cmd = { kotlin_lsp, '--stdio' },
+    filetypes = { 'kotlin' },
+    root_markers = {
+      'settings.gradle.kts',
+      'settings.gradle',
+      'build.gradle.kts',
+      'build.gradle',
+      'pom.xml',
+      '.git',
+    },
+    single_file_support = false,
+  }
+  table.insert(servers_to_enable, 'kotlin_lsp')
+end
+
 -- Markdown language support
 if hasLang('markdown') then
   vim.lsp.config.marksman = {
