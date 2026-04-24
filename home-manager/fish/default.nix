@@ -94,7 +94,6 @@ in {
         ];
       };
     };
-    
     # Enable homebrew initialization on macOS
     programs.homebrew-init.enable = pkgs.stdenv.isDarwin;
   };

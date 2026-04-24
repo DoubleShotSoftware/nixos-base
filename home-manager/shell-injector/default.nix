@@ -5,9 +5,6 @@ let
   personalConfig = config._module.args.personalConfig or config.personalConfig or {};
   users = personalConfig.users or {};
   
-  # Auto-detect if we're on NixOS
-  isNixOs = pkgs.stdenv.isLinux && builtins.pathExists /etc/NIXOS;
-  
   # Determine username - in home-manager context, use config.home.username
   username = config.home.username or (if length (attrNames users) == 1 then head (attrNames users) else null);
   
@@ -17,7 +14,12 @@ let
   # Check if this user needs shell injection
   shellInjector = userConfig.shellInjector or "disabled";
   userShell = userConfig.shell or "bash";
-  needsInjection = !isNixOs && shellInjector != "disabled";
+  effectiveShellInjector =
+    if shellInjector == "disabled" && userShell != "bash" then
+      "bash"
+    else
+      shellInjector;
+  needsInjection = effectiveShellInjector != "disabled";
   
   # Shell paths
   shellPaths = {
@@ -28,15 +30,18 @@ let
   
   # Create injection script that launches the user's preferred shell
   mkInjectionScript = ''
-    # Source system configuration first
-    if [ -f /etc/zshenv ]; then
-        source /etc/zshenv
-    fi
-    if [ -f /etc/zshrc ]; then
-        source /etc/zshrc
-    fi
-    if [ -f /etc/static/zshrc ]; then
-        source /etc/static/zshrc
+    # Only source zsh system configuration when we are actually trampolineing
+    # into zsh. Bash remains the login shell so remote tools keep a POSIX shell.
+    if [[ "${userShell}" == "zsh" ]]; then
+        if [ -f /etc/zshenv ]; then
+            source /etc/zshenv
+        fi
+        if [ -f /etc/zshrc ]; then
+            source /etc/zshrc
+        fi
+        if [ -f /etc/static/zshrc ]; then
+            source /etc/static/zshrc
+        fi
     fi
     
     # Initialize homebrew if on macOS (append to PATH to preserve Nix precedence)
@@ -91,7 +96,7 @@ in {
   config = mkIf needsInjection {
     home.file = mkMerge [
       # Inject into bash if specified
-      (mkIf (shellInjector == "bash") {
+      (mkIf (effectiveShellInjector == "bash") {
         ".bashrc".text = mkInjectionScript;
         ".bash_profile".text = ''
           # Source bashrc for login shells
@@ -101,7 +106,7 @@ in {
         '';
       })
       # Inject into zsh if specified
-      (mkIf (shellInjector == "zsh") {
+      (mkIf (effectiveShellInjector == "zsh") {
         ".zshrc".text = mkInjectionScript;
         ".zprofile".text = ''
           # Source zshrc for login shells

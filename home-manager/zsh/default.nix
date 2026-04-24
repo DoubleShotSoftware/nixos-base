@@ -62,7 +62,6 @@ in
         fi
       '';
     };
-    
     home.packages = with pkgs; [ freshfetch ];
     
     programs.direnv.enableZshIntegration = true;
