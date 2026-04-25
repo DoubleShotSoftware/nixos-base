@@ -1,7 +1,7 @@
 -- nixcats/lua/plugins/folding.lua
 -- nvim-ufo: LSP-aware folding with treesitter → indent fallback.
 -- Requires foldlevel/foldlevelstart = 99 so ufo can render its virtual
--- fold text; we then close folds deeper than level 4 on BufRead.
+-- fold text. Folds stay OPEN by default; use zM/zm to collapse manually.
 
 local ok, ufo = pcall(require, 'ufo')
 if not ok then return end
@@ -34,18 +34,29 @@ ufo.setup({
   end,
 })
 
--- Default fold depth: keep levels 0..4 open, collapse deeper.
-local close_to_level = 4
-vim.api.nvim_create_autocmd({ 'BufReadPost', 'FileType' }, {
-  callback = function()
+-- On first read of a buffer, collapse folds deeper than level 6. Guarded by
+-- a buffer-local flag so re-edits, formats, and saves don't re-collapse.
+local initial_fold_level = 6
+vim.api.nvim_create_autocmd('BufReadPost', {
+  callback = function(ev)
+    if vim.b[ev.buf].ufo_initial_fold_done then return end
+    vim.b[ev.buf].ufo_initial_fold_done = true
     vim.defer_fn(function()
-      pcall(ufo.closeFoldsWith, close_to_level)
-    end, 50)
+      if vim.api.nvim_buf_is_valid(ev.buf) and vim.api.nvim_get_current_buf() == ev.buf then
+        pcall(ufo.closeFoldsWith, initial_fold_level)
+      end
+    end, 100)
   end,
 })
 
 vim.keymap.set('n', 'zR', ufo.openAllFolds, { desc = 'Open all folds' })
 vim.keymap.set('n', 'zM', ufo.closeAllFolds, { desc = 'Close all folds' })
 vim.keymap.set('n', 'zr', ufo.openFoldsExceptKinds, { desc = 'Open folds except kinds' })
-vim.keymap.set('n', 'zm', ufo.closeFoldsWith, { desc = 'Close folds with level' })
+vim.keymap.set('n', 'zm', ufo.closeFoldsWith, { desc = 'Close folds (prompt level)' })
 vim.keymap.set('n', 'zp', ufo.peekFoldedLinesUnderCursor, { desc = 'Peek fold' })
+
+-- Quick depth presets: <leader>z[1-4] collapses to that depth.
+for i = 1, 4 do
+  vim.keymap.set('n', '<leader>z' .. i, function() ufo.closeFoldsWith(i) end,
+    { desc = 'Close folds deeper than ' .. i })
+end
