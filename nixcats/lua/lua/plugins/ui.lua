@@ -48,14 +48,10 @@ require('lualine').setup({
 })
 
 -- Noice (notifications handled by snacks.notifier)
+-- LSP markdown override disabled: on Nvim 0.12 the archived nvim-treesitter
+-- master branch injection queries crash during re-parse, and these hooks
+-- fire on every LSP event (hover, signature help) amplifying the flood.
 require('noice').setup({
-  lsp = {
-    override = {
-      ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-      ['vim.lsp.util.stylize_markdown'] = true,
-      ['cmp.entry.get_documentation'] = true,
-    },
-  },
   presets = {
     bottom_search = true,
     command_palette = true,

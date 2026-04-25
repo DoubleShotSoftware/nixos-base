@@ -89,6 +89,9 @@ in {
             nvim-treesitter.withAllGrammars
             nvim-treesitter-textobjects
             nvim-treesitter-context
+            # Folding
+            promise-async
+            nvim-ufo
             # LSP
             nvim-lspconfig
             fidget-nvim

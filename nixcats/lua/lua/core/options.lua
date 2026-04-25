@@ -70,9 +70,11 @@ opt.fileencoding = 'utf-8'
 -- Mouse
 opt.mouse = 'a'
 
--- Folding (treesitter-based)
-opt.foldmethod = 'expr'
-opt.foldexpr = 'nvim_treesitter#foldexpr()'
+-- Folding: handled by nvim-ufo (LSP → treesitter → indent fallback).
+-- ufo requires foldlevel/foldlevelstart = 99 so its virtual fold text can
+-- render; the desired default depth is applied via ufo.closeFoldsWith in
+-- plugins/folding.lua.
+opt.foldmethod = 'manual'
 opt.foldenable = true
 opt.foldlevel = 99
 opt.foldlevelstart = 99
