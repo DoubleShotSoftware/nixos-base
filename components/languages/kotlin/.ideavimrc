@@ -1,74 +1,146 @@
-" Reference
-" https://gist.github.com/dewaka/ef947e52767bf453eaf77c852051eb7e
-Plug 'preservim/nerdtree'
-Plug 'easymotion/vim-easymotion'
+" Kotlin IdeaVim layer
+" --------------------
+" This file is the JetBrains backend for the same intent buckets used in
+" nixcats. Keep the core muscle memory here, but do not try to mirror every
+" Neovim-only UI feature one-for-one.
 
+" Optional Vim plugins inside IdeaVim.
+" Easymotion is useful in both Neovim and IntelliJ.
+Plug 'easymotion/vim-easymotion'
+Plug 'tpope/vim-commentary'
+Plug 'machakann/vim-highlightedyank'
+Plug 'preservim/nerdtree'
+
+set NERDTree
+set which-key
+
+" Basic IDE / editor behavior
 set number
+set relativenumber
 set ideajoin
 set idearefactormode=keep
 set easymotion
-
 set clipboard+=unnamed
 set clipboard+=ideaput
+set notimeout
 let mapleader=" "
 
+" ---------------------------------------------------------------------------
+" Config helpers
+" ---------------------------------------------------------------------------
 
+" Open and reload this config without leaving the IDE.
 nnoremap <Leader>ie :e ~/.ideavimrc<CR>
 nnoremap <Leader>ir :action IdeaVim.ReloadVimRc.reload<CR>
 
+" Convenience toggles and utilities.
 nnoremap <Leader>h :action ToggleDistractionFreeMode<CR>
+nnoremap <Leader>t :action ActivateTerminalToolWindow<CR>
 
-nnoremap <leader>t :action Terminal.OpenInTerminal<CR>
-
+" ---------------------------------------------------------------------------
+" Splits and window movement
+" ---------------------------------------------------------------------------
+" These are the biggest IntelliJ pain point to fix up front.
 sethandler <c-v> a:vim
-nnoremap <c-v> :action SplitVertically<CR>
 sethandler <c-x> a:vim
-nnoremap <c-x> :action SplitHorizontally<CR>
-
+sethandler <c-h> a:vim
 sethandler <c-j> a:vim
 sethandler <c-k> a:vim
-sethandler <c-h> a:vim
 sethandler <c-l> a:vim
 
+nnoremap <c-v> :action SplitVertically<CR>
+nnoremap <c-x> :action SplitHorizontally<CR>
 nnoremap <c-m> :action MoveEditorToOppositeTabGroup<CR>
 
+" Vim-style movement between editor splits.
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Tab navigation and editor tab management.
 sethandler <TAB> a:vim
-nnoremap <TAB> :action PreviousTab<CR>
 sethandler <s-TAB> a:vim
-nnoremap <s-TAB> :action NextTab<CR>
+nnoremap <TAB> :action PreviousTab<CR>
+nnoremap <S-TAB> :action NextTab<CR>
 
 nnoremap <Leader>q :action CloseContent<CR>
 nnoremap <Leader>qa :action CloseAllEditors<CR>
 
-nnoremap gc :action GotoClass<CR>
+" ---------------------------------------------------------------------------
+" File / symbol / explorer navigation
+" ---------------------------------------------------------------------------
+" IntelliJ equivalents for the nixcats file and symbol search buckets.
+nnoremap <leader>ff :action GotoFile<CR>
+nnoremap <leader>fs :action GotoSymbol<CR>
+nnoremap <leader>fS :action SearchEverywhere<CR>
+nnoremap <leader>e :action ActivateProjectToolWindow<CR>
+nnoremap <leader>ef :action SelectIn<CR>
+
+" ---------------------------------------------------------------------------
+" Code intelligence / LSP-style actions
+" ---------------------------------------------------------------------------
+" These mirror the nixcats `<leader>l...` buckets.
+nnoremapsymotion-prefix)  gd :action GotoDefinition<CR>
+nnoremap gD :action GotoDeclaration<CR>
 nnoremap gi :action GotoImplementation<CR>
-nnoremap gd :action GotToDeclaration<CR>
-nnoremap gp :action GotToSuperMethod<CR>
+nnoremap gr :action FindUsages<CR>
+nnoremap gy :action GotoTypeDeclaration<CR>
+nnoremap gc :action GotoClass<CR>
+nnoremap gp :action GotoSuperMethod<CR>
 nnoremap gt :action GotoTest<CR>
 nnoremap gb :action Back<CR>
 nnoremap gf :action Forward<CR>
-nnoremap gr :action FindUsages<CR>
 
-map <Leader>m <Plug>(easymotion-f)
-map <Leader>M <Plug>(easymotion-s)n
+nnoremap K :action QuickJavaDoc<CR>
+nnoremap gl :action ParameterInfo<CR>
 
-nnoremap <Leader>c : action CompileProject<CR>
-nnoremap <Leader>p : action ActivateProblemsViewToolWindow<CR>
+" Code actions / refactors / formatting.
+nnoremap <leader>la :action ShowIntentionActions<CR>
+nnoremap <leader>lr :action FindUsages<CR>
+nnoremap <leader>lR :action RenameElement<CR>
+nnoremap <leader>lf :action ReformatCode<CR>
+nnoremap <leader>li :action OptimizeImports<CR>
+
+" Exact IntelliJ equivalents are limited here:
+" - show current error details at the caret
+" - open the full problems tool window
+" - jump between highlighted problems
+nnoremap <leader>ld :action ShowErrorDescription<CR>
+nnoremap <leader>x :action ActivateProblemsViewToolWindow<CR>
+nnoremap [d :action GotoPreviousError<CR>
+nnoremap ]d :action GotoNextError<CR>
+
+" Outline / structure.
+nnoremap <leader>lo :action FileStructurePopup<CR>
+
+" Finder / peek actions.
+" IntelliJ has one call hierarchy popup rather than separate incoming/outgoing
+" panes, so both mappings use the same action.
+nnoremap <leader>lF :action SearchEverywhere<CR>
+nnoremap <leader>lp :action QuickImplementations<CR>
+nnoremap <leader>lP :action GotoTypeDeclaration<CR>
+nnoremap <leader>lci :action CallHierarchy<CR>
+nnoremap <leader>lco :action CallHierarchy<CR>
+
+" ---------------------------------------------------------------------------
+" Build / project / VCS
+" ---------------------------------------------------------------------------
+nnoremap <Leader>c :action CompileProject<CR>
+nnoremap <leader>p :action ActivateProblemsViewToolWindow<CR>
 nnoremap <leader>po :action ManageRecentProjects<CR>
 nnoremap <leader>pc :action CloseProject<CR>
 
-" NERDTree
-map <leader>e :NERDTree<CR>
-map <leader>ef :NERDTreeFind<CR>
+" Project / Gradle tool window.
+nnoremap <leader>G :action ActivateGradleToolWindow<CR>
 
-" Useful Git actions
+" Git / VCS actions that still make sense in IntelliJ.
 nmap <leader>ggb :action Git.Branches<cr>
 nmap <leader>ggp :action Git.Pull<cr>
 nmap <leader>ggu :action Git.Push<cr>
 nmap <leader>ggr :action Git.Rebase<cr>
 nmap <leader>ggm :action Git.Merge<cr>
 
-" VCS operations
 nmap <leader>yy :action Vcs.Show.Local.Changes<cr>
 nmap <leader>yp :action Vcs.QuickListPopupAction<cr>
 nmap <leader>ya :action Annotate<cr>
@@ -77,6 +149,11 @@ nmap <leader>yd :action Compare.LastVersion<cr>
 nmap <leader>yP :action Git.Pull<cr>
 nmap <leader>yr :action Git.ResolveConflicts<cr>
 nmap <leader>yo :action Github.Open.In.Browser<cr>
+ 
+let g:highlightedyank_highlight_duration = "1000"
 
-" Gradle
-nmap <leader>G :action ActivateGradleToolWindow<cr>
+" ---------------------------------------------------------------------------
+" Notes
+" ---------------------------------------------------------------------------
+" Neovim-only features such as Trouble, Telescope, virtual line diagnostics,
+" and Neo-tree do not have a true IntelliJ equivalent. Keep those in nixcats.

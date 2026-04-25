@@ -103,7 +103,7 @@ in
           then "/Users/${username}" 
           else "/home/${username}";
         sessionVariables = {
-          SHELL = "/etc/profiles/per-user/${username}/bin/fish";
+          SHELL = "${pkgs.bash}/bin/bash";
         };
       };
     })

@@ -15,6 +15,18 @@ vim.filetype.add({
 
 local nixCats = require('nixCats')
 
+local kotlin_attach_log = vim.fn.stdpath('state') .. '/kotlin-lsp.attach.log'
+
+local function kotlin_log(line)
+  vim.fn.mkdir(vim.fn.fnamemodify(kotlin_attach_log, ':h'), 'p')
+  local fd = io.open(kotlin_attach_log, 'a')
+  if not fd then
+    return
+  end
+  fd:write(os.date('%Y-%m-%d %H:%M:%S'), ' ', line, '\n')
+  fd:close()
+end
+
 -- Common capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 
@@ -66,6 +78,17 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- Inlay hints (if supported)
     if client and client.server_capabilities.inlayHintProvider then
       vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
+
+    if client and client.name == 'kotlin_lsp' then
+      kotlin_log(
+        string.format(
+          'LspAttach buf=%d file=%s root=%s',
+          bufnr,
+          vim.api.nvim_buf_get_name(bufnr),
+          client.config.root_dir or '<nil>'
+        )
+      )
     end
   end,
 })
@@ -154,6 +177,61 @@ if hasLang('sql') then
     capabilities = capabilities,
   }
   table.insert(servers_to_enable, 'sqls')
+end
+
+-- Kotlin language support
+if hasLang('kotlin') then
+  local kotlin_lsp = nixCats('extra.kotlinLspBinary') or 'kotlin-lsp'
+  local kotlin_state_dir = vim.fn.stdpath('state') .. '/kotlin-lsp'
+  local kotlin_err_log = kotlin_state_dir .. '.err'
+
+  local function kotlin_cmd(dispatchers, config)
+    local root = (config and config.root_dir) or vim.loop.cwd() or vim.fn.getcwd()
+    local system_path = kotlin_state_dir .. '/' .. vim.fn.sha256(root)
+    vim.fn.mkdir(system_path, 'p')
+
+    local shell_cmd = string.format(
+      'exec %s --stdio --system-path %s 2>> %s',
+      vim.fn.shellescape(kotlin_lsp),
+      vim.fn.shellescape(system_path),
+      vim.fn.shellescape(kotlin_err_log)
+    )
+
+    return vim.lsp.rpc.start({ 'sh', '-c', shell_cmd }, dispatchers, {
+      cwd = root,
+    })
+  end
+
+  vim.lsp.config.kotlin_lsp = {
+    capabilities = capabilities,
+    cmd = kotlin_cmd,
+    filetypes = { 'kotlin' },
+    root_markers = {
+      'settings.gradle.kts',
+      'settings.gradle',
+      'build.gradle.kts',
+      'build.gradle',
+      'pom.xml',
+      '.git',
+    },
+    single_file_support = false,
+  }
+  table.insert(servers_to_enable, 'kotlin_lsp')
+
+  vim.api.nvim_create_autocmd('FileType', {
+    group = vim.api.nvim_create_augroup('KotlinLspDebug', { clear = true }),
+    pattern = 'kotlin',
+    callback = function(ev)
+      kotlin_log(
+        string.format(
+          'FileType buf=%d file=%s ft=%s',
+          ev.buf,
+          vim.api.nvim_buf_get_name(ev.buf),
+          vim.bo[ev.buf].filetype
+        )
+      )
+    end,
+  })
 end
 
 -- Markdown language support

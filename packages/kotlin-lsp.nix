@@ -1,43 +1,49 @@
 # packages/kotlin-lsp.nix
 # JetBrains Kotlin Language Server
-{ pkgs, lib, stdenv, fetchurl, makeWrapper, jdk17 }:
-
-let
-  version = "261.13587.0";
-  platform = if stdenv.isDarwin then "macos-aarch64" else "linux-x64";
-in
-stdenv.mkDerivation {
-  pname = "kotlin-lsp";
-  inherit version;
-
-  src = fetchurl {
+{
+  pkgs,
+  lib,
+  stdenv,
+  fetchzip,
+  makeWrapper,
+}: let
+  version = "262.2310.0";
+  platform =
+    if stdenv.isDarwin
+    then "macos-aarch64"
+    else "linux-x64";
+  src = fetchzip {
     url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-${platform}.zip";
-    hash = "sha256-3A7S5wyw1h/auyau/Ogpm3p1wNz/+5QTcV6Syuxug+w=";
+    hash = "sha256-Bf2qkFpNhQC/Mz563OapmCXeKN+dTrYyQbOcF6z6b48=";
+    stripRoot = false;
   };
+in
+  stdenv.mkDerivation {
+    pname = "kotlin-lsp";
+    inherit version;
+    inherit src;
 
-  nativeBuildInputs = [ pkgs.unzip makeWrapper ];
-  buildInputs = [ jdk17 ];
+    dontUnpack = true;
+    nativeBuildInputs = [ makeWrapper ];
 
-  unpackPhase = ''
-    unzip $src -d extracted
-  '';
+    installPhase = ''
+      mkdir -p $out/lib/kotlin-lsp $out/bin
+      cp -r ${src}/. $out/lib/kotlin-lsp/
+      substituteInPlace $out/lib/kotlin-lsp/kotlin-lsp.sh \
+        --replace 'chmod +x "$LOCAL_JRE_PATH/bin/java"' 'true'
+      sed -i '/-Djava.system.class.loader=com.intellij.util.lang.PathClassLoader/d' \
+        $out/lib/kotlin-lsp/kotlin-lsp.sh
+      chmod +x $out/lib/kotlin-lsp/kotlin-lsp.sh
+      chmod +x $out/lib/kotlin-lsp/jre/bin/java
+      makeWrapper ${pkgs.bash}/bin/bash $out/bin/kotlin-lsp \
+        --add-flags $out/lib/kotlin-lsp/kotlin-lsp.sh
+    '';
 
-  installPhase = ''
-    mkdir -p $out/lib/kotlin-lsp $out/bin
-
-    # Copy the extracted contents
-    cp -r extracted/kotlin-lsp-${version}/* $out/lib/kotlin-lsp/
-
-    # Create wrapper script
-    makeWrapper $out/lib/kotlin-lsp/kotlin-lsp.sh $out/bin/kotlin-lsp \
-      --prefix PATH : ${lib.makeBinPath [ jdk17 ]}
-  '';
-
-  meta = with lib; {
-    description = "Official Language Server for Kotlin from JetBrains";
-    homepage = "https://github.com/Kotlin/kotlin-lsp";
-    license = licenses.asl20;
-    platforms = [ "x86_64-linux" "aarch64-darwin" ];
-    mainProgram = "kotlin-lsp";
-  };
-}
+    meta = with lib; {
+      description = "Official Language Server for Kotlin from JetBrains";
+      homepage = "https://github.com/Kotlin/kotlin-lsp";
+      license = licenses.asl20;
+      platforms = ["x86_64-linux" "aarch64-darwin"];
+      mainProgram = "kotlin-lsp";
+    };
+  }

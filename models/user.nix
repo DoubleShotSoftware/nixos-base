@@ -27,7 +27,7 @@ with lib;
     shellInjector = mkOption {
       type = types.enum [ "disabled" "bash" "zsh" "fish" ];
       default = "disabled";
-      description = "Shell to inject on non-NixOS systems. Creates shell initialization files that exec into the specified Nix-managed shell.";
+      description = "Shell trampoline to use for interactive sessions. When enabled, bash remains the login shell and execs into the specified Nix-managed shell.";
     };
     zsh = {
       enable = mkOption {
@@ -94,6 +94,7 @@ with lib;
     languages = mkOption {
       type = types.listOf (types.enum [
         "aws"
+        "kotlin"
         "terraform"
         "tofu"
         "rust"

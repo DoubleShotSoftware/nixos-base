@@ -59,6 +59,10 @@ if hasLang('sql') then
   formatters_by_ft.sql = { 'pg_format' }
 end
 
+if hasLang('kotlin') then
+  formatters_by_ft.kotlin = { 'ktlint' }
+end
+
 if hasLang('terraform') then
   formatters_by_ft.terraform = { 'terraform_fmt' }
   formatters_by_ft.tf = { 'terraform_fmt' }

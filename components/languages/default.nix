@@ -22,6 +22,7 @@ with lib; let
     terraform = ./terraform.nix;
     aws = ./aws.nix;
     tofu = ./tofu.nix;
+    kotlin = ./kotlin.nix;
   };
 
   # Function to get language config for a specific language
@@ -79,6 +80,7 @@ with lib; let
           else acc.shellInitExtra.bash;
       };
       permittedInsecurePackages = acc.permittedInsecurePackages ++ (cfg.permittedInsecurePackages or []);
+      homeManager = recursiveUpdate acc.homeManager (cfg.homeManager or {});
     }) {
       packages = [];
       sessionVariables = {};
@@ -93,6 +95,7 @@ with lib; let
         bash = "";
       };
       permittedInsecurePackages = [];
+      homeManager = {};
     }
     configs;
 
@@ -126,6 +129,7 @@ with lib; let
         bash = "";
       };
       permittedInsecurePackages = [];
+      homeManager = {};
     }
     else mergeLanguageConfigs validConfigs;
 
@@ -167,6 +171,7 @@ in {
             (mkIf (userShell == "bash") {
               programs.bash.initExtra = cfg.shellInitExtra.bash;
             })
+            (cfg.homeManager or {})
           ]
       )
       usersWithLanguages;
@@ -201,6 +206,7 @@ in {
         (mkIf (userShell == "bash") {
           programs.bash.initExtra = cfg.shellInitExtra.bash;
         })
+        (cfg.homeManager or {})
       ]
     else if userCount == 0
     then throw "Home-manager language configuration requires exactly one user in personalConfig.users, but found none"

@@ -13,7 +13,7 @@ require('plugins.git')
 require('plugins.ui')
 require('plugins.editor')
 require('plugins.snacks')
-require('plugins.copilot')
+-- require('plugins.copilot')
 require('plugins.formatting')
 require('plugins.codediff')
 
