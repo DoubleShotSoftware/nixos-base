@@ -255,6 +255,10 @@
               // {
                 # NixCats expects this attrset for shared plugin inputs.
                 customVimPlugins = import ./packages/vimPlugins {pkgs = unstable;};
+                # Language modules (e.g. nixcats/languages/dotnet.nix) read
+                # `pkgs.dotnetSDK` directly; surface it here since `unstable`
+                # is imported without the overlay applied.
+                inherit dotnetSDK;
               }
               // (customPackages {
                 pkgs = final;
