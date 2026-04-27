@@ -30,20 +30,11 @@ let
   
   # Create injection script that launches the user's preferred shell
   mkInjectionScript = ''
-    # Only source zsh system configuration when we are actually trampolineing
-    # into zsh. Bash remains the login shell so remote tools keep a POSIX shell.
-    if [[ "${userShell}" == "zsh" ]]; then
-        if [ -f /etc/zshenv ]; then
-            source /etc/zshenv
-        fi
-        if [ -f /etc/zshrc ]; then
-            source /etc/zshrc
-        fi
-        if [ -f /etc/static/zshrc ]; then
-            source /etc/static/zshrc
-        fi
-    fi
-    
+    # NOTE: Do NOT source zsh system config (/etc/zshenv, /etc/zshrc) here.
+    # This script runs in bash; zsh config contains zsh-only syntax (setopt,
+    # autoload, ${(z)...}) that causes bash parse errors. Zsh will source
+    # its own system config automatically when exec'd below.
+
     # Initialize homebrew if on macOS (append to PATH to preserve Nix precedence)
     if [[ "$(uname)" == "Darwin" ]]; then
         if [[ -e /opt/homebrew/bin/brew ]]; then
