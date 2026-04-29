@@ -32,7 +32,7 @@ let
   mkInjectionScript = ''
     # NOTE: Do NOT source zsh system config (/etc/zshenv, /etc/zshrc) here.
     # This script runs in bash; zsh config contains zsh-only syntax (setopt,
-    # autoload, ${(z)...}) that causes bash parse errors. Zsh will source
+    # autoload, ''${(z)...}) that causes bash parse errors. Zsh will source
     # its own system config automatically when exec'd below.
 
     # Initialize homebrew if on macOS (append to PATH to preserve Nix precedence)

@@ -8,22 +8,72 @@
 " Easymotion is useful in both Neovim and IntelliJ.
 Plug 'easymotion/vim-easymotion'
 Plug 'tpope/vim-commentary'
-Plug 'machakann/vim-highlightedyank'
 Plug 'preservim/nerdtree'
 
 set NERDTree
 set which-key
 
+" Indentation
+set breakindent = true
+set smartindent = true
+set expandtab = true
+set tabstop = 2
+set softtabstop = 2
+set shiftwidth = 2
+
+" UI
+set cmdheight = 2
+set conceallevel = 0
+set pumheight = 10
+set showmode = false
+set showtabline = 2
+set termguicolors = true
+set laststatus = 3
+set cursorline = true
+set cursorlineopt = 'number'
+set number = true
+set relativenumber = true
+set numberwidth = 2
+set signcolumn = 'yes'
+set colorcolumn = '120'
+set wrap = false
+set scrolloff = 8
+set sidescrolloff = 8
+
+set fileformat = unix
+set fileencodings = utf-8
+
+" Fold
+
+nnoremap zC :action CollapseRegionRecursively<CR>
+nnoremap zO :action ExpandRegionRecursively<CR>
+
+" Search
+set ignorecase = true
+set smartcase = true
+set hlsearch = false
+set incsearch = true
+
+" Splits
+set splitbelow = true
+set splitright = true
+
 " Basic IDE / editor behavior
 set number
 set relativenumber
-set ideajoin
-set idearefactormode=keep
 set easymotion
 set clipboard+=unnamed
 set clipboard+=ideaput
 set notimeout
+set clipboard^=unnamed,unnamedplus
 let mapleader=" "
+
+" IDEAVim
+set ideajoin
+set idearefactormode=keep
+set ideamarks
+set trackactionids
+
 
 " ---------------------------------------------------------------------------
 " Config helpers
@@ -35,7 +85,6 @@ nnoremap <Leader>ir :action IdeaVim.ReloadVimRc.reload<CR>
 
 " Convenience toggles and utilities.
 nnoremap <Leader>h :action ToggleDistractionFreeMode<CR>
-nnoremap <Leader>t :action ActivateTerminalToolWindow<CR>
 
 " ---------------------------------------------------------------------------
 " Splits and window movement
@@ -74,14 +123,13 @@ nnoremap <Leader>qa :action CloseAllEditors<CR>
 nnoremap <leader>ff :action GotoFile<CR>
 nnoremap <leader>fs :action GotoSymbol<CR>
 nnoremap <leader>fS :action SearchEverywhere<CR>
-nnoremap <leader>e :action ActivateProjectToolWindow<CR>
-nnoremap <leader>ef :action SelectIn<CR>
+nnoremap <leader>e :NERDTreeToggle<CR>
 
 " ---------------------------------------------------------------------------
 " Code intelligence / LSP-style actions
 " ---------------------------------------------------------------------------
 " These mirror the nixcats `<leader>l...` buckets.
-nnoremapsymotion-prefix)  gd :action GotoDefinition<CR>
+nnoremap gd :action GotoDefinition<CR>
 nnoremap gD :action GotoDeclaration<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap gr :action FindUsages<CR>
@@ -102,6 +150,10 @@ nnoremap <leader>lR :action RenameElement<CR>
 nnoremap <leader>lf :action ReformatCode<CR>
 nnoremap <leader>li :action OptimizeImports<CR>
 
+" Buffer Actions
+nnoremap <leader>bf :action ReformatFile<CR>
+
+" buffer actions
 " Exact IntelliJ equivalents are limited here:
 " - show current error details at the caret
 " - open the full problems tool window
@@ -126,10 +178,9 @@ nnoremap <leader>lco :action CallHierarchy<CR>
 " ---------------------------------------------------------------------------
 " Build / project / VCS
 " ---------------------------------------------------------------------------
-nnoremap <Leader>c :action CompileProject<CR>
+nnoremap <Leader>lbb :action CompileProject<CR>
+nnoremap <Leader>lbr :action ExternalSystem.ProjectRefreshAction<CR>
 nnoremap <leader>p :action ActivateProblemsViewToolWindow<CR>
-nnoremap <leader>po :action ManageRecentProjects<CR>
-nnoremap <leader>pc :action CloseProject<CR>
 
 " Project / Gradle tool window.
 nnoremap <leader>G :action ActivateGradleToolWindow<CR>
@@ -149,11 +200,44 @@ nmap <leader>yd :action Compare.LastVersion<cr>
 nmap <leader>yP :action Git.Pull<cr>
 nmap <leader>yr :action Git.ResolveConflicts<cr>
 nmap <leader>yo :action Github.Open.In.Browser<cr>
- 
-let g:highlightedyank_highlight_duration = "1000"
 
-" ---------------------------------------------------------------------------
-" Notes
-" ---------------------------------------------------------------------------
-" Neovim-only features such as Trouble, Telescope, virtual line diagnostics,
-" and Neo-tree do not have a true IntelliJ equivalent. Keep those in nixcats.
+" IDE UI
+nmap <leader>unv :action ActivateNotificationsToolWindow<cr>
+nmap <leader>unc :action ClearAllNotifications<cr>
+nmap <leader>uh :action HideActiveWindow<cr>
+nmap <leader>ud :action ToggleDistractionFreeMode<cr>
+nmap <leader>uz :action ToggleZenMode<cr>
+nnoremap <Leader>ug :action EditorToggleShowGutterIcons<CR>
+nnoremap <Leader>un :action EditorToggleShowLineNumbers<CR>
+nmap <leader>us :action ShowSettings<cr>
+nnoremap <leader>ut :action EditorTabPlacementNone<CR>   " Hide Tabs
+nnoremap <leader>uT :action EditorTabPlacementTop<CR>    " Show Tabs
+
+
+" File search,grep & move
+nmap <Leader>ff <action>(com.mituuz.fuzzier.search.Fuzzier)
+nmap <leader>fr :action RecentFiles<cr>
+nmap <Leader>sg <action>(com.mituuz.fuzzier.search.FuzzierVCS)
+nmap <Leader>fm <action>(com.mituuz.fuzzier.operation.FuzzyMover)
+nmap <Leader>ss <action>(com.mituuz.fuzzier.grep.FuzzyGrepCI)
+nmap <Leader>sS <action>(com.mituuz.fuzzier.grep.FuzzyGrep)
+nmap <Leader>st <action>(com.mituuz.fuzzier.grep.FuzzyGrepOpenTabsCI)
+nmap <Leader>sT <action>(com.mituuz.fuzzier.grep.FuzzyGrepOpenTabs)
+nmap <Leader>sb <action>(com.mituuz.fuzzier.grep.FuzzyGrepCurrentBufferCI)
+nmap <Leader>sB <action>(com.mituuz.fuzzier.grep.FuzzyGrepCurrentBuffer)
+
+" Tab Manager
+nmap <leader>]t :action NextTab<cr>
+nmap <leader>[t :action PreviousTab<cr>
+
+" Direct Paste (Bypass History Popup)
+sethandler <C-v> a:vim  " Linux: If using Ctrl+V for paste
+sethandler <D-v> a:vim  " Mac: Command+V
+
+" Map to the simple Paste action
+nnoremap <C-v> :action EditorPaste<CR>
+inoremap <C-v> <C-O>:action EditorPaste<CR>
+" For Mac (using 'D' for Command)
+nnoremap <D-v> :action EditorPaste<CR>
+inoremap <D-v> <C-O>:action EditorPaste<CR>
+
