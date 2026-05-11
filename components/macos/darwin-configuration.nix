@@ -14,7 +14,7 @@
     enableFzfGit = true;
   };
   nix.enable = true;
-  nixpkgs.config.allowUnsupportedSystem = true;
+  nixpkgs.config.allowUnsupportedSystem = false;
   system.stateVersion = constants.darwinStateVersion;
   environment.systemPackages = with pkgs; [
     coreutils
