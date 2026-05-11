@@ -1,6 +1,4 @@
 {
-  lib,
-  config,
   pkgs,
   constants ? import ../../models/constants.nix,
   ...
