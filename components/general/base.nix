@@ -15,8 +15,6 @@ with lib; {
       nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs;
         [
-          ghostty.terminfo
-          wezterm.terminfo
           dust
           yazi
           broot
@@ -38,6 +36,10 @@ with lib; {
           tree
           pwgen
           ssh-to-age
+        ]
+        ++ lib.optionals pkgs.stdenv.isLinux [
+          ghostty.terminfo
+          wezterm.terminfo
         ]
         ++ lib.optionals config.personalConfig.system.developerPackages [
           gnumake
