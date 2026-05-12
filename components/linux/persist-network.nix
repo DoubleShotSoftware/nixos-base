@@ -14,9 +14,14 @@ let
       };
     };
   };
+  # DRIVERS=="?*" scopes the rename to physical ether devices (PCI/USB NICs
+  # with a driver in their parent chain). Without it, this rule also matches
+  # VLAN children (which inherit the parent NIC's MAC) and bridges (whose MAC
+  # is often pinned to the same value via constants), causing rename
+  # collisions like `lan.work → lan: File exists`.
   nicUdevRules = map
     (nicConfig: ''
-      SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="${nicConfig.mac}" NAME="${nicConfig.name}"
+      SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="${nicConfig.mac}", NAME="${nicConfig.name}"
     '')
     config.personalConfig.linux.renameNics;
 in
