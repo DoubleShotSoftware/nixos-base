@@ -87,18 +87,32 @@ in
       '';
 
       # /dev/kvmfr0 reaches qemu only through a raw <qemu:commandline>
-      # memory-backend-file, which libvirt never parses — so it is absent
-      # from the per-domain *devices* cgroup it builds from the domain XML.
-      # File mode 0660 is then irrelevant: the devices cgroup denies the
-      # char-dev major outright and open() returns EPERM ("Operation not
-      # permitted"), even for a root-run qemu. Re-declaring cgroup_device_acl
-      # replaces libvirt's built-in default list wholesale, so the default
-      # entries must be repeated verbatim alongside /dev/kvmfr0. Per-domain
-      # VFIO/<hostdev> nodes are still added by libvirt itself and do not
-      # belong here. verbatimConfig is `types.lines` (default
-      # "namespaces = []"); mkAfter appends our block without clobbering it,
-      # mirroring the extraModprobeConfig pattern above.
+      # memory-backend-file, which libvirt never parses, so two independent
+      # libvirt confinement layers each block it:
+      #
+      #  1. devices cgroup: built from the parsed domain XML, so the kvmfr
+      #     char-dev major is never whitelisted; open() returns EPERM
+      #     ("Operation not permitted") even for a root-run qemu, regardless
+      #     of the 0660 file mode. cgroup_device_acl is the only override and
+      #     it *replaces* libvirt's built-in default list wholesale, so the
+      #     default entries must be repeated verbatim alongside /dev/kvmfr0.
+      #     Per-domain VFIO/<hostdev> nodes are still added by libvirt itself
+      #     and must NOT be listed here.
+      #
+      #  2. mount namespace: with libvirt's compiled default
+      #     `namespaces = ["mount"]` each VM gets a private /dev populated
+      #     only from the parsed XML, so /dev/kvmfr0 is simply absent there.
+      #     NixOS's verbatimConfig *default* is `namespaces = []` (disabled)
+      #     to avoid exactly this — but a `default` only applies when there
+      #     are zero definitions, and any definition here (mkAfter included)
+      #     is one. So defining cgroup_device_acl silently drops the default
+      #     and re-enables the namespace. We must therefore re-assert
+      #     `namespaces = []` in our own block.
+      #
+      # verbatimConfig is `types.lines`; mkAfter keeps our block last if the
+      # host also contributes, mirroring the extraModprobeConfig pattern.
       virtualisation.libvirtd.qemu.verbatimConfig = lib.mkAfter ''
+        namespaces = []
         cgroup_device_acl = [
           "/dev/null", "/dev/full", "/dev/zero",
           "/dev/random", "/dev/urandom",
