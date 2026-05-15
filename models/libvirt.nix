@@ -28,7 +28,37 @@ with lib;
           type = types.str;
           default = "manager";
           description = ''
-            The user to create looking glass shared memory file as.
+            The user that owns the Looking Glass shared-memory device
+            (group is always qemu-libvirtd, mode 0660).
+          '';
+        };
+
+        transport = mkOption {
+          type = types.enum [ "kvmfr" "ivshmem" ];
+          default = "kvmfr";
+          description = ''
+            Shared-memory transport between guest and host:
+
+            - "kvmfr": the KVMFR kernel module exposes /dev/kvmfr0 as a
+              DMABUF region the client maps directly. Lowest latency
+              (no host-side /dev/shm copy). Recommended.
+            - "ivshmem": a plain /dev/shm/looking-glass file. Portable
+              fallback, no out-of-tree module, slightly higher latency.
+          '';
+        };
+
+        resolution = mkOption {
+          type = types.enum [ "1080p" "1440p" "1600p" "4k" ];
+          default = "4k";
+          description = ''
+            Guest's maximum resolution. Sizes the Looking Glass shared
+            framebuffer (kvmfr static_size_mb / ivshmem <size>) using the
+            documented power-of-two values, no arithmetic required:
+
+              "1080p" -> 1920x1080 ->  32 MiB
+              "1440p" -> 2560x1440 ->  64 MiB
+              "1600p" -> 2560x1600 ->  64 MiB  (16:10 outlier)
+              "4k"    -> 3840x2160 -> 128 MiB
           '';
         };
       };

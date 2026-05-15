@@ -14,6 +14,7 @@ in
     ./libvirt-mem-balloon.nix
     ./libvirt-ksm.nix
     ./libvirt-dbus.nix
+    ./libvirt-looking-glass.nix
   ];
 
   config = mkIf cfg.enable (
@@ -50,12 +51,8 @@ in
         users.groups.kvm.members = libvirt_users;
         # OVMF images now auto-available at /run/libvirt/nix-ovmf (NixOS 25.11+)
       }
-      (lib.mkIf cfg.lookingGlass.enable {
-        systemd.tmpfiles.rules = [
-          "f /dev/shm/looking-glass 0660 ${cfg.lookingGlass.user} qemu-libvirtd -"
-        ];
-        environment.systemPackages = with pkgs; [ looking-glass-client ];
-      })
+      # Looking Glass moved to ./libvirt-looking-glass.nix (common sub-module,
+      # adds the performant KVMFR transport alongside the ivshmem fallback).
       (lib.mkIf cfg.zfsSupport {
         nixpkgs.config = {
           libvirt = {
