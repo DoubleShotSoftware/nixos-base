@@ -9,10 +9,10 @@ let
   # resolution enum. width*height*4*2 rounded up to the next power of two; see
   # https://looking-glass.io/docs/B7/install/#determining-memory
   sizeMB = {
-    "1080p" = 32;
-    "1440p" = 64;
-    "1600p" = 64;
-    "4k" = 128;
+    "1080p" = 64;
+    "1440p" = 128;
+    "1600p" = 128;
+    "4k" = 256;
   }.${cfg.resolution};
 
   useKvmfr = cfg.transport == "kvmfr";
@@ -84,6 +84,28 @@ in
       # adjusts ownership so qemu (group qemu-libvirtd) can map it.
       services.udev.extraRules = ''
         SUBSYSTEM=="kvmfr", OWNER="${cfg.user}", GROUP="qemu-libvirtd", MODE="0660"
+      '';
+
+      # /dev/kvmfr0 reaches qemu only through a raw <qemu:commandline>
+      # memory-backend-file, which libvirt never parses — so it is absent
+      # from the per-domain *devices* cgroup it builds from the domain XML.
+      # File mode 0660 is then irrelevant: the devices cgroup denies the
+      # char-dev major outright and open() returns EPERM ("Operation not
+      # permitted"), even for a root-run qemu. Re-declaring cgroup_device_acl
+      # replaces libvirt's built-in default list wholesale, so the default
+      # entries must be repeated verbatim alongside /dev/kvmfr0. Per-domain
+      # VFIO/<hostdev> nodes are still added by libvirt itself and do not
+      # belong here. verbatimConfig is `types.lines` (default
+      # "namespaces = []"); mkAfter appends our block without clobbering it,
+      # mirroring the extraModprobeConfig pattern above.
+      virtualisation.libvirtd.qemu.verbatimConfig = lib.mkAfter ''
+        cgroup_device_acl = [
+          "/dev/null", "/dev/full", "/dev/zero",
+          "/dev/random", "/dev/urandom",
+          "/dev/ptmx", "/dev/kvm",
+          "/dev/userfaultfd",
+          "/dev/kvmfr0"
+        ]
       '';
     })
 
