@@ -16,6 +16,28 @@ let
   }.${cfg.resolution};
 
   useKvmfr = cfg.transport == "kvmfr";
+
+  # kvmfr exposes /dev/kvmfr0; ivshmem uses the client default
+  # (/dev/shm/looking-glass), so only the kvmfr path needs -f.
+  lgExec = "looking-glass-client"
+    + optionalString useKvmfr " -f /dev/kvmfr0";
+
+  # "Home-manager is present for this user" == it's a personalConfig `normal`
+  # user, because components/general/default.nix only populates
+  # home-manager.users.<name> for `filterAttrs (userType != "system")`.
+  hmUser =
+    (config.personalConfig.users ? ${cfg.user})
+    && (config.personalConfig.users.${cfg.user}.userType or "system") == "normal";
+
+  desktopItem = pkgs.makeDesktopItem {
+    name = "looking-glass";
+    desktopName = "Looking Glass";
+    genericName = "VM Display";
+    comment = "Low-latency passthrough display (${cfg.transport}, ${cfg.resolution})";
+    exec = lgExec;
+    terminal = false;
+    categories = [ "System" "Utility" ];
+  };
 in
 {
   config = mkIf (libvirtCfg.enable && cfg.enable) (mkMerge [
@@ -26,9 +48,23 @@ in
           message = "Looking Glass requires libvirtd. Set personalConfig.linux.libvirt.enable = true;";
         }
       ];
-      # The host client (renders the captured guest framebuffer in a window).
-      environment.systemPackages = [ pkgs.looking-glass-client ];
+      # The client itself. The launcher is added per-user via home-manager when
+      # lookingGlass.user is a `normal` personalConfig user; otherwise a
+      # system-wide .desktop is shipped so the launcher always exists.
+      environment.systemPackages =
+        [ pkgs.looking-glass-client ] ++ optional (!hmUser) desktopItem;
     }
+
+    (mkIf hmUser {
+      home-manager.users.${cfg.user}.xdg.desktopEntries.looking-glass = {
+        name = "Looking Glass";
+        genericName = "VM Display";
+        comment = "Low-latency passthrough display (${cfg.transport}, ${cfg.resolution})";
+        exec = lgExec;
+        terminal = false;
+        categories = [ "System" "Utility" ];
+      };
+    })
 
     # kvmfr: DMABUF kernel module, /dev/kvmfr0 mapped directly by the client.
     # static_size_mb is reserved from normal kernel memory at module load,
