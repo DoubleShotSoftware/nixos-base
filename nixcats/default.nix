@@ -136,6 +136,9 @@ in {
             render-markdown-nvim
             # Formatting
             conform-nvim
+            # Navigation
+            hardtime-nvim
+            precognition-nvim
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
             codediff       # VSCode-style diff viewer
