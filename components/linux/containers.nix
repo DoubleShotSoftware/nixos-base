@@ -104,7 +104,7 @@ in
         oci-containers = {
           backend = "docker";
           containers.watchtower = {
-            image = "containrrr/watchtower";
+            image = "nickfedor/watchtower:latest";
             volumes = [ "/var/run/docker.sock:/var/run/docker.sock" ];
             autoStart = true;
           };
