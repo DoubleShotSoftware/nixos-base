@@ -271,6 +271,10 @@
                 # `pkgs.dotnetSDK` directly; surface it here since `unstable`
                 # is imported without the overlay applied.
                 inherit dotnetSDK;
+                # Mirror the main overlay's `pkgs.unstable` handle so language
+                # modules (e.g. nixcats/languages/kotlin.nix) can keep using
+                # `pkgs.unstable.X` for explicit unstable pins.
+                inherit unstable;
                 # easy-kotlin flake provides its own vim plugin and kotlin-lsp.
                 kotlin-lsp = easyKotlinPkgs.kotlinLsp;
                 easy-kotlin = easyKotlinPkgs.vimPlugin;
