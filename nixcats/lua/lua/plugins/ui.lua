@@ -53,7 +53,10 @@ require('lualine').setup({
 -- fire on every LSP event (hover, signature help) amplifying the flood.
 require('noice').setup({
   presets = {
-    bottom_search = true,
+    -- bottom_search routes / and ? to the bottom :cmdheight area; leaving
+    -- it off keeps search in the centered command_palette popup, matching
+    -- the rest of noice's surface (and the prior nixvim behavior).
+    bottom_search = false,
     command_palette = true,
     long_message_to_split = true,
     inc_rename = false,

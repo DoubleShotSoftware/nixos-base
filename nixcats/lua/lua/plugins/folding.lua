@@ -36,7 +36,7 @@ ufo.setup({
 
 -- On first read of a buffer, collapse folds deeper than level 6. Guarded by
 -- a buffer-local flag so re-edits, formats, and saves don't re-collapse.
-local initial_fold_level = 6
+local initial_fold_level = 4
 vim.api.nvim_create_autocmd('BufReadPost', {
   callback = function(ev)
     if vim.b[ev.buf].ufo_initial_fold_done then return end

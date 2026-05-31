@@ -26,6 +26,33 @@ if nixCats.cats["languages.dotnet"] then
   }
 end
 
+-- Disabled pending verification that stock blink handles kotlin-lsp's
+-- two-phase apply flow correctly on its own.
+--
+-- Walkthrough of the stock flow per the lsp.log evidence captured at
+-- 22:45:09 (workspace/applyEdit + window/showDocument):
+--   1. blink's `default_implementation` (apply_item) runs against the
+--      empty-newText textEdit: no-op insertion, cursor lands at
+--      range.start (col 6 — middle of the eventual word).
+--   2. blink fires the kotlin completion-apply command via exec_cmd.
+--   3. Server's `workspace/applyEdit` inserts the full word at col 6.
+--   4. Server's `window/showDocument` sets `selection.start` to col 10
+--      (range.start + len(word)). nvim's stock showDocument handler
+--      calls `nvim_win_set_cursor(win, { row+1, 10 })`.
+--
+-- Step 4 overrides step 1's mid-word placement, leaving the cursor at
+-- end-of-insertion — which is the right answer. The wrapper at
+-- `~/dev/easy-kotlin/lua/easy-kotlin/blink_source.lua` is kept on disk
+-- for now in case re-testing reveals stock blink doesn't actually
+-- behave as the log analysis predicts; if it does, the wrapper file
+-- and this entire block can be deleted in a follow-up.
+--
+-- if nixCats.cats["languages.kotlin"] then
+--   providers["lsp"] = {
+--     module = "easy-kotlin.blink_source",
+--   }
+-- end
+
 -- Direct translation from nixvim blink-cmp.nix settings
 blink.setup({
   appearance = {
@@ -34,6 +61,13 @@ blink.setup({
   },
   completion = {
     accept = {
+      -- Default is 100ms which is too tight for JVM-based LSPs (kotlin-lsp,
+      -- jdtls): completionItem/resolve carries the `additionalTextEdits`
+      -- that contain auto-imports, and if it doesn't return in time blink
+      -- falls back to the unresolved item — symbol gets inserted but no
+      -- import statement appears. Tab "works" today only because hovering
+      -- pre-resolves the item via documentation; <CR> with no pause races.
+      resolve_timeout_ms = 1000,
       auto_brackets = {
         enabled = false,
         semantic_token_resolution = { enabled = false },

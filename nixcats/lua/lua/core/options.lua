@@ -78,6 +78,9 @@ opt.foldmethod = 'manual'
 opt.foldenable = true
 opt.foldlevel = 99
 opt.foldlevelstart = 99
+vim.o.fillchars = "foldclose:󰅂,foldopen:󰅀"
+-- https://neovim.io/doc/user/options/#'fillchars'
+--vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldinner: ,foldclose:'
 
 -- Diagnostics (nvim 0.11+: signs defined via vim.diagnostic.config instead of sign_define)
 local severity = vim.diagnostic.severity

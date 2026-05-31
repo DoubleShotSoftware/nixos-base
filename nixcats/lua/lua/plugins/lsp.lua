@@ -1,6 +1,19 @@
 -- nixcats/lua/plugins/lsp.lua
 -- LSP configuration using vim.lsp.config (nvim 0.11+)
 
+-- Log level — set explicitly so behavior doesn't drift with nvim's default.
+-- DEBUG captures every textDocument/* request, response, and cancellation,
+-- which is the only practical way to see what kotlin-lsp's pull-diagnostic
+-- provider, code-action provider, and workspace/configuration handshake
+-- are actually doing — and where they fall on the floor (cancelled stale
+-- requests, malformed responses, missing identifiers, etc.). Drop to
+-- "WARN" once the JVM-LSP integration is stable; the log is otherwise
+-- chatty (~30–40MB per session of active editing).
+--
+--   :LspLog        open the live log in a buffer
+--   tail -f ~/.local/state/nixcats/lsp.log    follow externally
+vim.lsp.log.set_level("DEBUG")
+
 -- Register compound filetypes that lspconfig server definitions reference
 vim.filetype.add({
   filename = {
@@ -152,24 +165,47 @@ if hasLang('typescript') then
   table.insert(servers_to_enable, 'eslint')
 end
 
--- JSON language support
-if hasLang('json') then
-  local schemas = {}
-  local ok_schema, schemastore = pcall(require, 'schemastore')
-  if ok_schema then
-    schemas = schemastore.json.schemas()
-  end
-  vim.lsp.config.jsonls = {
-    capabilities = capabilities,
-    settings = {
-      json = {
-        schemas = schemas,
-        validate = { enable = true },
-      },
-    },
-  }
-  table.insert(servers_to_enable, 'jsonls')
+-- Config-language baseline (JSON, YAML, TOML) — always on, not gated on a
+-- `languages.*` category. Treesitter grammars ship via withAllGrammars, the
+-- LSPs/formatters ship in general lspsAndRuntimeDeps (see ../../../default.nix).
+local ok_schema, schemastore = pcall(require, 'schemastore')
+local json_schemas, yaml_schemas = {}, {}
+if ok_schema then
+  json_schemas = schemastore.json.schemas()
+  yaml_schemas = schemastore.yaml.schemas()
 end
+
+vim.lsp.config.jsonls = {
+  capabilities = capabilities,
+  settings = {
+    json = {
+      schemas = json_schemas,
+      validate = { enable = true },
+    },
+  },
+}
+table.insert(servers_to_enable, 'jsonls')
+
+-- Base yamlls config; the aws block below (when languages.aws is enabled)
+-- merges CFN schemas and custom intrinsic-function tags on top via
+-- vim.tbl_deep_extend instead of redefining the whole config.
+vim.lsp.config.yamlls = {
+  capabilities = capabilities,
+  settings = {
+    yaml = {
+      schemas = yaml_schemas,
+      validate = true,
+      hover = true,
+      completion = true,
+    },
+  },
+}
+table.insert(servers_to_enable, 'yamlls')
+
+vim.lsp.config.taplo = {
+  capabilities = capabilities,
+}
+table.insert(servers_to_enable, 'taplo')
 
 -- SQL language support
 if hasLang('sql') then
@@ -179,59 +215,12 @@ if hasLang('sql') then
   table.insert(servers_to_enable, 'sqls')
 end
 
--- Kotlin language support
+-- Kotlin language support — vim.lsp.config[kotlin_lsp] is written by
+-- easy-kotlin's setup() in languages/kotlin.lua. Here we only register the
+-- server name so vim.lsp.enable picks it up; the autocmd reads the config
+-- lazily when a kotlin buffer opens, by which time easy-kotlin has run.
 if hasLang('kotlin') then
-  local kotlin_lsp = nixCats('extra.kotlinLspBinary') or 'kotlin-lsp'
-  local kotlin_state_dir = vim.fn.stdpath('state') .. '/kotlin-lsp'
-  local kotlin_err_log = kotlin_state_dir .. '.err'
-
-  local function kotlin_cmd(dispatchers, config)
-    local root = (config and config.root_dir) or vim.loop.cwd() or vim.fn.getcwd()
-    local system_path = kotlin_state_dir .. '/' .. vim.fn.sha256(root)
-    vim.fn.mkdir(system_path, 'p')
-
-    local shell_cmd = string.format(
-      'exec %s --stdio --system-path %s 2>> %s',
-      vim.fn.shellescape(kotlin_lsp),
-      vim.fn.shellescape(system_path),
-      vim.fn.shellescape(kotlin_err_log)
-    )
-
-    return vim.lsp.rpc.start({ 'sh', '-c', shell_cmd }, dispatchers, {
-      cwd = root,
-    })
-  end
-
-  vim.lsp.config.kotlin_lsp = {
-    capabilities = capabilities,
-    cmd = kotlin_cmd,
-    filetypes = { 'kotlin' },
-    root_markers = {
-      'settings.gradle.kts',
-      'settings.gradle',
-      'build.gradle.kts',
-      'build.gradle',
-      'pom.xml',
-      '.git',
-    },
-    single_file_support = false,
-  }
   table.insert(servers_to_enable, 'kotlin_lsp')
-
-  vim.api.nvim_create_autocmd('FileType', {
-    group = vim.api.nvim_create_augroup('KotlinLspDebug', { clear = true }),
-    pattern = 'kotlin',
-    callback = function(ev)
-      kotlin_log(
-        string.format(
-          'FileType buf=%d file=%s ft=%s',
-          ev.buf,
-          vim.api.nvim_buf_get_name(ev.buf),
-          vim.bo[ev.buf].filetype
-        )
-      )
-    end,
-  })
 end
 
 -- Markdown language support
@@ -250,10 +239,12 @@ if hasLang('terraform') then
   table.insert(servers_to_enable, 'terraformls')
 end
 
--- AWS CloudFormation/SAM support (via yamlls with CFN schema)
+-- AWS CloudFormation/SAM support — layered on top of the base yamlls config
+-- (see Config-language baseline above). vim.tbl_deep_extend merges schemas
+-- with the schemastore set so CFN templates get CFN validation while every
+-- other yaml file keeps its schemastore mapping.
 if hasLang('aws') then
-  vim.lsp.config.yamlls = {
-    capabilities = capabilities,
+  vim.lsp.config.yamlls = vim.tbl_deep_extend('force', vim.lsp.config.yamlls or {}, {
     settings = {
       yaml = {
         schemas = {
@@ -286,8 +277,7 @@ if hasLang('aws') then
         },
       },
     },
-  }
-  table.insert(servers_to_enable, 'yamlls')
+  })
 end
 
 -- Enable all configured servers

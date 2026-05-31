@@ -4,14 +4,15 @@
 # to avoid overlay dependency issues
 { }:
 let
-  # Available language extensions (editor-specific configs)
+  # Available language extensions (editor-specific configs).
+  # Note: JSON/YAML/TOML are baseline (LSP + formatter ship in general deps,
+  # see ../default.nix), so they have no per-language module here.
   availableLanguages = {
     nix = ./nix.nix;
     dotnet = ./dotnet.nix;
     rust = ./rust.nix;
     python = ./python.nix;
     typescript = ./typescript.nix;
-    json = ./json.nix;
     sql = ./sql.nix;
     markdown = ./markdown.nix;
     terraform = ./terraform.nix;

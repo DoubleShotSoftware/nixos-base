@@ -14,8 +14,14 @@ end
 
 -- Per-filetype formatters. Only register those whose language category is
 -- enabled — avoids conform complaining about missing external binaries.
+-- JSON / YAML / TOML formatters are baseline (their tooling ships in general
+-- lspsAndRuntimeDeps), not gated on a language category.
 local formatters_by_ft = {
   lua = { 'stylua' },
+  json = { 'prettier' },
+  jsonc = { 'prettier' },
+  yaml = { 'prettier' },
+  toml = { 'taplo' },
 }
 
 if hasLang('nix') then
@@ -44,11 +50,6 @@ if hasLang('typescript') then
   formatters_by_ft.css = prettier
   formatters_by_ft.scss = prettier
   formatters_by_ft.html = prettier
-end
-
-if hasLang('json') then
-  formatters_by_ft.json = { 'prettier' }
-  formatters_by_ft.jsonc = { 'prettier' }
 end
 
 if hasLang('markdown') then
