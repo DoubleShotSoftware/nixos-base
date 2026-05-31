@@ -27,6 +27,10 @@
     nixCats = {
       url = "github:BirdeeHub/nixCats-nvim";
     };
+    easy-kotlin = {
+      url = "git+file:///home/sobrien/dev/easy-kotlin?ref=init";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -51,6 +55,7 @@
     nix-darwin,
     nixvim,
     nixCats,
+    easy-kotlin,
     flake-parts,
     nixgl,
     nix-index-database,
@@ -231,9 +236,16 @@
             sdk_9_0-bin
             sdk_10_0-bin
           ]));
+        # easy-kotlin flake packages: vim plugin + bundled kotlin-lsp
+        easyKotlinPkgs = easy-kotlin.packages.${prev.system};
       in
         {
           inherit unstable dotnetSDK;
+          # easy-kotlin owns the kotlin-lsp packaging; this override replaces
+          # nixpkgs' kotlin-lsp so language modules can use `pkgs.kotlin-lsp`.
+          kotlin-lsp = easyKotlinPkgs.kotlinLsp;
+          easy-kotlin = easyKotlinPkgs.vimPlugin;
+          easy-kotlin-sidecar = easyKotlinPkgs.easyKotlinSidecar;
           # Custom vim plugins shared between nixvim and nixcats
           customVimPlugins = import ./packages/vimPlugins {pkgs = unstable;};
 
@@ -259,6 +271,10 @@
                 # `pkgs.dotnetSDK` directly; surface it here since `unstable`
                 # is imported without the overlay applied.
                 inherit dotnetSDK;
+                # easy-kotlin flake provides its own vim plugin and kotlin-lsp.
+                kotlin-lsp = easyKotlinPkgs.kotlinLsp;
+                easy-kotlin = easyKotlinPkgs.vimPlugin;
+                easy-kotlin-sidecar = easyKotlinPkgs.easyKotlinSidecar;
               }
               // (customPackages {
                 pkgs = final;

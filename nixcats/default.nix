@@ -62,9 +62,19 @@ in {
             git
             lazygit
             delta   # Required for deltaview
-            nodejs  # Required for copilot
+            nodejs  # Required for copilot + prettier
             stylua  # Lua formatter
             lua-language-server  # Lua LSP
+            # Config-language baseline — JSON, YAML, TOML are universal
+            # enough (CI, package manifests, k8s, terraform-tfvars, dotfiles,
+            # editorconfig, lockfiles, ...) that the LSPs and formatters
+            # ship in every nixcats build, not gated behind a `languages.*`
+            # category.
+            vscode-json-languageserver
+            yaml-language-server
+            taplo                # TOML LSP + formatter (single binary)
+            prettier             # json/jsonc/yaml formatter
+            jq                   # JSON CLI tooling
           ];
         } // langConfigs.lspsAndRuntimeDeps;
 
@@ -118,6 +128,8 @@ in {
             todo-comments-nvim
             mini-nvim
             snacks-nvim
+            # JSON/YAML schemas (used by jsonls + yamlls — see plugins/lsp.lua)
+            SchemaStore-nvim
             # Tab bar
             tabby-nvim
             # Markdown preview
