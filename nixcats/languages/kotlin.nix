@@ -6,10 +6,10 @@ in
   lspsAndRuntimeDeps = with pkgs; [
     kotlinLspPkg
     jdk25_headless
-    unstable.gradle
-    unstable.maven
-    unstable.kotlin
-    unstable.ktlint
+    gradle
+    maven
+    kotlin
+    ktlint
     # easy-kotlin's jar:// URI BufReadCmd shells out to `unzip -p` to
     # extract source files from src.zip / *-sources.jar so goto-def into
     # JDK and library symbols actually opens the source. Without unzip on
