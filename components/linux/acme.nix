@@ -26,7 +26,9 @@ in
       security.acme = {
         acceptTerms = true;
         defaults = {
-          credentialsFile = certBotConfig.credentialsFile;
+          # 25.11/26.05 renamed security.acme.*.credentialsFile → environmentFile
+          # (the env-file form: VAR=value lines for the lego DNS provider).
+          environmentFile = certBotConfig.credentialsFile;
           dnsProvider = certBotConfig.dnsProvider;
           email = "acme_certs@animus.design";
         };
