@@ -2,17 +2,14 @@
 -- LSP configuration using vim.lsp.config (nvim 0.11+)
 
 -- Log level — set explicitly so behavior doesn't drift with nvim's default.
--- DEBUG captures every textDocument/* request, response, and cancellation,
--- which is the only practical way to see what kotlin-lsp's pull-diagnostic
--- provider, code-action provider, and workspace/configuration handshake
--- are actually doing — and where they fall on the floor (cancelled stale
--- requests, malformed responses, missing identifiers, etc.). Drop to
--- "WARN" once the JVM-LSP integration is stable; the log is otherwise
--- chatty (~30–40MB per session of active editing).
+-- Kept at "WARN": DEBUG logs every rpc.send/rpc.receive frame, and Roslyn is
+-- chatty enough that the never-rotated lsp.log reached 1.3 GB across sessions.
+-- Flip back to "DEBUG" temporarily when diagnosing an LSP handshake (it captures
+-- every textDocument/* request, response, and cancellation), then return to WARN.
 --
 --   :LspLog        open the live log in a buffer
 --   tail -f ~/.local/state/nixcats/lsp.log    follow externally
-vim.lsp.log.set_level("DEBUG")
+vim.lsp.log.set_level("WARN")
 
 -- Register compound filetypes that lspconfig server definitions reference
 vim.filetype.add({
