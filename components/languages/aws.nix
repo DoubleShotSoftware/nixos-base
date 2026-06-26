@@ -4,7 +4,6 @@
 
   packages = with pkgs; [
     aws-mfa
-    aws-shell
     awscli2
     awsls
     awsume

@@ -32,8 +32,26 @@ with lib; {
       }))
     (lib.mkIf config.personalConfig.linux.zfs.immutable
       (trace "Enabling ZFS Ephemeral Mounts." {
-        boot = {
-          initrd = {
+        # Ephemeral root: roll the root dataset back to its empty snapshot every boot.
+        # systemd-initrd (the 26.05 default) does not support the scripted
+        # pre/postDeviceCommands, so under it we run a stage-1 service ordered after the
+        # pool import and before the root mount. Legacy scripted initrd keeps the old hooks.
+        boot.initrd = lib.mkMerge [
+          (lib.mkIf config.boot.initrd.systemd.enable {
+            systemd.services.rollback-root = {
+              description = "Roll back ${config.personalConfig.linux.zfs.rootPool}/root to a pristine snapshot";
+              wantedBy = [ "initrd.target" ];
+              after = [ "zfs-import-${config.personalConfig.linux.zfs.rootPool}.service" ];
+              before = [ "sysroot.mount" ];
+              path = [ config.boot.zfs.package ];
+              unitConfig.DefaultDependencies = "no";
+              serviceConfig.Type = "oneshot";
+              script = ''
+                zfs rollback -r ${config.personalConfig.linux.zfs.rootPool}/root@empty
+              '';
+            };
+          })
+          (lib.mkIf (!config.boot.initrd.systemd.enable) {
             preDeviceCommands = ''
               zpool import -Nf ${config.personalConfig.linux.zfs.rootPool}
             '';
@@ -43,8 +61,8 @@ with lib; {
               zfs rollback -r ${config.personalConfig.linux.zfs.rootPool}/root@empty || true
               zpool export -a
             '';
-          };
-        };
+          })
+        ];
         fileSystems = {
           "/" = {
             device = "zroot/root";
