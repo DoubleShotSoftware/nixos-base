@@ -10,6 +10,37 @@ if not nixCats.cats["languages.dotnet"] then
 end
 
 -- =============================================================================
+-- Pin the RPC server (dotnet-easydotnet)
+-- =============================================================================
+-- easy-dotnet.nvim launches the server via the dotnet muxer (`dotnet easydotnet`,
+-- see rpc/server.lua), which resolves `dotnet-easydotnet` from PATH; it exposes no
+-- path-override option. The host also auto-updates the global `EasyDotnet` tool in
+-- ~/.dotnet/tools, so without intervention nvim runs whatever version the host
+-- happens to have -- a moving target that can drift ahead of the plugin commit we
+-- pin and tested against (a mismatched server drops/renames RPC routes -> -32601
+-- floods, or emits notifications the plugin doesn't handle). We pin a known-good
+-- server (packages/easy-dotnet-tool.nix, matched to the plugin pin) and force it
+-- to win here for reproducibility.
+--
+-- nixCats APPENDS its runtime deps to PATH, so the pinned server's bin dir already
+-- sits near the END of PATH while the user's ~/.dotnet/tools sits near the FRONT --
+-- meaning the host's global would still win. We must force the pinned bin to the
+-- front. A "prepend only if absent" guard does NOT work: the dir is already
+-- present (appended by lspsAndRuntimeDeps), so the guard skips and the entry never
+-- moves ahead of ~/.dotnet/tools. Strip every existing occurrence, then prepend,
+-- so the pinned server resolves first for both the launch and any version probe.
+local server_bin = nixCats.extra and nixCats.extra.easyDotnetServerBin
+if server_bin and vim.fn.isdirectory(server_bin) == 1 then
+  local kept = {}
+  for _, p in ipairs(vim.split(vim.env.PATH or '', ':', { plain = true })) do
+    if p ~= server_bin then
+      kept[#kept + 1] = p
+    end
+  end
+  vim.env.PATH = server_bin .. ':' .. table.concat(kept, ':')
+end
+
+-- =============================================================================
 -- Easy-dotnet Setup (LSP + test runner + debugger + build)
 -- =============================================================================
 

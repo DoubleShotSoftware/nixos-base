@@ -28,8 +28,9 @@
       url = "github:BirdeeHub/nixCats-nvim";
     };
     easy-kotlin = {
-      url = "git+file:///home/sobrien/dev/easy-kotlin?ref=init";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      url = "git+ssh://git@gitea.home.lan.animus.design/platformcraft/easy-kotlin";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -189,8 +190,8 @@
               languages = ["nix"];
               wrapRc = false;
             };
-        }
-        // builtins.listToAttrs (map (v: {
+          }
+          // builtins.listToAttrs (map (v: {
               name = "nixcats-${v}";
               value = nixcatsLib.mkNixCats {
                 inherit system stablePkgs;
@@ -235,6 +236,7 @@
             sdk_8_0-bin
             sdk_9_0-bin
             sdk_10_0-bin
+            dotnet-sdk_11
           ]));
         # easy-kotlin flake packages: vim plugin + bundled kotlin-lsp
         easyKotlinPkgs = easy-kotlin.packages.${prev.system};
