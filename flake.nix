@@ -236,7 +236,7 @@
             sdk_8_0-bin
             sdk_9_0-bin
             sdk_10_0-bin
-            dotnet-sdk_11
+            sdk_11_0-bin
           ]));
         # easy-kotlin flake packages: vim plugin + bundled kotlin-lsp
         easyKotlinPkgs = easy-kotlin.packages.${prev.system};
