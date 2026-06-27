@@ -19,6 +19,7 @@ with lib;
     ./pipewire.nix
     ./desktop
     ./linger.nix
+    ./opencode
     ./ssh-agent.nix
     ./vm-guest.nix
     ./vfio.nix
