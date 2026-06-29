@@ -14,6 +14,7 @@ with lib;
     ./dnsmasq.nix
     ./qemu-guest
     # ./immersedvr.nix
+    ./chromium-headless
     ./libvirt.nix
     ./persist-network.nix
     ./pipewire.nix

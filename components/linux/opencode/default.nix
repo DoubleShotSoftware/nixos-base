@@ -122,6 +122,13 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Refuse to fabricate a home-manager profile for a user that isn't a
+    # declared account (catches typos in `users`).
+    assertions = map (u: {
+      assertion = hasAttr u config.users.users;
+      message = "personalConfig.linux.opencode.users: \"${u}\" is not a configured user (users.users.\"${u}\" is unset).";
+    }) cfg.users;
+
     # The web server must outlive interactive logins.
     personalConfig.linux.linger = {
       enable = true;
