@@ -19,11 +19,12 @@
     cargo-nextest
     bacon
     just
-    gcc
-    # clang/llvm share cc/cpp/c++ with gcc; lower their priority so gcc provides
-    # the default linker (rust's `cc`) and buildEnv stops colliding on those paths.
-    (lib.lowPrio llvm)
-    (lib.lowPrio clang)
+    # gcc and clang wrappers both default to priority 10 and share cc/cpp/c++;
+    # hiPrio gcc so it wins those paths (rust's default `cc` linker) and buildEnv
+    # stops colliding. clang/llvm stay available for libclang-based crates.
+    (lib.hiPrio gcc)
+    llvm
+    clang
     stdenv.cc
     vscode-extensions.vadimcn.vscode-lldb.adapter
   ];
