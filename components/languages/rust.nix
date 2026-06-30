@@ -20,8 +20,10 @@
     bacon
     just
     gcc
-    llvm
-    clang
+    # clang/llvm share cc/cpp/c++ with gcc; lower their priority so gcc provides
+    # the default linker (rust's `cc`) and buildEnv stops colliding on those paths.
+    (lib.lowPrio llvm)
+    (lib.lowPrio clang)
     stdenv.cc
     vscode-extensions.vadimcn.vscode-lldb.adapter
   ];
