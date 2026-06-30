@@ -1,6 +1,10 @@
 # Rust language configuration function
-{ pkgs, username, lib, settings ? {} }:
 {
+  pkgs,
+  username,
+  lib,
+  settings ? {},
+}: {
   packages = with pkgs; [
     rust-analyzer
     rustc
@@ -15,6 +19,10 @@
     cargo-nextest
     bacon
     just
+    gcc
+    llvm
+    clang
+    stdenv.cc
     vscode-extensions.vadimcn.vscode-lldb.adapter
   ];
   sessionVariables = {
@@ -22,7 +30,7 @@
     RUSTUP_HOME = "$HOME/.rustup";
   };
   shellPlugins = {
-    zsh = [ "rust" "cargo" ];
+    zsh = ["rust" "cargo"];
     fish = [];
     bash = [];
   };
