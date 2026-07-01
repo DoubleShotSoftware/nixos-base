@@ -46,7 +46,13 @@ in
 
     dotnet = mkOption {
       type = types.submodule {
-        options = pruneOptions;
+        options = pruneOptions // {
+          roslynAutoUpdate = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Weekly systemd user timer that updates the prerelease roslyn-language-server dotnet global tool (easy-dotnet's C# LSP, which does not self-update) and softly restarts any running instances.";
+          };
+        };
       };
       default = {};
       description = "Dotnet language settings.";
