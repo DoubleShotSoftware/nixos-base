@@ -91,6 +91,16 @@ with lib;
       default = false;
       description = "install zellij for user.";
     };
+    zellijWeb = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Run the zellij web server as a systemd user service (requires zellij). Creates a default login token at ~/.config/zellij/tokens/default on first start.";
+    };
+    zellijWebPort = mkOption {
+      type = types.port;
+      default = 8082;
+      description = "Port the zellij web server listens on (bound to 127.0.0.1).";
+    };
     languages = mkOption {
       type = types.listOf (types.enum [
         "aws"
