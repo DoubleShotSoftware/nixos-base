@@ -12,6 +12,7 @@
 }:
 with lib; let
   cfg = config.personalConfig.linux.opencode;
+  languages = import ../../languages/default.nix {inherit config lib pkgs;};
 
   envExports =
     concatStringsSep "\n"
@@ -34,17 +35,20 @@ with lib; let
     esac
   '';
 
-  webScript = pkgs.writeScript "opencode-web" ''
-    #!/usr/bin/env bash
-    set -euo pipefail
-    export PATH="$HOME/.npm-global/bin:${pkgs.nodejs}/bin:$PATH"
-    ${envExports}
-    exec "$HOME/.npm-global/bin/opencode" web --hostname ${cfg.hostname} --port ${toString cfg.port}
-  '';
+  webScript = user: let
+    languagePackages = (languages.getUserLanguageConfigs (config.personalConfig.users.${user} or {}) user).packages;
+  in
+    pkgs.writeScript "opencode-web-${user}" ''
+      #!/usr/bin/env bash
+      set -euo pipefail
+      export PATH="$HOME/.npm-global/bin:${pkgs.nodejs}/bin:${makeBinPath languagePackages}:$PATH"
+      ${envExports}
+      exec "$HOME/.npm-global/bin/opencode" web --hostname ${cfg.hostname} --port ${toString cfg.port}
+    '';
 
   restartWeb = "${pkgs.systemd}/bin/systemctl --user try-restart opencode-web.service";
 
-  userUnits = {
+  userUnits = user: {
     systemd.user.services.opencode-web = {
       Unit = {
         Description = "opencode web server";
@@ -58,7 +62,7 @@ with lib; let
         # Self-heal: install on first start (and after a failed/absent install),
         # then run the web server. Restart retries the whole chain.
         ExecStartPre = "${npmScript} install";
-        ExecStart = "${webScript}";
+        ExecStart = "${webScript user}";
         Restart = "on-failure";
         RestartSec = "10s";
       };
@@ -152,6 +156,6 @@ in {
       users = cfg.users;
     };
 
-    home-manager.users = genAttrs cfg.users (_user: userUnits);
+    home-manager.users = genAttrs cfg.users userUnits;
   };
 }
