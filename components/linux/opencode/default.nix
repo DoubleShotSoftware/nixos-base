@@ -18,6 +18,16 @@ with lib; let
     concatStringsSep "\n"
     (mapAttrsToList (k: v: "export ${k}=${escapeShellArg v}") cfg.environment);
 
+  # Language session variables may deliberately refer to the service user's
+  # home and inherited PATH, so retain those shell expansions while quoting
+  # the rest of each value.
+  shellEnvValue = value: let
+    homeMarker = "__OPENCODE_HOME__";
+    pathMarker = "__OPENCODE_PATH__";
+    escapedValue = escapeShellArg (replaceStrings ["$HOME" "$PATH"] [homeMarker pathMarker] value);
+  in
+    replaceStrings [homeMarker pathMarker] ["\"$HOME\"" "\"$PATH\""] escapedValue;
+
   environmentFiles = map (path: "-%h/${path}") cfg.environmentFiles;
 
   # install: ensure opencode is present; update: force @latest. Both target the
@@ -36,12 +46,17 @@ with lib; let
   '';
 
   webScript = user: let
-    languagePackages = (languages.getUserLanguageConfigs (config.personalConfig.users.${user} or {}) user).packages;
+    languageConfig = languages.getUserLanguageConfigs (config.personalConfig.users.${user} or {}) user;
+    languagePackages = languageConfig.packages;
+    languageEnvExports =
+      concatStringsSep "\n"
+      (mapAttrsToList (k: v: "export ${k}=${shellEnvValue v}") languageConfig.sessionVariables);
   in
     pkgs.writeScript "opencode-web-${user}" ''
       #!/usr/bin/env bash
       set -euo pipefail
       export PATH="$HOME/.npm-global/bin:${pkgs.nodejs}/bin:${makeBinPath languagePackages}:$PATH"
+      ${languageEnvExports}
       ${envExports}
       exec "$HOME/.npm-global/bin/opencode" web --hostname ${cfg.hostname} --port ${toString cfg.port}
     '';
