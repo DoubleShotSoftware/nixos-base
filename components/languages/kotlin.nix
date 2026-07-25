@@ -7,6 +7,7 @@
     kotlin
     ktor-cli
     ktlint
+    jdk25_headless
   ];
   sessionVariables = {
     JAVA_HOME = "${pkgs.jdk25_headless}";
