@@ -9,9 +9,9 @@
     ktlint
   ];
   sessionVariables = {
-    # JAVA_HOME = "${pkgs.jdk25_headless}";
-    # JDK_HOME = "${pkgs.jdk25_headless}";
-    # IDEA_JDK = "${pkgs.jetbrains.jdk}";
+    JAVA_HOME = "${pkgs.jdk25_headless}";
+    JDK_HOME = "${pkgs.jdk25_headless}";
+    IDEA_JDK = "${pkgs.jetbrains.jdk}";
     _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
   };
   shellPlugins = {
