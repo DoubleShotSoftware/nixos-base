@@ -1,9 +1,9 @@
 # nixcats/languages/kotlin.nix - Kotlin/JVM language support
-{ pkgs, ... }:
-let kotlinLspPkg = pkgs."kotlin-lsp";
-in
-{
+{pkgs, ...}: let
+  kotlinLspPkg = pkgs."kotlin-lsp";
+in {
   lspsAndRuntimeDeps = with pkgs; [
+    jbang
     kotlinLspPkg
     jdk25_headless
     gradle
@@ -21,7 +21,7 @@ in
     pkgs.easy-kotlin
   ];
 
-  optionalPlugins = [ ];
+  optionalPlugins = [];
 
   extra = {
     kotlinLspBinary = "${kotlinLspPkg}/bin/kotlin-lsp";

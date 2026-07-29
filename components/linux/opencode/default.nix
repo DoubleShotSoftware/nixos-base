@@ -32,6 +32,11 @@ with lib; let
 
   # install: ensure opencode is present; update: force @latest. Both target the
   # user's ~/.npm-global prefix (same convention as the typescript component).
+  attachScript = pkgs.writeScript "opencode-attach"  /* bash */ ''
+  #!/usr/bin/env bash
+  export PATH="${pkgs.nodejs}/bin:$HOME/.npm-global/bin:$PATH"
+  opencode attach http://${cfg.hostname}:${cfg.port} --dir $(pwd)
+  '';
   npmScript = pkgs.writeScript "opencode-npm" ''
     #!/usr/bin/env bash
     set -euo pipefail
@@ -170,6 +175,7 @@ in {
       enable = true;
       users = cfg.users;
     };
+    environment.systemPackages = [ attachScript ];
 
     home-manager.users = genAttrs cfg.users userUnits;
   };
