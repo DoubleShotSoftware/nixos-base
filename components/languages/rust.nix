@@ -1,6 +1,10 @@
 # Rust language configuration function
-{ pkgs, username, lib, settings ? {} }:
 {
+  pkgs,
+  username,
+  lib,
+  settings ? {},
+}: {
   packages = with pkgs; [
     rust-analyzer
     rustc
@@ -15,6 +19,13 @@
     cargo-nextest
     bacon
     just
+    # gcc and clang wrappers both default to priority 10 and share cc/cpp/c++;
+    # hiPrio gcc so it wins those paths (rust's default `cc` linker) and buildEnv
+    # stops colliding. clang/llvm stay available for libclang-based crates.
+    (lib.hiPrio gcc)
+    llvm
+    clang
+    stdenv.cc
     vscode-extensions.vadimcn.vscode-lldb.adapter
   ];
   sessionVariables = {
@@ -22,7 +33,7 @@
     RUSTUP_HOME = "$HOME/.rustup";
   };
   shellPlugins = {
-    zsh = [ "rust" "cargo" ];
+    zsh = ["rust" "cargo"];
     fish = [];
     bash = [];
   };

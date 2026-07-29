@@ -136,6 +136,8 @@ with lib; let
   # For NixOS: get all users with languages
   usersWithLanguages = filterAttrs (name: cfg: (cfg.languages or []) != []) users;
 in {
+  inherit getUserLanguageConfigs;
+
   # NixOS configuration - sets home-manager.users for all users
   nixosConfig = mkIf (usersWithLanguages != {}) {
     # System-level permitted insecure packages

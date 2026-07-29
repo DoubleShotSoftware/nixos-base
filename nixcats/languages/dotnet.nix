@@ -6,6 +6,7 @@
 {
   lspsAndRuntimeDeps = with pkgs; [
     dotnetSDK              # From overlay
+    easy-dotnet-tool       # Pinned dotnet-easydotnet RPC server (matches plugin)
     csharpier
     netcoredbg             # Fallback, easy-dotnet bundles its own
     dotnet-outdated
@@ -32,5 +33,9 @@
   # Pass tool paths to Lua
   extra = {
     csharpierPath = "${pkgs.csharpier}/bin/csharpier";
+    # bin dir of the pinned dotnet-easydotnet server; dotnet.lua prepends this
+    # to PATH so the version matched to the easy-dotnet.nvim commit wins over any
+    # auto-updated ~/.dotnet/tools install (whose protocol drifts from the plugin).
+    easyDotnetServerBin = "${pkgs.easy-dotnet-tool}/bin";
   };
 }

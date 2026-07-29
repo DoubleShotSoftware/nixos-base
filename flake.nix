@@ -27,10 +27,11 @@
     nixCats = {
       url = "github:BirdeeHub/nixCats-nvim";
     };
-    # easy-kotlin = {
-    #   url = "git+file:///home/sobrien/dev/easy-kotlin?ref=init";
-    #   inputs.nixpkgs.follows = "nixpkgs-unstable";
-    # };
+    easy-kotlin = {
+      url = "git+ssh://git@gitea.infra.lan.animus.design/platformcraft/easy-kotlin";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
+    };
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -87,6 +88,11 @@
       inherit nixpkgs nixpkgs-unstable nixCats;
     };
   in {
+    nixConfig = {
+      extra-substituters = ["https://cache.infra.lan.animus.design"];
+      extra-trusted-public-keys = ["infra-nix-cache-1:06JS5MlUI/C/zpsS8+SYuE2iiSBSeYIuEKUc1opqVJM="];
+    };
+
     nixosModules = {
       Models = import ./models;
       Common = {pkgs, ...}: {
@@ -189,8 +195,8 @@
               languages = ["nix"];
               wrapRc = false;
             };
-        }
-        // builtins.listToAttrs (map (v: {
+          }
+          // builtins.listToAttrs (map (v: {
               name = "nixcats-${v}";
               value = nixcatsLib.mkNixCats {
                 inherit system stablePkgs;
@@ -235,6 +241,7 @@
             sdk_8_0-bin
             sdk_9_0-bin
             sdk_10_0-bin
+            sdk_11_0-bin
           ]));
         # easy-kotlin flake packages: vim plugin + bundled kotlin-lsp
         easyKotlinPkgs = easy-kotlin.packages.${prev.system};

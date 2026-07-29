@@ -24,8 +24,17 @@ in
         # Add polkit rule for libvirtd group (NixOS uses libvirtd, but upstream libvirt checks for libvirt)
         security.polkit.extraConfig = ''
           polkit.addRule(function(action, subject) {
-            if (action.id == "org.libvirt.unix.manage" &&
-                subject.isInGroup("libvirtd")) {
+            if (!subject.isInGroup("libvirtd")) {
+              return;
+            }
+            // Interactive admins in the libvirtd group manage domains.
+            if (action.id == "org.libvirt.unix.manage") {
+              return polkit.Result.YES;
+            }
+            // Read-only consumers (the Prometheus libvirt exporter connects on
+            // the -ro socket) get monitor without an interactive agent, so a
+            // headless host stops logging auth-unavailable once per scrape.
+            if (action.id == "org.libvirt.unix.monitor") {
               return polkit.Result.YES;
             }
           });
