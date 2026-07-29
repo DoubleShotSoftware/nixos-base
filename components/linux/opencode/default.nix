@@ -35,7 +35,7 @@ with lib; let
   attachScript = pkgs.writeScript "opencode-attach"  /* bash */ ''
   #!/usr/bin/env bash
   export PATH="${pkgs.nodejs}/bin:$HOME/.npm-global/bin:$PATH"
-  opencode attach http://${cfg.hostname}:${cfg.port} --dir $(pwd)
+  opencode attach http://${cfg.hostname}:${toString cfg.port} --dir $(pwd)
   '';
   npmScript = pkgs.writeScript "opencode-npm" ''
     #!/usr/bin/env bash
