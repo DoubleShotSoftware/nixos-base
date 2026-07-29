@@ -27,10 +27,10 @@
     nixCats = {
       url = "github:BirdeeHub/nixCats-nvim";
     };
-    easy-kotlin = {
-      url = "git+file:///home/sobrien/dev/easy-kotlin?ref=init";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+    # easy-kotlin = {
+    #   url = "git+file:///home/sobrien/dev/easy-kotlin?ref=init";
+    #   inputs.nixpkgs.follows = "nixpkgs-unstable";
+    # };
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
