@@ -175,8 +175,6 @@ in {
       enable = true;
       users = cfg.users;
     };
-    environment.systemPackages = [ attachScript ];
-
     home-manager.users = genAttrs cfg.users userUnits;
   };
 }
