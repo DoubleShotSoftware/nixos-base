@@ -4,17 +4,24 @@
   pkgs,
   ...
 }:
-with lib;
-let
+with lib; let
+  personalConfig = config.personalConfig;
   cfg = config.personalConfig.cockpit;
-in
-{
+  containerEnabled = personalConfig.linux.container.enable;
+  isPodman = personalConfig.linux.container.backend == "podman";
+in {
   config = mkIf cfg.enable (mkMerge [
     {
       services.cockpit = {
         enable = true;
         port = cfg.port;
-        openFirewall = false; # Never expose to WAN
+        openFirewall = cfg.openFirewall;
+        showBanner = cfg.showBanner;
+        package =
+          if cfg.package == null
+          then pkgs.cockpit
+          else cfg.package;
+        settings = cfg.settings;
 
         # Add HTTP origins to enable automatic redirect to HTTPS
         # The module already adds "https://localhost:${port}" by default
@@ -23,30 +30,28 @@ in
           "http://localhost:${toString cfg.port}"
           "http://${config.networking.hostName}:${toString cfg.port}"
         ];
+        plugins = [pkgs.cockpit-files] ++ cfg.plugins;
       };
 
       # Ensure polkit is enabled for authentication
       security.polkit.enable = true;
     }
+    (mkIf boot.zfs.enabled {
+      services.cockpit.plugins = lib.mkAfter [
+        pkgs.cockpit-zfs
+      ];
+    })
+    (mkIf (containerEnabled && isPodman) {
+      services.cockpit.plugins = lib.mkAfter [
+        pkgs.cockpit-podman
+      ];
+    })
 
     (mkIf cfg.enableMachines {
-      # Add cockpit-machines package
-      environment.systemPackages =
-        let
-          cockpit-machines = pkgs.callPackage ../../packages/cockpit-machines.nix { };
-          # Python with pygobject for libosinfo bindings (used by cockpit-machines)
-          pythonWithGi = pkgs.python3.withPackages (ps: [ ps.pygobject3 ]);
-        in
-        [
-          cockpit-machines
-          pkgs.libvirt
-          pkgs.virt-manager  # Provides virt-install for VM creation
-          pkgs.libosinfo     # OS detection library
-          pkgs.osinfo-db     # OS information database
-          pythonWithGi       # Python with GObject introspection
-        ];
+      services.cockpit.plugins = lib.mkAfter [
+        pkgs.cockpit-machines
+      ];
 
-      # Ensure libvirt is configured when machines plugin is enabled
       assertions = [
         {
           assertion = config.personalConfig.linux.libvirt.enable or false;
@@ -56,27 +61,6 @@ in
           assertion = (config.personalConfig.linux.libvirt.enable or false) -> config.personalConfig.linux.libvirt.dbus.enable;
           message = "Cockpit Machines requires libvirt D-Bus to be enabled. Set personalConfig.linux.libvirt.dbus.enable = true;";
         }
-      ];
-
-      # Add systemd tmpfiles rules for cockpit-machines and osinfo-db
-      systemd.tmpfiles.rules = [
-        "L+ /usr/share/cockpit/machines - - - - ${
-          pkgs.callPackage ../../packages/cockpit-machines.nix { }
-        }/share/cockpit/machines"
-        "L+ /usr/share/osinfo - - - - ${pkgs.osinfo-db}/share/osinfo"
-      ];
-
-      # Set GI_TYPELIB_PATH for libosinfo GObject introspection (needed by cockpit-machines)
-      # libosinfo depends on libxml2 typelib which is in gobject-introspection
-      environment.sessionVariables.GI_TYPELIB_PATH = lib.mkDefault (lib.concatStringsSep ":" [
-        "${pkgs.libosinfo}/lib/girepository-1.0"
-        "${pkgs.gobject-introspection}/lib/girepository-1.0"
-      ]);
-
-      # Also set for cockpit service specifically
-      systemd.services.cockpit.environment.GI_TYPELIB_PATH = lib.concatStringsSep ":" [
-        "${pkgs.libosinfo}/lib/girepository-1.0"
-        "${pkgs.gobject-introspection}/lib/girepository-1.0"
       ];
     })
   ]);
