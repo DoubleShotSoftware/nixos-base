@@ -34,6 +34,9 @@
       ".jdks/openjdk21".source = pkgs.jdk21_headless;
       ".jdks/openjdk25".source = pkgs.jdk25_headless;
       ".jdks/jetbrains".source = pkgs.jetbrains.jdk;
+      ".jdks/temurin-17".source = pkgs.temurin-bin-17;
+      ".jdks/temurin-21".source = pkgs.temurin-bin-21;
+      ".jdks/temurin-25".source = pkgs.temurin-bin-25;
     };
   };
 }

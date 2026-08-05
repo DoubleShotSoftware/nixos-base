@@ -10,6 +10,7 @@ in {
     maven
     kotlin
     ktlint
+    libfaketime
     # easy-kotlin's jar:// URI BufReadCmd shells out to `unzip -p` to
     # extract source files from src.zip / *-sources.jar so goto-def into
     # JDK and library symbols actually opens the source. Without unzip on
@@ -25,6 +26,7 @@ in {
 
   extra = {
     kotlinLspBinary = "${kotlinLspPkg}/bin/kotlin-lsp";
+    kotlinFakeTimeBinary = "${pkgs.libfaketime}/bin/faketime";
     kotlinSidecarBinary = "${pkgs.easy-kotlin-sidecar}/bin/easy-kotlin-sidecar";
 
     # JDK introspected by kotlin-lsp's IntelliJ analyzer for completion,
