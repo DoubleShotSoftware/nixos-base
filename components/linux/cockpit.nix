@@ -36,11 +36,11 @@ in {
       # Ensure polkit is enabled for authentication
       security.polkit.enable = true;
     }
-    (mkIf config.boot.zfs.enabled {
-      services.cockpit.plugins = lib.mkAfter [
-        pkgs.unstable.cockpit-zfs
-      ];
-    })
+    # (mkIf config.boot.zfs.enabled {
+    #   services.cockpit.plugins = lib.mkAfter [
+    #     pkgs.unstable.cockpit-zfs
+    #   ];
+    # })
     (mkIf (containerEnabled && isPodman) {
       services.cockpit.plugins = lib.mkAfter [
         pkgs.cockpit-podman
