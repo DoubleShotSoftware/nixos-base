@@ -36,7 +36,7 @@ in {
       # Ensure polkit is enabled for authentication
       security.polkit.enable = true;
     }
-    (mkIf boot.zfs.enabled {
+    (mkIf config.boot.zfs.enabled {
       services.cockpit.plugins = lib.mkAfter [
         pkgs.cockpit-zfs
       ];
