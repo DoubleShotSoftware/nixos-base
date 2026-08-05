@@ -38,7 +38,7 @@ in {
     }
     (mkIf config.boot.zfs.enabled {
       services.cockpit.plugins = lib.mkAfter [
-        pkgs.cockpit-zfs
+        pkgs.unstable.cockpit-zfs
       ];
     })
     (mkIf (containerEnabled && isPodman) {
