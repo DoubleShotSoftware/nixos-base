@@ -1,1 +1,0 @@
-{ ... }: { opts = { enable = true; }; }

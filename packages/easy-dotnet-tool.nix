@@ -1,29 +1,73 @@
 { lib
-, buildDotnetGlobalTool
+, stdenvNoCC
+, fetchurl
+, unzip
+, zip
 , dotnetCorePackages
 }:
 
-buildDotnetGlobalTool {
-  pname = "easydotnet";  # Use lowercase for the tool name
-  # Latest stable on NuGet. Protocol-coupled to the easy-dotnet.nvim plugin
-  # commit in ../vimPlugins/easy-dotnet.nix -- bump BOTH together. The plugin's
-  # `dotnet.lua` prepends this server's bin to PATH so this pinned version (not
-  # the host's auto-updating ~/.dotnet/tools install) is what nvim launches.
-  version = "3.2.12";
+let
+  version = "3.4.7";
+  nupkg = fetchurl {
+    url = "https://www.nuget.org/api/v2/package/EasyDotnet/${version}";
+    name = "EasyDotnet.${version}.nupkg";
+    hash = "sha256-w2n7m5eUKKcsBUWUQbcwdQfGKY+aWKT+vrCN7Ga+y78=";
+  };
+  # Stage 1: extract nupkg, remove ARM64 dncdbg binaries, repack
+  nupkgClean = stdenvNoCC.mkDerivation {
+    pname = "EasyDotnet";
+    inherit version;
+    src = nupkg;
+    nativeBuildInputs = [ unzip zip ];
+    dontUnpack = true;
+    dontConfigure = true;
+    dontBuild = true;
+    dontFixup = true;
+    installPhase = ''
+      runHook preInstall
+      mkdir tmp
+      cd tmp
+      unzip -q $src
+      rm -rf tools/dncdbg/linux-arm64
+      mkdir -p $out
+      zip -q -r $out/EasyDotnet.${version}.nupkg .
+      runHook postInstall
+    '';
+  };
+in stdenvNoCC.mkDerivation {
+  pname = "easydotnet";
+  inherit version;
 
-  # NuGet package name (case-sensitive as it appears on NuGet)
-  nugetName = "EasyDotnet";
+  src = nupkgClean;
 
-  # The tool installs as "dotnet-easydotnet"
-  # The executable should be specified
-  executables = [ "dotnet-easydotnet" ];
+  buildInputs = [ dotnetCorePackages.sdk_8_0 ];
 
-  # 3.2.12 targets net8.0 with rollForward=LatestMajor, so the 8.0 runtime is fine.
-  dotnet-runtime = dotnetCorePackages.runtime_8_0;
+  dontConfigure = true;
+  dontBuild = true;
+  dontFixup = true;
 
-  # SHA256 hash of the NuGet package
-  # This will need to be updated when updating the version
-  nugetSha256 = "sha256-mTvcx3/ef42nv1/k3FijV/55H4DzBHWv/rFgh/AHfJ0=";
+  installPhase = ''
+    runHook preInstall
+
+    export HOME=$TMPDIR/home
+    mkdir -p "$HOME"
+    export DOTNET_CLI_TELEMETRY_OPTOUT=1
+    export DOTNET_NOLOGO=1
+
+    mkdir -p $out/share/nuget/source
+    cp $src/EasyDotnet.${version}.nupkg $out/share/nuget/source/
+
+    dotnet tool install \
+      --tool-path "$out/lib/easydotnet" \
+      --add-source "$out/share/nuget/source" \
+      --no-cache \
+      EasyDotnet --version ${version}
+
+    mkdir -p $out/bin
+    ln -s $out/lib/easydotnet/dotnet-easydotnet $out/bin/dotnet-easydotnet
+
+    runHook postInstall
+  '';
 
   meta = with lib; {
     description = "Easy .NET CLI tool for managing .NET projects";
