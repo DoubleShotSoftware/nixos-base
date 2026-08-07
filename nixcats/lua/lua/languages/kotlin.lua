@@ -161,6 +161,34 @@ vim.fn.mkdir(vim.fn.fnamemodify(kotlin_sidecar_log, ':h'), 'p')
 local kotlin_plugin_log = vim.fn.expand('~/.local/state/nvim/easy-kotlin.plugin.log')
 vim.fn.mkdir(vim.fn.fnamemodify(kotlin_plugin_log, ':h'), 'p')
 
+local kotlin_sidecar = {
+  cmd = nixCats.extra.kotlinSidecarBinary,
+  -- Sidecar JVM logging via slf4j-simple. Each key here gets passed as
+  -- a `-Dorg.slf4j.simpleLogger.<key>=value` system property at sidecar
+  -- launch. Restated explicitly (vs. inheriting easy-kotlin's defaults)
+  -- so the dial is visible in this config — flip `level` to "trace" /
+  -- "info" / "off" without bumping the easy-kotlin flake input, and
+  -- the file path is pinned to a stable `~/.local/state/nvim/` location
+  -- regardless of how nvim was launched (matches the easy-kotlin
+  -- README's documented default).
+  --
+  -- TRUNCATEd on each sidecar restart. For append-mode history, set
+  -- `file = "System.err"` and rely on sidecar stderr capture under
+  -- `log_dir`.
+  log = {
+    level = "debug", -- "trace" | "debug" | "info" | "warn" | "error" | "off"
+    file = kotlin_sidecar_log,
+  },
+}
+
+local kotlin_sidecar_local_override_root = nixCats.extra.kotlinSidecarLocalOverrideRoot
+if type(kotlin_sidecar_local_override_root) == 'string' and kotlin_sidecar_local_override_root ~= '' then
+  kotlin_sidecar.local_override = {
+    enabled = true,
+    root = kotlin_sidecar_local_override_root,
+  }
+end
+
 require('easy-kotlin').setup({
   lsp = {
     cmd = kotlin_cmd,
@@ -185,31 +213,15 @@ require('easy-kotlin').setup({
       },
     },
   },
-  sidecar = {
-    cmd = nixCats.extra.kotlinSidecarBinary,
-    -- Sidecar JVM logging via slf4j-simple. Each key here gets passed as
-    -- a `-Dorg.slf4j.simpleLogger.<key>=value` system property at sidecar
-    -- launch. Restated explicitly (vs. inheriting easy-kotlin's defaults)
-    -- so the dial is visible in this config — flip `level` to "trace" /
-    -- "info" / "off" without bumping the easy-kotlin flake input, and
-    -- the file path is pinned to a stable `~/.local/state/nvim/` location
-    -- regardless of how nvim was launched (matches the easy-kotlin
-    -- README's documented default).
-    --
-    -- TRUNCATEd on each sidecar restart. For append-mode history, set
-    -- `file = "System.err"` and rely on sidecar stderr capture under
-    -- `log_dir`.
-    log = {
-      level = "debug", -- "trace" | "debug" | "info" | "warn" | "error" | "off"
-      file = kotlin_sidecar_log,
-    },
-  },
+  sidecar = kotlin_sidecar,
   -- easy-kotlin owns the `<leader>la` workaround for the nvim-0.12
   -- pull-diagnostic / kotlin-lsp identifier mismatch. Buffer-local on
   -- LspAttach for kotlin_lsp only; other LSPs keep the stock keymap from
   -- nixcats/lua/lua/plugins/lsp.lua:62.
   keymaps = {
     code_action = '<leader>la',
+    implementation = '<leader>lbi',
+    lsp_info = '<leader>lbI',
   },
   -- Plugin-side logger (Lua). Restated explicitly (vs. inheriting easy-kotlin's
   -- defaults) so the dial is visible here — flip `enabled = false` for a hard
@@ -259,6 +271,10 @@ local function setup_kotlin_keymaps()
   vim.keymap.set('n', '<leader>lbh', '<cmd>KotlinHealth<CR>',         vim.tbl_extend('force', opts, { desc = 'Kotlin health' }))
   vim.keymap.set('n', '<leader>lbL', '<cmd>KotlinRestartLsp<CR>',     vim.tbl_extend('force', opts, { desc = 'Restart kotlin-lsp' }))
   vim.keymap.set('n', '<leader>lbx', '<cmd>KotlinCancel<CR>',         vim.tbl_extend('force', opts, { desc = 'Cancel running jobs' }))
+  if type(kotlin_sidecar_local_override_root) == 'string' and kotlin_sidecar_local_override_root ~= '' then
+    vim.keymap.set('n', '<leader>lbd', '<cmd>KotlinRebuildSidecar<CR>',      vim.tbl_extend('force', opts, { desc = 'Rebuild sidecar daemon' }))
+    vim.keymap.set('n', '<leader>lbp', '<cmd>KotlinUsePackagedSidecar<CR>', vim.tbl_extend('force', opts, { desc = 'Recover with packaged sidecar' }))
+  end
 end
 
 vim.api.nvim_create_autocmd('FileType', {
