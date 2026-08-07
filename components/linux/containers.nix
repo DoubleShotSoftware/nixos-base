@@ -11,6 +11,8 @@ let
   dockerDaemonSettings = {
     bip = containerConfig.docker.broadcastIp;
     ipv6 = false;
+  } // optionalAttrs (containerConfig.docker.defaultAddressPools != []) {
+    "default-address-pools" = containerConfig.docker.defaultAddressPools;
   };
   containerEnabled = config.personalConfig.linux.container.enable;
   isDocker =
@@ -68,6 +70,16 @@ in
         type = types.str;
         description = lib.mdDoc "The broadcast ip for the base docker network interface.";
         default = "172.26.0.1/16";
+      };
+      defaultAddressPools = mkOption {
+        type = types.listOf (types.submodule {
+          options = {
+            base = mkOption {type = types.str;};
+            size = mkOption {type = types.ints.positive;};
+          };
+        });
+        default = [];
+        description = lib.mdDoc "Address pools Docker uses for automatically created networks.";
       };
       storageDriver = mkOption {
         type = types.nullOr (

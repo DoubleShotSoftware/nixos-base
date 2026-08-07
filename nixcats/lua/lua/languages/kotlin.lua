@@ -44,6 +44,7 @@ vim.api.nvim_create_autocmd('FileType', {
 -- Per-root system-path keeps kotlin-lsp's workspace state isolated per project,
 -- and pipes stderr to a stable file for post-mortem debugging.
 local kotlin_lsp = nixCats.extra.kotlinLspBinary or 'kotlin-lsp'
+local kotlin_faketime = nixCats.extra.kotlinFakeTimeBinary or 'faketime'
 local kotlin_state_dir = vim.fn.stdpath('state') .. '/kotlin-lsp'
 local kotlin_err_log = kotlin_state_dir .. '.err'
 -- kotlin-lsp's analyzer cache (RocksDB-backed) lives under
@@ -57,7 +58,7 @@ local kotlin_err_log = kotlin_state_dir .. '.err'
 local kotlin_xdg_config_home = kotlin_state_dir .. '/xdg-config'
 vim.fn.mkdir(kotlin_xdg_config_home, 'p')
 
-local function kotlin_cmd(dispatchers, config)
+local function kotlin_cmd(dispatchers, config, context)
   local root = (config and config.root_dir) or vim.loop.cwd() or vim.fn.getcwd()
   local system_path = kotlin_state_dir .. '/' .. vim.fn.sha256(root)
   vim.fn.mkdir(system_path, 'p')
@@ -73,9 +74,19 @@ local function kotlin_cmd(dispatchers, config)
     end
   end
 
+  local fake_time_prefix = ''
+  if context and context.fake_time then
+    fake_time_prefix = string.format(
+      '%s %s ',
+      vim.fn.shellescape(kotlin_faketime),
+      vim.fn.shellescape(context.fake_time)
+    )
+  end
+
   local shell_cmd = string.format(
-    '%sexec %s --stdio --system-path %s 2>> %s',
+    '%sexec %s%s --stdio --system-path %s 2>> %s',
     env_prefix,
+    fake_time_prefix,
     vim.fn.shellescape(kotlin_lsp),
     vim.fn.shellescape(system_path),
     vim.fn.shellescape(kotlin_err_log)
@@ -153,6 +164,7 @@ vim.fn.mkdir(vim.fn.fnamemodify(kotlin_plugin_log, ':h'), 'p')
 require('easy-kotlin').setup({
   lsp = {
     cmd = kotlin_cmd,
+    fake_time = '2026-07-31',
     config = {
       capabilities = capabilities,
       -- Bypass IntelliJ's JavaHomeFinder (which fails on nixpkgs JDK layouts

@@ -28,7 +28,7 @@
       url = "github:BirdeeHub/nixCats-nvim";
     };
     easy-kotlin = {
-      url = "git+ssh://git@gitea.home.lan.animus.design/platformcraft/easy-kotlin";
+      url = "git+ssh://git@gitea.infra.lan.animus.design/platformcraft/easy-kotlin";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
@@ -88,6 +88,11 @@
       inherit nixpkgs nixpkgs-unstable nixCats;
     };
   in {
+    nixConfig = {
+      extra-substituters = ["https://cache.infra.lan.animus.design"];
+      extra-trusted-public-keys = ["infra-nix-cache-1:06JS5MlUI/C/zpsS8+SYuE2iiSBSeYIuEKUc1opqVJM="];
+    };
+
     nixosModules = {
       Models = import ./models;
       Common = {pkgs, ...}: {

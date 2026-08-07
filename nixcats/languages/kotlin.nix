@@ -1,15 +1,16 @@
 # nixcats/languages/kotlin.nix - Kotlin/JVM language support
-{ pkgs, ... }:
-let kotlinLspPkg = pkgs."kotlin-lsp";
-in
-{
+{pkgs, ...}: let
+  kotlinLspPkg = pkgs."kotlin-lsp";
+in {
   lspsAndRuntimeDeps = with pkgs; [
+    jbang
     kotlinLspPkg
     jdk25_headless
     gradle
     maven
     kotlin
     ktlint
+    libfaketime
     # easy-kotlin's jar:// URI BufReadCmd shells out to `unzip -p` to
     # extract source files from src.zip / *-sources.jar so goto-def into
     # JDK and library symbols actually opens the source. Without unzip on
@@ -21,10 +22,11 @@ in
     pkgs.easy-kotlin
   ];
 
-  optionalPlugins = [ ];
+  optionalPlugins = [];
 
   extra = {
     kotlinLspBinary = "${kotlinLspPkg}/bin/kotlin-lsp";
+    kotlinFakeTimeBinary = "${pkgs.libfaketime}/bin/faketime";
     kotlinSidecarBinary = "${pkgs.easy-kotlin-sidecar}/bin/easy-kotlin-sidecar";
 
     # JDK introspected by kotlin-lsp's IntelliJ analyzer for completion,

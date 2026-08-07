@@ -8,12 +8,16 @@
 # at the alias; the system-wide AutoSelectCertificateForUrls policy then matches
 # by hostname and auto-presents the cert. All certs live in one shared NSS DB
 # (~/.pki/nssdb), so one Chromium serves every project without per-instance isolation.
-{ config, lib, pkgs, ... }:
-with lib;
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+with lib; let
   cfg = config.personalConfig.linux.chromiumHeadless;
 
-  certType = types.submodule ({ config, ... }: {
+  certType = types.submodule ({config, ...}: {
     options = {
       certPath = mkOption {
         type = types.str;
@@ -69,33 +73,43 @@ let
       cfg.mtlsCerts}
   '';
 
-  autoSelect = map (c: builtins.toJSON {
-    pattern = "https://${c.hostAlias}:${toString c.apiPort}";
-    filter = if c.issuerCN != null then { ISSUER.CN = c.issuerCN; } else { };
-  }) cfg.mtlsCerts;
+  autoSelect = map (c:
+    builtins.toJSON {
+      pattern = "https://${c.hostAlias}:${toString c.apiPort}";
+      filter =
+        if c.issuerCN != null
+        then {ISSUER.CN = c.issuerCN;}
+        else {};
+    })
+  cfg.mtlsCerts;
 
-  hostsBlock = concatMapStringsSep "\n"
-    (c: "127.0.0.1 ${c.hostAlias}\n::1 ${c.hostAlias}") cfg.mtlsCerts;
+  hostsBlock =
+    concatMapStringsSep "\n"
+    (c: "127.0.0.1 ${c.hostAlias}\n::1 ${c.hostAlias}")
+    cfg.mtlsCerts;
 
-  spkiFlag = optionalString (cfg.serverCertSpkiList != [ ])
+  spkiFlag =
+    optionalString (cfg.serverCertSpkiList != [])
     " --ignore-certificate-errors-spki-list=${concatStringsSep "," cfg.serverCertSpkiList}";
 
   userUnits = {
     systemd.user.services.chromium-headless = {
       Unit = {
         Description = "Headless Chromium with remote debugging for MCP dev work";
-        Documentation = [ "https://chromedevtools.github.io/devtools-protocol/" ];
+        Documentation = ["https://chromedevtools.github.io/devtools-protocol/"];
       };
-      Service = {
-        Type = "simple";
-        # Profile lives in the runtime dir so it's clean each boot.
-        ExecStart = "${pkgs.chromium}/bin/chromium --headless=new --disable-gpu --no-first-run --disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=${toString cfg.port} --user-data-dir=%t/chromium-headless${spkiFlag}";
-        Restart = "on-failure";
-        RestartSec = "5s";
-      } // optionalAttrs (cfg.mtlsCerts != [ ]) {
-        ExecStartPre = "${importScript}";
-      };
-      Install.WantedBy = [ "default.target" ];
+      Service =
+        {
+          Type = "simple";
+          # Profile lives in the runtime dir so it's clean each boot.
+          ExecStart = "${pkgs.chromium}/bin/chromium --headless=new --disable-gpu --no-first-run --disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=${toString cfg.port} --user-data-dir=%t/chromium-headless${spkiFlag} --ignore-certificate-errors";
+          Restart = "on-failure";
+          RestartSec = "5s";
+        }
+        // optionalAttrs (cfg.mtlsCerts != []) {
+          ExecStartPre = "${importScript}";
+        };
+      Install.WantedBy = ["default.target"];
     };
   };
 in {
@@ -103,7 +117,7 @@ in {
     enable = mkEnableOption "headless Chromium (remote debugging) for MCP/agent dev work";
     users = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [];
       description = "Users to run the headless Chromium service for.";
     };
     port = mkOption {
@@ -113,12 +127,12 @@ in {
     };
     serverCertSpkiList = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [];
       description = "Base64 SHA-256 SPKI hashes of dev server certs whose name/validity errors should be ignored (--ignore-certificate-errors-spki-list). Scoped bypass for alias/self-signed mismatches; leave empty to enforce normally.";
     };
     mtlsCerts = mkOption {
       type = types.listOf certType;
-      default = [ ];
+      default = [];
       description = "Client certs imported into the shared NSS DB and auto-presented per host alias.";
     };
   };
@@ -126,20 +140,22 @@ in {
   config = mkIf cfg.enable {
     # Refuse to fabricate a home-manager profile for a user that isn't a
     # declared account (catches typos in `users`).
-    assertions = map (u: {
-      assertion = hasAttr u config.users.users;
-      message = "personalConfig.linux.chromiumHeadless.users: \"${u}\" is not a configured user (users.users.\"${u}\" is unset).";
-    }) cfg.users;
+    assertions =
+      map (u: {
+        assertion = hasAttr u config.users.users;
+        message = "personalConfig.linux.chromiumHeadless.users: \"${u}\" is not a configured user (users.users.\"${u}\" is unset).";
+      })
+      cfg.users;
 
     home-manager.users = genAttrs cfg.users (_user: userUnits);
 
     # System-wide managed policy: auto-select the alias-bound client cert headlessly
     # (no picker UI). Applies to all chromium on the box, which is what we want here.
-    programs.chromium = mkIf (cfg.mtlsCerts != [ ]) {
+    programs.chromium = mkIf (cfg.mtlsCerts != []) {
       enable = true;
       extraOpts.AutoSelectCertificateForUrls = autoSelect;
     };
 
-    networking.extraHosts = mkIf (cfg.mtlsCerts != [ ]) hostsBlock;
+    networking.extraHosts = mkIf (cfg.mtlsCerts != []) hostsBlock;
   };
 }
