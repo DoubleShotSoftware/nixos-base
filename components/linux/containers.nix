@@ -134,6 +134,9 @@ in
           ++ (if containerConfig.docker.networkAccessible then [ "0.0.0.0:2375" ] else [ ]);
         };
       };
+      # Stop the Watchtower container before Docker is restarted during activation.
+      # Without this lifecycle link its cleanup runs after the socket has gone away.
+      systemd.services.docker-watchtower.partOf = ["docker.service"];
       environment.systemPackages = [
         pkgs.docker-compose
         pkgs.docker-buildx
