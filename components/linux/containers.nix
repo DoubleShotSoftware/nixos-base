@@ -136,7 +136,10 @@ in
       };
       # Stop the Watchtower container before Docker is restarted during activation.
       # Without this lifecycle link its cleanup runs after the socket has gone away.
-      systemd.services.docker-watchtower.partOf = ["docker.service"];
+      systemd.services.docker-watchtower = {
+        partOf = ["docker.service"];
+        requires = ["docker.service"];
+      };
       environment.systemPackages = [
         pkgs.docker-compose
         pkgs.docker-buildx
