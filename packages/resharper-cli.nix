@@ -11,11 +11,11 @@
 
 stdenv.mkDerivation rec {
   pname = "resharper-cli";
-  version = "2025.3.1";
+  version = "2026.1.3";
 
   src = fetchurl {
     url = "https://download.jetbrains.com/resharper/dotUltimate.${version}/JetBrains.ReSharper.CommandLineTools.${version}.zip";
-    sha256 = "1hdqji0flggp2w25cbmlz9fml7qfrp6sv0wwjvcg15yar7jfgbfh";
+    sha256 = "0d6zhqdqz04g24q0p482dbihm55zlh4gk821irdsmndmk5a8al01";
   };
 
   nativeBuildInputs = [ unzip makeWrapper ];

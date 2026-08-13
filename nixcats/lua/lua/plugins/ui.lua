@@ -30,9 +30,13 @@ if nixCats.cats["languages.dotnet"] then
 end
 
 -- Lualine
+-- Track the active colorscheme (nixCats.extra.theme) rather than hardcoding a
+-- theme: this build defaults to tokyonight, and naming a theme whose setup never
+-- ran (e.g. catppuccin) makes lualine warn and fall back to 'auto'. Both
+-- 'tokyonight' and 'catppuccin' are valid lualine theme names.
 require('lualine').setup({
   options = {
-    theme = 'catppuccin',
+    theme = (nixCats.extra and nixCats.extra.theme) or 'auto',
     component_separators = { left = '', right = '' },
     section_separators = { left = '', right = '' },
     globalstatus = true,

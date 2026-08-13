@@ -20,10 +20,6 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixvim = {
-      url = "github:nix-community/nixvim/nixos-26.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nixCats = {
       url = "github:BirdeeHub/nixCats-nvim";
     };
@@ -54,7 +50,6 @@
     nur,
     sops-nix,
     nix-darwin,
-    nixvim,
     nixCats,
     easy-kotlin,
     flake-parts,
@@ -157,17 +152,6 @@
         dotnetSDK = unstablePkgs.dotnetSDK;
         customVimPlugins = unstablePkgs.customVimPlugins;
 
-        nixvimPackages = import ./nixvim/package.nix {
-          inherit
-            nixpkgs
-            nixpkgs-unstable
-            nixvim
-            system
-            dotnetSDK
-            customVimPlugins
-            ;
-        };
-
         # Import standard nixpkgs for custom packages (without overlay to avoid recursion)
         pkgs = import nixpkgs {
           inherit system;
@@ -209,11 +193,7 @@
 
         # Base packages available on all systems
         basePackages =
-          {
-            nixvim = nixvimPackages.default;
-            nixvim-lite = nixvimPackages.lite;
-          }
-          // nixcatsPackages // (customPackages {inherit pkgs dotnetSDK;});
+          nixcatsPackages // (customPackages {inherit pkgs dotnetSDK;});
       in
         basePackages
     );
@@ -253,7 +233,7 @@
           kotlin-lsp = easyKotlinPkgs.kotlinLsp;
           easy-kotlin = easyKotlinPkgs.vimPlugin;
           easy-kotlin-sidecar = easyKotlinPkgs.easyKotlinSidecar;
-          # Custom vim plugins shared between nixvim and nixcats
+          # Custom vim plugins shared into nixcats
           customVimPlugins = import ./packages/vimPlugins {pkgs = unstable;};
 
           # Dynamic nixcats builder - builds slim editor with only specified languages
@@ -318,7 +298,6 @@
             nixgl
             system
             ;
-          nvim-ide = nixvim;
         };
       in {
         sobrien = homePackages.sobrien;

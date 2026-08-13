@@ -1,1 +1,0 @@
-autocmd BufRead,BufNewFile *.slnx set filetype=xml

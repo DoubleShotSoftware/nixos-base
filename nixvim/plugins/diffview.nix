@@ -1,4 +1,0 @@
-{ ... }: {
-  opts = { enable = true; };
-  rootOpts = { };
-}
