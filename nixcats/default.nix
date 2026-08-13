@@ -7,6 +7,7 @@
 #     pkgs = unstablePkgs;      # Pre-configured pkgs with overlay
 #     stablePkgs = stablePkgs;  # Stable pkgs for packages needing stability
 #     languages = ["dotnet" "rust"];
+#     extra = { };             # Additional values exposed as nixCats.extra
 #   };
 #
 { nixpkgs, nixpkgs-unstable, nixCats }:
@@ -26,6 +27,7 @@ in {
     extraCategories ? { },     # Additional category overrides
     extraPlugins ? [ ],        # Additional plugins to include
     extraPackages ? [ ],       # Additional runtime packages
+    extra ? { },               # Additional values exposed as nixCats.extra
   }:
   let
     # Alias outer pkgs — the package function args below shadow `pkgs` with
@@ -208,7 +210,7 @@ in {
           # Pass extra data to Lua via nixCats()
           enabledLanguages = languages;
           theme = theme;
-        } // langConfigs.extra;
+        } // langConfigs.extra // extra;
       };
     };
 
