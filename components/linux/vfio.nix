@@ -8,6 +8,9 @@ let
   kernelPreempt = (map (module: "${module}.driver.pre=vfio-pci") cfg.preemptModules);
   kernelPreemptSafe = (map (module: "${module}.pre=vfio-pci") cfg.preemptModules);
   kernelBind = [("vfio-pci.ids=" + lib.concatStringsSep "," cfg.pciIds)];
+  addressBindRules = lib.concatMapStringsSep "\n"
+    (address: ''ACTION=="add", SUBSYSTEM=="pci", KERNEL=="${address}", ATTR{driver_override}="vfio-pci"'')
+    cfg.pciAddresses;
 
 in {
   options.personalConfig.linux.vfio = with lib; {
@@ -19,6 +22,11 @@ in {
     pciIds = mkOption {
       type = types.listOf types.str;
       description = "A list of pci ids to bind via vfio.";
+      default = [ ];
+    };
+    pciAddresses = mkOption {
+      type = types.listOf types.str;
+      description = "A list of PCI addresses to bind via vfio when device IDs are not unique.";
       default = [ ];
     };
     preemptModules = mkOption {
@@ -55,6 +63,9 @@ in {
         ${modProbeConfig}
         ${("options vfio-pci ids=" + lib.concatStringsSep "," cfg.pciIds)}
       '';
+    })
+    (mkIf (cfg.pciAddresses != []) {
+      services.udev.extraRules = addressBindRules;
     })
   ]);
 }
