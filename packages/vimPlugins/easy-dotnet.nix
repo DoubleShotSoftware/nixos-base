@@ -3,21 +3,25 @@
 #
 # The repo has no release tags, so we track a known-good HEAD commit. This plugin
 # is protocol-coupled to the `EasyDotnet` server NuGet built in
-# ../easy-dotnet-tool.nix -- bump BOTH together. As of this commit the plugin no
-# longer calls `msbuild/project-properties` and handles the newer server's
-# notifications, matching server 3.2.x.
-{ pkgs }:
+# ../easy-dotnet-tool.nix -- bump BOTH together. Both pins live in
+# ../easy-dotnet-pair.nix; this derivation asserts the (plugin, server) pair is a
+# registered/verified combo, failing the build otherwise.
+{ pkgs, lib }:
 let
-  # HEAD of main, 2026-07-02 (no upstream tags exist).
-  version = "07a41015af3bcbad7dff94191d5ad4b8a67fd202";
-in pkgs.vimUtils.buildVimPlugin {
+  pair = import ../easy-dotnet-pair.nix;
+  version = pair.pluginRev;
+in assert lib.assertMsg pair.isCurrentPairRegistered ''
+  easy-dotnet drift: plugin commit ${pair.pluginRev} does not form a tested pair
+  with server ${pair.serverVersion} (packages/easy-dotnet-pair.nix:knownPairs).
+  The plugin and server are protocol-coupled -- bump and verify them together.
+''; pkgs.vimUtils.buildVimPlugin {
   inherit version;
   name = "easy-dotnet.nvim";
   src = pkgs.fetchFromGitHub {
     owner = "GustavEikaas";
     repo = "easy-dotnet.nvim";
     rev = version;
-    hash = "sha256-/XQu9ywd4AK8sD7AIRdPJYjrPqM5ZorZv266tJViz/M=";
+    hash = pair.pluginHash;
   };
   # Modules have runtime deps (telescope, roslyn server) unavailable at build time
   doCheck = false;

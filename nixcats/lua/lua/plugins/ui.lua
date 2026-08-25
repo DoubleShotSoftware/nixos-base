@@ -32,11 +32,20 @@ end
 -- Lualine
 -- Track the active colorscheme (nixCats.extra.theme) rather than hardcoding a
 -- theme: this build defaults to tokyonight, and naming a theme whose setup never
--- ran (e.g. catppuccin) makes lualine warn and fall back to 'auto'. Both
--- 'tokyonight' and 'catppuccin' are valid lualine theme names.
+-- ran (e.g. catppuccin) makes lualine warn and fall back to 'auto'.
+-- Note: catppuccin.nvim ships its lualine themes flavour-qualified
+-- (catppuccin-mocha.lua, ...), so a bare 'catppuccin' never resolves and lualine
+-- falls back to 'auto'. Map it to the flavour used in colorscheme.lua (mocha).
+local function lualine_theme_name(name)
+  if name == 'catppuccin' then
+    return 'catppuccin-mocha'
+  end
+  return name
+end
+
 require('lualine').setup({
   options = {
-    theme = (nixCats.extra and nixCats.extra.theme) or 'auto',
+    theme = (nixCats.extra and lualine_theme_name(nixCats.extra.theme)) or 'auto',
     component_separators = { left = '', right = '' },
     section_separators = { left = '', right = '' },
     globalstatus = true,

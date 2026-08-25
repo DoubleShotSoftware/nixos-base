@@ -198,6 +198,28 @@
         basePackages
     );
 
+    checks = forAllSystems (
+      system: let
+        pair = import ./packages/easy-dotnet-pair.nix;
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      in {
+        # Fails on easy-dotnet drift: the plugin commit and the EasyDotnet server
+        # must be bumped together (protocol-coupled). See packages/easy-dotnet-pair.nix.
+        easy-dotnet-pair = pkgs.runCommand "easy-dotnet-pair-check" { } ''
+          if ${if pair.isCurrentPairRegistered then "true" else "false"}; then
+            echo "ok: easy-dotnet plugin ${pair.pluginRev} <-> server ${pair.serverVersion} is a registered pair"
+          else
+            echo "FAIL: easy-dotnet plugin ${pair.pluginRev} <-> server ${pair.serverVersion} is NOT a registered pair (packages/easy-dotnet-pair.nix)" >&2
+            exit 1
+          fi
+          touch $out
+        '';
+      }
+    );
+
     overlays = {
       default = final: prev: let
         unstable = import nixpkgs-unstable {
