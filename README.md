@@ -16,6 +16,14 @@ Check the flake:
 nix flake check
 ```
 
+**Run NixCats**
+
+```bash
+nix run 'github:DoubleShotSoftware/nixos-base?ref=25_11#nixcats-dotnet'
+```
+
+_dotnet_ can be one of the supported languages
+
 ## Docs
 
 - [NixCats and Neovim](docs/nvim/README.md)
