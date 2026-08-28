@@ -164,10 +164,16 @@ in {
     # Refuse to fabricate a home-manager profile for a user that isn't a
     # declared account (catches typos in `users`).
     assertions =
-      map (u: {
-        assertion = hasAttr u config.users.users;
-        message = "personalConfig.linux.opencode.users: \"${u}\" is not a configured user (users.users.\"${u}\" is unset).";
-      })
+      concatMap (u: [
+        {
+          assertion = hasAttr u config.users.users;
+          message = "personalConfig.linux.opencode.users: \"${u}\" is not a configured system account (users.users.\"${u}\" is unset). Declare it, e.g. via an entry in personalConfig.users.\"${u}\" or a users.users.\"${u}\" block in the host config.";
+        }
+        {
+          assertion = hasAttr u config.personalConfig.users;
+          message = "personalConfig.linux.opencode.users: \"${u}\" has no entry in personalConfig.users, so home-manager builds no profile for it (home.stateVersion ends up undefined and the build fails). Add users.\"${u}\" = { userType = \"normal\"; ...; } to the host's personalConfig.users.";
+        }
+      ])
       cfg.users;
 
     # The web server must outlive interactive logins.
