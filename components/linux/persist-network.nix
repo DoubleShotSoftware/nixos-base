@@ -21,7 +21,7 @@ let
   # collisions like `lan.work → lan: File exists`.
   nicUdevRules = map
     (nicConfig: ''
-      SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="${nicConfig.mac}", NAME="${nicConfig.name}"
+      SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="${toLower nicConfig.mac}", NAME="${nicConfig.name}"
     '')
     config.personalConfig.linux.renameNics;
 in
