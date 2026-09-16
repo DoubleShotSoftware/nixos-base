@@ -33,7 +33,9 @@
     RUSTUP_HOME = "$HOME/.rustup";
   };
   shellPlugins = {
-    zsh = ["rust" "cargo"];
+    # Oh My Zsh ships the `rust` plugin; `cargo` is not an Oh My Zsh plugin
+    # (Cargo is already installed and added to PATH by this language module).
+    zsh = ["rust"];
     fish = [];
     bash = [];
   };
