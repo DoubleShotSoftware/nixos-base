@@ -30,6 +30,13 @@ let
   
   # Create injection script that launches the user's preferred shell
   mkInjectionScript = ''
+    # Codex's SSH transport launches an interactive login shell only to run
+    # its payload. Do not hand that shell off to the user's interactive shell;
+    # doing so runs prompts, direnv, and other integrations before the probe.
+    if [[ -n "''${CODEX_REMOTE_PAYLOAD-}" ]]; then
+        return 0
+    fi
+
     # NOTE: Do NOT source zsh system config (/etc/zshenv, /etc/zshrc) here.
     # This script runs in bash; zsh config contains zsh-only syntax (setopt,
     # autoload, ''${(z)...}) that causes bash parse errors. Zsh will source

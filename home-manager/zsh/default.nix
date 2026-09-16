@@ -22,6 +22,16 @@ let
 in
 {
   config = mkIf enableZsh {
+    # Codex's remote SSH transport deliberately starts an interactive login
+    # shell, but its payload must not depend on interactive configuration.
+    # Stop startup-file processing after .zshenv for that transport so Oh My
+    # Zsh, direnv, prompts, and other integrations cannot block the probe.
+    home.file.".zshenv".text = ''
+      if [[ -n "''${CODEX_REMOTE_PAYLOAD-}" ]]; then
+        export PATH="$HOME/.npm-global/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+        unsetopt rcs
+      fi
+    '';
     programs.zsh = {
       enable = true;
       autosuggestion.enable = true;
