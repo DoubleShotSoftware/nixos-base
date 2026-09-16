@@ -147,12 +147,7 @@ in
           enableFishIntegration = true;
         };
         nix-index-database.comma.enable = true;
-        zellij = {
-          enable = true;
-          settings = {
-            theme = "catppuccin-mocha";
-          };
-        };
+        zellij.enable = true;
       };
     }
   ];
