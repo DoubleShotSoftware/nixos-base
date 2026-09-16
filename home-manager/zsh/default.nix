@@ -51,6 +51,7 @@ in
       '';
       oh-my-zsh = {
         enable = true;
+        package = pkgs.oh-my-zsh;
         plugins = [
           "git"
           "sudo"
