@@ -25,9 +25,13 @@ with lib;
       default = "bash";
     };
     shellInjector = mkOption {
-      type = types.enum [ "disabled" "bash" "zsh" "fish" ];
-      default = "disabled";
-      description = "Shell trampoline to use for interactive sessions. When enabled, bash remains the login shell and execs into the specified Nix-managed shell.";
+      type = types.enum [ "auto" "disabled" "bash" ];
+      default = "auto";
+      description = ''
+        Shell trampoline to install. `auto` installs a bash trampoline when the
+        preferred shell is not bash, `bash` installs it unconditionally, and
+        `disabled` keeps the real login shell for every session.
+      '';
     };
     zsh = {
       enable = mkOption {

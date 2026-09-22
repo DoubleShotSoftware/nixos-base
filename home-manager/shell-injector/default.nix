@@ -12,11 +12,11 @@ let
   userConfig = if username != null && users ? ${username} then users.${username} else {};
   
   # Check if this user needs shell injection
-  shellInjector = userConfig.shellInjector or "disabled";
+  shellInjector = userConfig.shellInjector or "auto";
   userShell = userConfig.shell or "bash";
   effectiveShellInjector =
-    if shellInjector == "disabled" && userShell != "bash" then
-      "bash"
+    if shellInjector == "auto" then
+      if userShell != "bash" then "bash" else "disabled"
     else
       shellInjector;
   needsInjection = effectiveShellInjector != "disabled";
@@ -30,6 +30,16 @@ let
   
   # Create injection script that launches the user's preferred shell
   mkInjectionScript = ''
+    # Tool transports can force an interactive-looking shell. Codex, for
+    # example, re-enters the login shell with something like `bash -l -i -c`.
+    # A real user session has a terminal and no command string.
+    if [[ -n "''${BASH_EXECUTION_STRING-}" ]] ||
+       [[ -n "''${ZSH_EXECUTION_STRING-}" ]] ||
+       [[ ! -t 0 ]] ||
+       [[ -n "''${SSH_ORIGINAL_COMMAND-}" ]]; then
+        return 0
+    fi
+
     # Codex's SSH transport launches an interactive login shell only to run
     # its payload. Do not hand that shell off to the user's interactive shell;
     # doing so runs prompts, direnv, and other integrations before the probe.
