@@ -83,6 +83,8 @@
       inherit nixpkgs nixpkgs-unstable nixCats;
     };
   in {
+    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
+
     nixConfig = {
       extra-substituters = ["https://cache.infra.lan.animus.design"];
       extra-trusted-public-keys = ["infra-nix-cache-1:06JS5MlUI/C/zpsS8+SYuE2iiSBSeYIuEKUc1opqVJM="];

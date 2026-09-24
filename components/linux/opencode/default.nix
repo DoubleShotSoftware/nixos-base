@@ -9,8 +9,22 @@
   lib,
   pkgs,
   ...
-}:
-with lib; let
+}: let
+  inherit
+    (lib)
+    concatMap
+    concatStringsSep
+    escapeShellArg
+    genAttrs
+    hasAttr
+    makeBinPath
+    mapAttrsToList
+    mkEnableOption
+    mkIf
+    mkOption
+    replaceStrings
+    types
+    ;
   cfg = config.personalConfig.linux.opencode;
   languages = import ../../languages/default.nix {inherit config lib pkgs;};
 
@@ -32,11 +46,16 @@ with lib; let
 
   # install: ensure opencode is present; update: force @latest. Both target the
   # user's ~/.npm-global prefix (same convention as the typescript component).
-  attachScript = pkgs.writeScript "opencode-attach"  /* bash */ ''
-  #!/usr/bin/env bash
-  export PATH="${pkgs.nodejs}/bin:$HOME/.npm-global/bin:$PATH"
-  opencode attach http://${cfg.hostname}:${toString cfg.port} --dir $(pwd)
-  '';
+  attachScript =
+    pkgs.writeScript "opencode-attach"
+    /*
+    bash
+    */
+    ''
+      #!/usr/bin/env bash
+      export PATH="${pkgs.nodejs}/bin:$HOME/.npm-global/bin:$PATH"
+      opencode attach http://${cfg.hostname}:${toString cfg.port} --dir $(pwd)
+    '';
   npmScript = pkgs.writeScript "opencode-npm" ''
     #!/usr/bin/env bash
     set -euo pipefail
@@ -123,6 +142,8 @@ with lib; let
     };
   };
 in {
+  imports = [./litellm-models.nix];
+
   options.personalConfig.linux.opencode = {
     enable = mkEnableOption "opencode npm install + web server (per-user, home-manager)";
     users = mkOption {
