@@ -38,7 +38,12 @@
   cfg = config.personalConfig.linux.opencode;
   lit = cfg.litellmModels;
 
-  keyAbsPath = config.home.homeDirectory + "/" + lit.keyFile;
+  # keyFile is home-relative by default; a leading '/' is honored verbatim
+  # so system-rendered sops secrets (/run/secrets/...) work too.
+  keyAbsPath =
+    if lib.hasPrefix "/" lit.keyFile
+    then lit.keyFile
+    else config.home.homeDirectory + "/" + lit.keyFile;
 
   syncScript =
     pkgs.writeScript "opencode-litellm-sync"
@@ -54,7 +59,7 @@
       cfgDir="$HOME/.config/opencode"
       outFile="$cfgDir/opencode.json"
       tmp="$cfgDir/.opencode.json.tmp"
-      keyFile="$HOME/${lit.keyFile}"
+      keyFile="${keyAbsPath}"
       includeMcp=${
         if lit.mcp.enable
         then "1"
@@ -173,9 +178,11 @@ in {
       type = types.str;
       default = ".config/opencode/litellm-key";
       description = ''
-        File containing a litellm API key (master key or a virtual key),
-        relative to the user's home. Provisioned by sops-nix when
-        litellmModels.key is set; otherwise place it manually.
+        File containing a litellm API key (master key or, preferably, a
+        scoped virtual key), relative to the user's home - or an absolute
+        path (e.g. a system-rendered /run/secrets/... sops secret owned by
+        the user). Provisioned by sops-nix when litellmModels.key is set;
+        otherwise place it manually.
       '';
     };
 
