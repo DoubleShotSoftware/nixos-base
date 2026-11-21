@@ -25,9 +25,13 @@ with lib;
       default = "bash";
     };
     shellInjector = mkOption {
-      type = types.enum [ "disabled" "bash" "zsh" "fish" ];
-      default = "disabled";
-      description = "Shell to inject on non-NixOS systems. Creates shell initialization files that exec into the specified Nix-managed shell.";
+      type = types.enum [ "auto" "disabled" "bash" ];
+      default = "auto";
+      description = ''
+        Shell trampoline to install. `auto` installs a bash trampoline when the
+        preferred shell is not bash, `bash` installs it unconditionally, and
+        `disabled` keeps the real login shell for every session.
+      '';
     };
     zsh = {
       enable = mkOption {
@@ -91,10 +95,22 @@ with lib;
       default = false;
       description = "install zellij for user.";
     };
+    zellijWeb = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Run the zellij web server as a systemd user service (requires zellij). Creates a default login token at ~/.config/zellij/tokens/default on first start.";
+    };
+    zellijWebPort = mkOption {
+      type = types.port;
+      default = 8082;
+      description = "Port the zellij web server listens on (bound to 127.0.0.1).";
+    };
     languages = mkOption {
       type = types.listOf (types.enum [
         "aws"
+        "kotlin"
         "terraform"
+        "tofu"
         "rust"
         "dotnet"
         "python"

@@ -1,9 +1,11 @@
-{ config, lib, options, pkgs, constants ? import ../../models/constants.nix, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
-with lib;
-let tzdir = "${pkgs.tzdata}/share/zoneinfo";
-in {
-  imports = [ ];
+with lib; {
+  imports = [];
   config = lib.mkMerge [
     (lib.mkIf (pkgs.stdenv.isDarwin) {
       system.stateVersion = config.personalConfig.system.darwinStateVersion;
@@ -11,34 +13,48 @@ in {
     {
       time.timeZone = config.personalConfig.system.timeZone;
       nixpkgs.config.allowUnfree = true;
-      environment.systemPackages = with pkgs; [
-        unstable.jujutsu
-        nix-output-monitor
-        sops
-        age
-        screen
-        tmux
-        vim
-        curl
-        wget
-        git
-        htop
-        zsh
-        rsync
-        nixfmt-rfc-style
-        p7zip
-        jq
-        deploy-rs
-        gnupg
-        tree
-        pwgen
-      ] ++ lib.optionals config.personalConfig.system.developerPackages [
-        gnumake
-        cmake
-      ];
+      environment.systemPackages = with pkgs;
+        [
+          dust
+          yazi
+          broot
+          btop
+          nix-output-monitor
+          sops
+          age
+          screen
+          vim
+          curl
+          wget
+          git
+          htop
+          rsync
+          p7zip
+          jq
+          deploy-rs
+          gnupg
+          tree
+          pwgen
+          ssh-to-age
+        ]
+        ++ lib.optionals pkgs.stdenv.isLinux [
+          ghostty.terminfo
+          wezterm.terminfo
+        ]
+        ++ lib.optionals config.personalConfig.system.developerPackages [
+          gnumake
+          cmake
+        ];
       nix = {
         optimise.automatic = true;
-        gc = { automatic = true; };
+        settings = {
+          extra-substituters = ["https://cache.infra.lan.animus.design"];
+          extra-trusted-public-keys = ["infra-nix-cache-1:06JS5MlUI/C/zpsS8+SYuE2iiSBSeYIuEKUc1opqVJM="];
+        };
+        gc = {
+          automatic = true;
+          options = "--delete-older-than 7d";
+        };
         extraOptions = ''
           experimental-features = nix-command flakes
           keep-outputs = true

@@ -1,15 +1,34 @@
 # TypeScript language configuration function
-{ pkgs, username }:
+{ pkgs, username, lib, settings ? {} }:
+let
+  # nodejs is required — either the user-supplied package or a sensible default.
+  # npm ships inside the nodejs derivation, so no separate npm package.
+  nodejsPkg = if (settings.nodePackage or null) != null
+    then lib.hiPrio settings.nodePackage
+    else pkgs.nodejs;
+  extraPackages = settings.extraPackages or [];
+
+  # Opt-in weekly cleanup of stale node_modules (see models/languageSettings.nix).
+  prune = settings.pruneStale or false;
+  pruneDays = toString (settings.pruneStaleDays or 7);
+  pruneRoot = settings.pruneRoot or "$HOME/dev";
+  pruneScript = pkgs.writeScript "ts-prune-stale-node-modules" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root="${pruneRoot}"
+    [ -d "$root" ] || exit 0
+    ${pkgs.findutils}/bin/find "$root" -type d -name node_modules -prune -mtime +${pruneDays} \
+      -exec ${pkgs.coreutils}/bin/rm -rf {} +
+  '';
+in
 {
   packages = with pkgs; [
-    nodejs
+    nodejsPkg
     yarn
     pnpm
-    nodePackages.npm
-    nodePackages.typescript
-    corepack
-    nodePackages.prettier
-  ];
+    typescript
+    prettier
+  ] ++ extraPackages;
   sessionVariables = {};
   shellPlugins = {
     zsh = [ "npm" "node" "yarn" ];
@@ -39,4 +58,21 @@
     '';
   };
   permittedInsecurePackages = [];
+  homeManager = if prune then {
+    systemd.user.services.prune-stale-node-modules = {
+      Unit.Description = "Prune stale node_modules under ${pruneRoot} (older than ${pruneDays} days)";
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pruneScript}";
+      };
+    };
+    systemd.user.timers.prune-stale-node-modules = {
+      Unit.Description = "Weekly prune of stale node_modules";
+      Timer = {
+        OnCalendar = "weekly";
+        Persistent = true;
+      };
+      Install.WantedBy = [ "timers.target" ];
+    };
+  } else {};
 }

@@ -4,17 +4,24 @@
   pkgs,
   ...
 }:
-with lib;
-let
+with lib; let
+  personalConfig = config.personalConfig;
   cfg = config.personalConfig.cockpit;
-in
-{
+  containerEnabled = personalConfig.linux.container.enable;
+  isPodman = personalConfig.linux.container.backend == "podman";
+in {
   config = mkIf cfg.enable (mkMerge [
     {
       services.cockpit = {
         enable = true;
         port = cfg.port;
-        openFirewall = false; # Never expose to WAN
+        openFirewall = cfg.openFirewall;
+        showBanner = cfg.showBanner;
+        package =
+          if cfg.package == null
+          then pkgs.cockpit
+          else cfg.package;
+        settings = cfg.settings;
 
         # Add HTTP origins to enable automatic redirect to HTTPS
         # The module already adds "https://localhost:${port}" by default
@@ -23,25 +30,28 @@ in
           "http://localhost:${toString cfg.port}"
           "http://${config.networking.hostName}:${toString cfg.port}"
         ];
+        plugins = [pkgs.cockpit-files] ++ cfg.plugins;
       };
 
       # Ensure polkit is enabled for authentication
       security.polkit.enable = true;
     }
+    # (mkIf config.boot.zfs.enabled {
+    #   services.cockpit.plugins = lib.mkAfter [
+    #     pkgs.unstable.cockpit-zfs
+    #   ];
+    # })
+    (mkIf (containerEnabled && isPodman) {
+      services.cockpit.plugins = lib.mkAfter [
+        pkgs.cockpit-podman
+      ];
+    })
 
     (mkIf cfg.enableMachines {
-      # Add cockpit-machines package
-      environment.systemPackages =
-        let
-          cockpit-machines = pkgs.callPackage ../../packages/cockpit-machines.nix { };
-        in
-        [
-          cockpit-machines
-          pkgs.libvirt
-          pkgs.virt-manager  # Provides virt-install for VM creation
-        ];
+      services.cockpit.plugins = lib.mkAfter [
+        pkgs.cockpit-machines
+      ];
 
-      # Ensure libvirt is configured when machines plugin is enabled
       assertions = [
         {
           assertion = config.personalConfig.linux.libvirt.enable or false;
@@ -51,13 +61,6 @@ in
           assertion = (config.personalConfig.linux.libvirt.enable or false) -> config.personalConfig.linux.libvirt.dbus.enable;
           message = "Cockpit Machines requires libvirt D-Bus to be enabled. Set personalConfig.linux.libvirt.dbus.enable = true;";
         }
-      ];
-
-      # Add systemd tmpfiles rules for cockpit-machines
-      systemd.tmpfiles.rules = [
-        "L+ /usr/share/cockpit/machines - - - - ${
-          pkgs.callPackage ../../packages/cockpit-machines.nix { }
-        }/share/cockpit/machines"
       ];
     })
   ]);

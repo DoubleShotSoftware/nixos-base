@@ -4,7 +4,7 @@
 local nixCats = require('nixCats')
 local theme = nixCats.extra.theme or 'tokyonight'
 
--- Tokyonight setup
+-- Tokyonight setup (matches nixvim config)
 if theme == 'tokyonight' then
   require('tokyonight').setup({
     style = 'night',
@@ -12,7 +12,9 @@ if theme == 'tokyonight' then
     terminal_colors = true,
     dim_inactive = true,
     lualine_bold = false,
-    sidebars = { 'qf', 'vista_kind', 'terminal', 'packer', 'neo-tree' },
+    hide_inactive_statusline = false,
+    light_style = 'day',
+    sidebars = { 'qf', 'vista_kind', 'terminal', 'packer' },
     day_brightness = 0.3,
     styles = {
       comments = { italic = true },
@@ -35,11 +37,11 @@ if theme == 'tokyonight' then
         bg = colors.bg_dark,
       }
       hl.LineNrAbove = {
-        fg = colors.blue,
+        fg = colors.blue1,  -- blue_bright in tokyonight
         bg = colors.bg_dark,
       }
       hl.LineNrBelow = {
-        fg = colors.blue,
+        fg = colors.blue1,  -- blue_bright in tokyonight
         bg = colors.bg_dark,
       }
 
@@ -52,11 +54,26 @@ if theme == 'tokyonight' then
       hl.GitSignsChange = { fg = colors.blue, bg = colors.bg_dark }
       hl.GitSignsDelete = { fg = colors.red, bg = colors.bg_dark }
 
-      -- LSP diagnostics with dark background
+      -- LSP diagnostics with dark background (modern names)
       hl.DiagnosticSignError = { fg = colors.red, bg = colors.bg_dark }
       hl.DiagnosticSignWarn = { fg = colors.yellow, bg = colors.bg_dark }
       hl.DiagnosticSignInfo = { fg = colors.blue, bg = colors.bg_dark }
       hl.DiagnosticSignHint = { fg = colors.cyan, bg = colors.bg_dark }
+
+      -- Legacy LSP diagnostic names (for compatibility)
+      hl.LspDiagnosticsDefaultHint = { fg = colors.yellow, bg = colors.bg_dark }
+      hl.LspDiagnosticsSignHint = { fg = colors.yellow, bg = colors.bg_dark }
+      hl.LspDiagnosticsSignError = { fg = colors.red, bg = colors.bg_dark }
+      hl.LspDiagnosticsSignWarning = { fg = colors.yellow, bg = colors.bg_dark }
+
+      -- Window separators (thicker dividers)
+      hl.WinSeparator = { fg = colors.blue0, bg = colors.bg_dark }
+
+      -- Neo-tree backgrounds
+      hl.NeoTreeNormal = { bg = colors.bg_dark }
+      hl.NeoTreeNormalNC = { bg = colors.bg_dark }
+      hl.NeoTreeWinSeparator = { fg = colors.blue0, bg = colors.bg_dark }
+      hl.NeoTreeEndOfBuffer = { fg = colors.bg_dark, bg = colors.bg_dark }
     end,
   })
   vim.cmd.colorscheme('tokyonight')
@@ -65,9 +82,8 @@ if theme == 'tokyonight' then
 elseif theme == 'catppuccin' then
   require('catppuccin').setup({
     flavour = 'mocha',
-    transparent_background = false,
+    transparent_background = true,
     term_colors = true,
-    dim_inactive = { enabled = true },
     integrations = {
       cmp = true,
       gitsigns = true,
@@ -75,7 +91,7 @@ elseif theme == 'catppuccin' then
       treesitter = true,
       notify = true,
       mini = true,
-      telescope = { enabled = true },
+      telescope = { enabled = true, style = 'nvchad' },
       which_key = true,
       indent_blankline = { enabled = true },
       native_lsp = {
@@ -116,6 +132,15 @@ elseif theme == 'catppuccin' then
         DiagnosticSignWarn = { fg = colors.yellow, bg = colors.mantle },
         DiagnosticSignInfo = { fg = colors.blue, bg = colors.mantle },
         DiagnosticSignHint = { fg = colors.teal, bg = colors.mantle },
+
+        -- Window separators (thicker dividers)
+        WinSeparator = { fg = colors.blue, bg = colors.mantle },
+
+        -- Neo-tree backgrounds
+        NeoTreeNormal = { bg = colors.mantle },
+        NeoTreeNormalNC = { bg = colors.mantle },
+        NeoTreeWinSeparator = { fg = colors.blue, bg = colors.mantle },
+        NeoTreeEndOfBuffer = { fg = colors.mantle, bg = colors.mantle },
       }
     end,
   })

@@ -1,5 +1,5 @@
 # SQL language configuration function
-{ pkgs, username }:
+{ pkgs, username, lib, settings ? {} }:
 {
   packages = with pkgs; [
     postgresql

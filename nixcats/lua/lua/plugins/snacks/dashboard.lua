@@ -22,6 +22,7 @@ return {
       icon = ' ',
       title = 'Recent Files',
       section = 'recent_files',
+      cwd = true,
       indent = 2,
       padding = 1,
     },

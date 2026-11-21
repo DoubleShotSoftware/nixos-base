@@ -8,7 +8,6 @@
 with lib;
 with builtins;
 let
-  serviceConfig = config.services.dnsmasq;
   dnsmasq = pkgs.dnsmasq;
   dnsMasqConfig = config.personalConfig.linux.dnsmasq.interfaces;
   cfg = config.personalConfig.linux.dnsmasq;
@@ -52,6 +51,22 @@ let
         };
       };
     };
+  routeOptions =
+    { ... }:
+    {
+      options = {
+        destination = mkOption {
+          type = types.str;
+          description = "Destination network in CIDR notation (e.g., 172.16.128.0/24)";
+          example = "172.16.128.0/24";
+        };
+        gateway = mkOption {
+          type = types.str;
+          description = "Gateway IP address for this route";
+          example = "172.16.1.1";
+        };
+      };
+    };
   dnsMasqInterfaceOptions =
     { ... }:
     {
@@ -82,9 +97,18 @@ let
           description = "Lease time for a dhcp address in hours.";
           default = 12;
         };
+        routes = mkOption {
+          type = types.listOf (types.submodule routeOptions);
+          default = [ ];
+          description = "Static routes to push via DHCP option 121 (classless static routes)";
+          example = [
+            { destination = "172.16.128.0/24"; gateway = "172.16.1.1"; }
+            { destination = "192.168.130.0/24"; gateway = "172.16.1.1"; }
+          ];
+        };
       };
     };
-  listenAddresses = map (interfaceConfig: interfaceConfig.listenOn) dnsMasqConfig;
+  listenAddresses = ["127.0.0.1"] ++ map (interfaceConfig: interfaceConfig.listenOn) dnsMasqConfig;
   interfaceConfigs = map (
     interfaceConfig:
     "interface:${interfaceConfig.interface},${interfaceConfig.lowerRange},${interfaceConfig.upperRange},${toString interfaceConfig.leaseTime}h"
@@ -106,25 +130,19 @@ let
       )
     ) cfg.domainOverrides
   );
-  # True values are just put as `name` instead of `name=true`, and false values
-  # are turned to comments (false values are expected to be overrides e.g.
-  # mkForce)
-  formatKeyValue =
-    name: value:
-    if value == true then
-      name
-    else if value == false then
-      "# setting `${name}` explicitly set to false"
-    else
-      generators.mkKeyValueDefault { } "=" name value;
-  settingsFormat = pkgs.formats.keyValue {
-    mkKeyValue = formatKeyValue;
-    listsAsDuplicateKeys = true;
-  };
-  dnsmasqConf = pkgs.writeText "dnsmasq.conf" ''
-    conf-file=${settingsFormat.generate "dnsmasq.conf" serviceConfig.settings}
-    ${serviceConfig.extraConfig}
-  '';
+  # Generate DHCP option 121 (classless static routes) per interface
+  # Format: dhcp-option=tag:<interface>,121,<dest>,<gateway>,...
+  # When using interface:<name> in dhcp-range, dnsmasq creates a tag matching the interface
+  dhcpRouteDirectives = lib.flatten (
+    map (interfaceConfig:
+      if interfaceConfig.routes == [] then []
+      else
+        let
+          routeEntries = lib.concatMapStringsSep "," (r: "${r.destination},${r.gateway}") interfaceConfig.routes;
+        in
+          [ "tag:${interfaceConfig.interface},121,${routeEntries}" ]
+    ) dnsMasqConfig
+  );
 in
 {
   options.personalConfig.linux.dnsmasq = {
@@ -135,6 +153,12 @@ in
     dnsServers = mkOption {
       type = types.listOf types.str;
       default = [ ];
+    };
+    domain = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Local domain suffix. With expand-hosts, dnsmasq appends this to short hostnames.";
+      example = "zipline.colo-miami.lan.animus.design";
     };
     interfaces = mkOption {
       default = [ ];
@@ -168,13 +192,13 @@ in
     environment.etc."ethers" = {
       text = (lib.concatStringsSep "\n" (map (ether: "${ether.mac} ${ether.hostname}") cfg.ethers));
     };
-    networking = {
-      hosts = hosts;
-    };
+    # Always generate hosts from ethers for dnsmasq read-ethers to work
+    # Uses mkAfter to merge with hosts from other modules (e.g., FVM guest networking)
+    networking.hosts = lib.mkAfter hosts;
     services = {
       dnsmasq = {
         enable = true;
-        resolveLocalQueries = false;
+        resolveLocalQueries = true;
         settings = {
           no-resolv = true;
           conf-file = "${pkgs.dnsmasq}/share/dnsmasq/trust-anchors.conf";
@@ -191,6 +215,9 @@ in
           log-queries = true;
           listen-address = lib.concatStringsSep "," listenAddresses;
           dhcp-range = interfaceConfigs;
+          dhcp-option = dhcpRouteDirectives;
+        } // lib.optionalAttrs (cfg.domain != null) {
+          domain = cfg.domain;
         };
       };
     };

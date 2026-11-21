@@ -34,22 +34,23 @@ let
   ];
   
   # Development packages (language servers, formatters, linters)
+  # Note: Editor (nixcats) is handled by nvim.nix based on user's languages
   dev-packages = with pkgs; [
     tree-sitter
-    
+
     # language servers
-    nodePackages.vscode-langservers-extracted # html, css, json, eslint
-    nodePackages.yaml-language-server
+    vscode-langservers-extracted # html, css, json, eslint
+    yaml-language-server
     nil # nix
-    
+
     # formatters and linters
     alejandra # nix
     deadnix # nix
-    nodePackages.prettier
+    prettier
     shellcheck
     shfmt
     statix # nix
-  ] ++ lib.optional (pkgs ? nvim-ide) pkgs.nvim-ide;
+  ];
   
   # Auto-detect if we're on NixOS
   isNixOs = pkgs.stdenv.isLinux && builtins.pathExists /etc/NIXOS;
@@ -102,20 +103,43 @@ in
           then "/Users/${username}" 
           else "/home/${username}";
         sessionVariables = {
-          SHELL = "/etc/profiles/per-user/${username}/bin/fish";
+          SHELL = "${pkgs.bash}/bin/bash";
         };
       };
     })
     # Always set these regardless of username
     {
       home = {
-        stateVersion = if config.personalConfig ? system 
+        stateVersion = if config.personalConfig ? system
           then config.personalConfig.system.nixStateVersion
           else constants.nixStateVersion;
-        packages = essential-packages 
+        packages = essential-packages
           ++ unstable-packages
           ++ lib.optionals (userConfig.nvim or false) dev-packages;
+
+        # Common tool paths
+        sessionPath = [
+          "$HOME/.dotnet/tools"
+          "$HOME/.npm-global/bin"
+        ];
       };
+      # Expire old home-manager generations (keep last 3 days)
+      systemd.user.services.hm-gc = {
+        Unit.Description = "Remove old home-manager generations";
+        Service = {
+          Type = "oneshot";
+          ExecStart = "${config.programs.home-manager.package}/bin/home-manager expire-generations '-3 days'";
+        };
+      };
+      systemd.user.timers.hm-gc = {
+        Unit.Description = "Weekly home-manager generation cleanup";
+        Timer = {
+          OnCalendar = "weekly";
+          Persistent = true;
+        };
+        Install.WantedBy = [ "timers.target" ];
+      };
+
       programs = {
         home-manager.enable = true;
         nix-index = {
@@ -123,12 +147,7 @@ in
           enableFishIntegration = true;
         };
         nix-index-database.comma.enable = true;
-        zellij = {
-          enable = true;
-          settings = {
-            theme = "catppuccin-mocha";
-          };
-        };
+        zellij.enable = true;
       };
     }
   ];

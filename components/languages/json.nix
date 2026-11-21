@@ -1,5 +1,5 @@
 # JSON language configuration function
-{ pkgs, username }:
+{ pkgs, username, lib ? null, settings ? {} }:
 {
   packages = with pkgs; [ unstable.jq ];
   sessionVariables = {};

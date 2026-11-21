@@ -11,6 +11,8 @@ let
   dockerDaemonSettings = {
     bip = containerConfig.docker.broadcastIp;
     ipv6 = false;
+  } // optionalAttrs (containerConfig.docker.defaultAddressPools != []) {
+    "default-address-pools" = containerConfig.docker.defaultAddressPools;
   };
   containerEnabled = config.personalConfig.linux.container.enable;
   isDocker =
@@ -69,6 +71,16 @@ in
         description = lib.mdDoc "The broadcast ip for the base docker network interface.";
         default = "172.26.0.1/16";
       };
+      defaultAddressPools = mkOption {
+        type = types.listOf (types.submodule {
+          options = {
+            base = mkOption {type = types.str;};
+            size = mkOption {type = types.ints.positive;};
+          };
+        });
+        default = [];
+        description = lib.mdDoc "Address pools Docker uses for automatically created networks.";
+      };
       storageDriver = mkOption {
         type = types.nullOr (
           types.enum [
@@ -104,7 +116,7 @@ in
         oci-containers = {
           backend = "docker";
           containers.watchtower = {
-            image = "containrrr/watchtower";
+            image = "nickfedor/watchtower:latest";
             volumes = [ "/var/run/docker.sock:/var/run/docker.sock" ];
             autoStart = true;
           };
@@ -121,6 +133,12 @@ in
           ]
           ++ (if containerConfig.docker.networkAccessible then [ "0.0.0.0:2375" ] else [ ]);
         };
+      };
+      # Stop the Watchtower container before Docker is restarted during activation.
+      # Without this lifecycle link its cleanup runs after the socket has gone away.
+      systemd.services.docker-watchtower = {
+        partOf = ["docker.service"];
+        requires = ["docker.service"];
       };
       environment.systemPackages = [
         pkgs.docker-compose

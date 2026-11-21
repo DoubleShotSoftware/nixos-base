@@ -4,13 +4,13 @@ with builtins;
 let
   baseConfig = (builtins.readFile ./kitty.conf);
   users = config.personalConfig.users;
-  titleBar = if pkgs.system == "aarch64-darwin" then
+  titleBar = if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then
     "macos_titlebar_color #16161e"
   else
     "wayland_titlebar_color #16161e";
 in {
   config = mkMerge [
-    (lib.mkIf (pkgs.system != "aarch64-darwin") {
+    (lib.mkIf (pkgs.stdenv.hostPlatform.system != "aarch64-darwin") {
       home-manager.users = mapAttrs (user: userConfig:
         if (userConfig.kitty) then
           trace "Enabling kitty for ${user}" {

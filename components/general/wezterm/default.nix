@@ -12,7 +12,7 @@ let
 in
 {
   config = mkMerge [
-    (lib.mkIf (pkgs.system != "aarch64-darwin") {
+    (lib.mkIf (pkgs.stdenv.hostPlatform.system != "aarch64-darwin") {
       home-manager.users = mapAttrs (
         user: userConfig:
         if (userConfig.wezterm) then
@@ -27,7 +27,7 @@ in
           { }
       ) (filterAttrs (user: userConfig: userConfig.userType != "system") users);
     })
-    (lib.mkIf (pkgs.system == "aarch64-darwin") {
+    (lib.mkIf (pkgs.stdenv.hostPlatform.system == "aarch64-darwin") {
       home-manager.users = mapAttrs (
         user: userConfig:
         if (userConfig.wezterm) then

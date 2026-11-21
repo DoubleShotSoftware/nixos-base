@@ -7,6 +7,7 @@
 #     pkgs = unstablePkgs;      # Pre-configured pkgs with overlay
 #     stablePkgs = stablePkgs;  # Stable pkgs for packages needing stability
 #     languages = ["dotnet" "rust"];
+#     extra = { };             # Additional values exposed as nixCats.extra
 #   };
 #
 { nixpkgs, nixpkgs-unstable, nixCats }:
@@ -26,10 +27,19 @@ in {
     extraCategories ? { },     # Additional category overrides
     extraPlugins ? [ ],        # Additional plugins to include
     extraPackages ? [ ],       # Additional runtime packages
+    extra ? { },               # Additional values exposed as nixCats.extra
   }:
   let
+    # Alias outer pkgs — the package function args below shadow `pkgs` with
+    # nixCats's builder pkgs (derived from stable nixpkgs input), so we need
+    # a distinct name to reach the unstable pkgs we were passed.
+    unstablePkgs = pkgs;
+
     # Custom plugins from overlay (using outer pkgs which has the overlay)
     telescopeTabs = pkgs.customVimPlugins.telescope-tabs;
+    codediff = pkgs.customVimPlugins.codediff;
+    deltaview = pkgs.customVimPlugins.deltaview;
+    gitWorktree = pkgs.customVimPlugins.git-worktree;
 
     # Convert languages list to category enables
     # e.g., ["dotnet" "rust"] -> { "languages.dotnet" = true; "languages.rust" = true; }
@@ -53,6 +63,20 @@ in {
             fzf
             git
             lazygit
+            delta   # Required for deltaview
+            nodejs  # Required for copilot + prettier
+            stylua  # Lua formatter
+            lua-language-server  # Lua LSP
+            # Config-language baseline — JSON, YAML, TOML are universal
+            # enough (CI, package manifests, k8s, terraform-tfvars, dotfiles,
+            # editorconfig, lockfiles, ...) that the LSPs and formatters
+            # ship in every nixcats build, not gated behind a `languages.*`
+            # category.
+            vscode-json-languageserver
+            yaml-language-server
+            taplo                # TOML LSP + formatter (single binary)
+            prettier             # json/jsonc/yaml formatter
+            jq                   # JSON CLI tooling
           ];
         } // langConfigs.lspsAndRuntimeDeps;
 
@@ -76,9 +100,13 @@ in {
             nvim-treesitter.withAllGrammars
             nvim-treesitter-textobjects
             nvim-treesitter-context
+            # Folding
+            promise-async
+            nvim-ufo
             # LSP
             nvim-lspconfig
             fidget-nvim
+            lspsaga-nvim
             # Completion
             blink-cmp
             # Telescope
@@ -102,12 +130,22 @@ in {
             todo-comments-nvim
             mini-nvim
             snacks-nvim
+            # JSON/YAML schemas (used by jsonls + yamlls — see plugins/lsp.lua)
+            SchemaStore-nvim
             # Tab bar
             tabby-nvim
             # Markdown preview
             render-markdown-nvim
+            # Formatting
+            conform-nvim
+            # Navigation
+            hardtime-nvim
+            precognition-nvim
           ] ++ [
             telescopeTabs  # Custom plugin from overlay (outer scope)
+            codediff       # VSCode-style diff viewer
+            deltaview      # Inline diff viewer using delta
+            gitWorktree    # Git worktree management
           ] ++ extraPlugins;
         } // langConfigs.startupPlugins;
 
@@ -157,8 +195,10 @@ in {
         settings = {
           inherit wrapRc;
           configDirName = "nixcats";
-          aliases = [ "vim" "vi" ];
-          neovim-unwrapped = pkgs.neovim-unwrapped;
+          aliases = [ "e" "nvim" "vim" "vi" ];
+          # Use neovim from unstable (0.12) rather than nixCats's default pkgs
+          # (which is derived from the stable nixpkgs input = 25.11 = 0.11.x)
+          neovim-unwrapped = unstablePkgs.neovim-unwrapped;
           # For wrapRc = false, use this path for lua config
           unwrappedCfgPath = ./lua;
         };
@@ -170,7 +210,7 @@ in {
           # Pass extra data to Lua via nixCats()
           enabledLanguages = languages;
           theme = theme;
-        } // langConfigs.extra;
+        } // langConfigs.extra // extra;
       };
     };
 

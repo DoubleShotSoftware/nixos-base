@@ -22,6 +22,17 @@ let
 in
 {
   config = mkIf enableZsh {
+    # Remote tool transports may force an interactive-looking zsh. Stop
+    # startup-file processing after .zshenv for those shells so Oh My Zsh,
+    # direnv, prompts, and other integrations cannot block their probe.
+    home.file.".zshenv".text = ''
+      if [[ -n "''${ZSH_EXECUTION_STRING-}" ]] ||
+         [[ ! -t 0 ]] ||
+         [[ -n "''${CODEX_REMOTE_PAYLOAD-}" ]]; then
+        export PATH="$HOME/.npm-global/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:$PATH"
+        unsetopt rcs
+      fi
+    '';
     programs.zsh = {
       enable = true;
       autosuggestion.enable = true;
@@ -41,6 +52,7 @@ in
       '';
       oh-my-zsh = {
         enable = true;
+        package = pkgs.oh-my-zsh;
         plugins = [
           "git"
           "sudo"
@@ -62,7 +74,6 @@ in
         fi
       '';
     };
-    
     home.packages = with pkgs; [ freshfetch ];
     
     programs.direnv.enableZshIntegration = true;

@@ -1,10 +1,9 @@
 # AWS language configuration function
-{ pkgs, username }:
+{ pkgs, username, lib, settings ? {} }:
 {
 
   packages = with pkgs; [
     aws-mfa
-    aws-shell
     awscli2
     awsls
     awsume

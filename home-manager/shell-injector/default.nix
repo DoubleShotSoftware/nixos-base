@@ -5,9 +5,6 @@ let
   personalConfig = config._module.args.personalConfig or config.personalConfig or {};
   users = personalConfig.users or {};
   
-  # Auto-detect if we're on NixOS
-  isNixOs = pkgs.stdenv.isLinux && builtins.pathExists /etc/NIXOS;
-  
   # Determine username - in home-manager context, use config.home.username
   username = config.home.username or (if length (attrNames users) == 1 then head (attrNames users) else null);
   
@@ -15,9 +12,14 @@ let
   userConfig = if username != null && users ? ${username} then users.${username} else {};
   
   # Check if this user needs shell injection
-  shellInjector = userConfig.shellInjector or "disabled";
+  shellInjector = userConfig.shellInjector or "auto";
   userShell = userConfig.shell or "bash";
-  needsInjection = !isNixOs && shellInjector != "disabled";
+  effectiveShellInjector =
+    if shellInjector == "auto" then
+      if userShell != "bash" then "bash" else "disabled"
+    else
+      shellInjector;
+  needsInjection = effectiveShellInjector != "disabled";
   
   # Shell paths
   shellPaths = {
@@ -28,17 +30,28 @@ let
   
   # Create injection script that launches the user's preferred shell
   mkInjectionScript = ''
-    # Source system configuration first
-    if [ -f /etc/zshenv ]; then
-        source /etc/zshenv
+    # Tool transports can force an interactive-looking shell. Codex, for
+    # example, re-enters the login shell with something like `bash -l -i -c`.
+    # A real user session has a terminal and no command string.
+    if [[ -n "''${BASH_EXECUTION_STRING-}" ]] ||
+       [[ -n "''${ZSH_EXECUTION_STRING-}" ]] ||
+       [[ ! -t 0 ]] ||
+       [[ -n "''${SSH_ORIGINAL_COMMAND-}" ]]; then
+        return 0
     fi
-    if [ -f /etc/zshrc ]; then
-        source /etc/zshrc
+
+    # Codex's SSH transport launches an interactive login shell only to run
+    # its payload. Do not hand that shell off to the user's interactive shell;
+    # doing so runs prompts, direnv, and other integrations before the probe.
+    if [[ -n "''${CODEX_REMOTE_PAYLOAD-}" ]]; then
+        return 0
     fi
-    if [ -f /etc/static/zshrc ]; then
-        source /etc/static/zshrc
-    fi
-    
+
+    # NOTE: Do NOT source zsh system config (/etc/zshenv, /etc/zshrc) here.
+    # This script runs in bash; zsh config contains zsh-only syntax (setopt,
+    # autoload, ''${(z)...}) that causes bash parse errors. Zsh will source
+    # its own system config automatically when exec'd below.
+
     # Initialize homebrew if on macOS (append to PATH to preserve Nix precedence)
     if [[ "$(uname)" == "Darwin" ]]; then
         if [[ -e /opt/homebrew/bin/brew ]]; then
@@ -91,7 +104,7 @@ in {
   config = mkIf needsInjection {
     home.file = mkMerge [
       # Inject into bash if specified
-      (mkIf (shellInjector == "bash") {
+      (mkIf (effectiveShellInjector == "bash") {
         ".bashrc".text = mkInjectionScript;
         ".bash_profile".text = ''
           # Source bashrc for login shells
@@ -101,7 +114,7 @@ in {
         '';
       })
       # Inject into zsh if specified
-      (mkIf (shellInjector == "zsh") {
+      (mkIf (effectiveShellInjector == "zsh") {
         ".zshrc".text = mkInjectionScript;
         ".zprofile".text = ''
           # Source zshrc for login shells

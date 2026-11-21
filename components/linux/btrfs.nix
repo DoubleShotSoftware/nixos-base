@@ -126,38 +126,38 @@ with lib; {
       }))
     (lib.mkIf config.personalConfig.linux.btrfs.immutable
       (trace "Enabling BTRFS Ephemeral Mounts." {
-        boot = {
-          initrd = {
-            postDeviceCommands = lib.mkAfter ''
-              echo "Rolling back root filesystem..."
-              mkdir -p /mnt
-              
-              # Wait for cryptroot to be available
-              while [ ! -e ${config.personalConfig.linux.btrfs.rootDevice} ]; do
-                sleep 0.5
+        # Systemd stage 1: rollback @ → @-empty as an initrd oneshot, ordered
+        # after the LUKS device appears and before /sysroot is mounted.
+        # `boot.supportedFilesystems = [ "btrfs" ]` already arranges for the
+        # btrfs binary to be in initrd via extraBin.
+        boot.initrd.systemd.services.rollback-root = {
+          description = "Rollback btrfs root @ to clean @-empty snapshot";
+          wantedBy = [ "initrd.target" ];
+          after = [
+            (lib.replaceStrings ["/"] ["-"]
+              (lib.removePrefix "/" config.personalConfig.linux.btrfs.rootDevice)
+              + ".device")
+          ];
+          before = [ "sysroot.mount" ];
+          unitConfig.DefaultDependencies = "no";
+          serviceConfig.Type = "oneshot";
+          script = ''
+            mkdir -p /mnt
+            mount -o subvol=/ ${config.personalConfig.linux.btrfs.rootDevice} /mnt
+
+            if [ -e /mnt/@-empty ]; then
+              btrfs subvolume list -o /mnt/@ 2>/dev/null | cut -f9 -d' ' | while read subvol; do
+                btrfs subvolume delete "/mnt/$subvol" 2>/dev/null || true
               done
-              
-              # Mount BTRFS root to manipulate subvolumes
-              mount -o subvol=/ ${config.personalConfig.linux.btrfs.rootDevice} /mnt
-              
-              # Delete current @ and restore from @-empty
-              if [ -e /mnt/@-empty ]; then
-                # Delete any nested subvolumes in @ first
-                btrfs subvolume list -o /mnt/@ 2>/dev/null | cut -f9 -d' ' | while read subvol; do
-                  btrfs subvolume delete "/mnt/$subvol" 2>/dev/null || true
-                done
-                
-                # Delete and restore
-                btrfs subvolume delete /mnt/@ 2>/dev/null || true
-                btrfs subvolume snapshot /mnt/@-empty /mnt/@
-                echo "Root rolled back to clean state"
-              else
-                echo "WARNING: @-empty snapshot not found, skipping rollback"
-              fi
-              
-              umount /mnt
-            '';
-          };
+              btrfs subvolume delete /mnt/@ 2>/dev/null || true
+              btrfs subvolume snapshot /mnt/@-empty /mnt/@
+              echo "Root rolled back to clean state"
+            else
+              echo "WARNING: @-empty snapshot not found, skipping rollback"
+            fi
+
+            umount /mnt
+          '';
         };
         fileSystems = mkMerge [
           # Only define filesystem mounts if NOT using disko

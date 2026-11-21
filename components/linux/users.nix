@@ -8,10 +8,9 @@ in {
       trace "Creating user: ${user}" {
         name = user;
         home = "/home/${user}";
-        shell = 
-          if (userConfig.shell == "zsh") then pkgs.zsh 
-          else if (userConfig.shell == "fish") then pkgs.fish
-          else pkgs.bash;
+        # Keep the real login shell POSIX-friendly so remote tooling sees bash.
+        # Interactive fish/zsh sessions are restored by the shell injector.
+        shell = pkgs.bash;
         group = user;
         isNormalUser = userConfig.userType == "normal";
         isSystemUser = userConfig.userType == "system";

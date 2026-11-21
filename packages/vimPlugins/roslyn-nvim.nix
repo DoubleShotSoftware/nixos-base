@@ -2,7 +2,7 @@
 # Roslyn LSP integration for Neovim (seblyng/roslyn.nvim)
 { pkgs }:
 let
-  version = "14ff65704f2a1658f55646618d6520cf00b3f576";
+  version = "ff43201090361b8936e008a006473b59ef2c0ca6";
 in pkgs.vimUtils.buildVimPlugin {
   inherit version;
   name = "roslyn.nvim";
@@ -10,6 +10,6 @@ in pkgs.vimUtils.buildVimPlugin {
     owner = "seblyng";
     repo = "roslyn.nvim";
     rev = version;
-    hash = "sha256-e7yffLdeQEmfaSxkuaQVu3nJX/8inPRosX2K1dyNO/s=";
+    hash = "sha256-NUzG2ulccKHxfv9v4hFStYgaNSZVm6vV5nOFTiFIP20=";
   };
 }
