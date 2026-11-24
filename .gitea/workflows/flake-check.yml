@@ -42,7 +42,7 @@ jobs:
   evaluate:
     runs-on: docker
     container:
-      image: ubuntu:24.04@sha256:77eb101c607d6e3d4f5ad0c8a02c2136c689b8aba1f359e6502ba517e5c57ec
+      image: ubuntu:24.04@sha256:562111b88caa79c71391c0c4d3c2114a7d5c35915c20561fd893cb1e07929e6b
     env:
       NIX_CONFIG: "experimental-features = nix-command flakes"
     steps:
