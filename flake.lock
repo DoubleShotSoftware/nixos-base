@@ -76,11 +76,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785965916,
-        "narHash": "sha256-d2ZdK0V1bWhi1uDtMDFEm8wdyQbWC2gToNUdKPOqGc8=",
+        "lastModified": 1795555575,
+        "narHash": "sha256-KO6/2n9CJ/Vu4VAVuosM4Kg3G721MdpVBIZklN8BKfM=",
         "ref": "refs/heads/main",
-        "rev": "8bce96b8956cdf2a8b0e8598539f526ea6918f03",
-        "revCount": 53,
+        "rev": "414ec2fa689667a5980efbc3edfc864975e6e9b5",
+        "revCount": 55,
         "type": "git",
         "url": "ssh://git@gitea.infra.lan.animus.design/platformcraft/easy-kotlin"
       },
