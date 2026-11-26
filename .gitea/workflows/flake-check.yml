@@ -1,0 +1,92 @@
+name: Flake Check
+
+# Evaluation gate for the shared-config flake, mirroring the pattern from
+# animusnull/nixos: deliberately NOT `nix flake check` (which evaluates every
+# output at once); instead eval a representative slice of outputs one at a
+# time. Eval-only: no builds, fast, and still catches lockfile breakage,
+# assertion failures, and missing files.
+#
+# Deliberately not evaluated (known issue on main):
+#   homeConfigurations.* - infinite recursion via components/languages/home-manager.nix
+on:
+  pull_request:
+    paths:
+      - flake.nix
+      - flake.lock
+      - components/**
+      - packages/**
+      - nixcats/**
+      - home-manager/**
+      - models/**
+      - factory-base/**
+      - .gitea/workflows/flake-check.yml
+  push:
+    branches:
+      - main
+    paths:
+      - flake.nix
+      - flake.lock
+      - components/**
+      - packages/**
+      - nixcats/**
+      - home-manager/**
+      - models/**
+      - factory-base/**
+      - .gitea/workflows/flake-check.yml
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  evaluate:
+    runs-on: docker
+    container:
+      image: ubuntu:24.04@sha256:562111b88caa79c71391c0c4d3c2114a7d5c35915c20561fd893cb1e07929e6b
+    env:
+      NIX_CONFIG: "experimental-features = nix-command flakes"
+    steps:
+      # Keep this bootstrap aligned with the passing Flake Check workflow in
+      # animusnull/nixos.
+      - name: Install Nix, node, and jq
+        run: |
+          set -euo pipefail
+          chmod 0755 / || true
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -qq
+          apt-get install -y -qq curl git openssh-client jq
+          curl -SsfL https://install.determinate.systems/nix | sh -s -- install linux --no-confirm --init none --no-start-daemon
+          export PATH="/nix/var/nix/profiles/default/bin:$PATH"
+          nohup nix-daemon >/tmp/nix-daemon.log 2>&1 &
+          for _ in {1..30}; do
+            [[ -S /nix/var/nix/daemon-socket/socket ]] && break
+            sleep 1
+          done
+          test -S /nix/var/nix/daemon-socket/socket
+          nix profile install nixpkgs#nodejs_24
+          echo "/root/.nix-profile/bin" >> "$GITHUB_PATH"
+          echo "/nix/var/nix/profiles/default/bin" >> "$GITHUB_PATH"
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Evaluate flake outputs
+        env:
+          GITEASSHKEY: ${{ secrets.GITEASSHKEY }}
+        run: |
+          set -euo pipefail
+          : "${GITEASSHKEY:?GITEASSHKEY is required (ssh fetch of the easy-kotlin input)}"
+          umask 077
+          ssh_dir="$(mktemp -d)"
+          trap 'rm -rf "$ssh_dir"' EXIT
+          ssh_key="$ssh_dir/gitea"
+          known_hosts="$ssh_dir/known_hosts"
+          printf '%s\n' "$GITEASSHKEY" > "$ssh_key"
+          printf 'gitea.infra.lan.animus.design %s\n' "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBPhcOHN4m8vKN1xb6xULg8p57CM1V0RchcEkJHH3z6k" > "$known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $ssh_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$known_hosts -o GlobalKnownHostsFile=/dev/null"
+
+          nix flake metadata
+          nix eval ".#formatter.x86_64-linux.outPath"
+          nix eval ".#formatter.aarch64-darwin.outPath"
+          nix eval ".#packages.x86_64-linux.nixcats-full.outPath"
+          nix eval ".#checks.x86_64-linux.easy-dotnet-pair.outPath"

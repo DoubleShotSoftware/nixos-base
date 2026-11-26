@@ -1,0 +1,161 @@
+name: Flake Bump
+
+# Weekly bump of every root flake input onto a flake-update/weekly/<stamp>
+# branch with a PR into main, opened as the gitea-action bot. Unlike
+# animusnull/nixos there is no deliberate kernel tier: this flake has no
+# kernel inputs, so the weekly PR auto-merges once checks are green.
+#
+# Required repo/org secrets:
+#   GITEA_ACTION_TOKEN - gitea-action user PAT with repo write on this repo
+#   NIX_GITHUB_TOKEN   - GitHub PAT (no scopes) so `nix flake update` does not
+#                        hit api.github.com rate limits
+#   GITEASSHKEY        - key with read access to the private easy-kotlin input
+on:
+  schedule:
+    - cron: '17 4 * * 1' # weekly, Mon 04:17 UTC (staggered after nixos 03:17)
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  bump:
+    runs-on: docker
+    container:
+      image: ubuntu:24.04@sha256:562111b88caa79c71391c0c4d3c2114a7d5c35915c20561fd893cb1e07929e6b
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GITEA_ACTION_TOKEN: ${{ secrets.GITEA_ACTION_TOKEN }}
+      NIX_GITHUB_TOKEN: ${{ secrets.NIX_GITHUB_TOKEN }}
+      NIX_CONFIG: "experimental-features = nix-command flakes"
+    steps:
+      # Keep this bootstrap aligned with the passing Flake Check workflow in
+      # animusnull/nixos.
+      - name: Install Nix, node, and jq
+        run: |
+          set -euo pipefail
+          chmod 0755 / || true
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -qq
+          apt-get install -y -qq curl git openssh-client jq
+          curl -SsfL https://install.determinate.systems/nix | sh -s -- install linux --no-confirm --init none --no-start-daemon
+          export PATH="/nix/var/nix/profiles/default/bin:$PATH"
+          nohup nix-daemon >/tmp/nix-daemon.log 2>&1 &
+          for _ in {1..30}; do
+            [[ -S /nix/var/nix/daemon-socket/socket ]] && break
+            sleep 1
+          done
+          test -S /nix/var/nix/daemon-socket/socket
+          nix profile install nixpkgs#nodejs_24
+          echo "/root/.nix-profile/bin" >> "$GITHUB_PATH"
+          echo "/nix/var/nix/profiles/default/bin" >> "$GITHUB_PATH"
+
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Update flake inputs and open PR
+        id: pr
+        env:
+          GITEASSHKEY: ${{ secrets.GITEASSHKEY }}
+        run: |
+          set -euo pipefail
+          : "${GITEA_ACTION_TOKEN:?GITEA_ACTION_TOKEN is required}"
+          : "${NIX_GITHUB_TOKEN:?NIX_GITHUB_TOKEN is required}"
+          : "${GITEASSHKEY:?GITEASSHKEY is required}"
+          export NIX_CONFIG="${NIX_CONFIG}
+          access-tokens = github.com=${NIX_GITHUB_TOKEN}"
+          umask 077
+          ssh_dir="$(mktemp -d)"
+          trap 'rm -rf "$ssh_dir"' EXIT
+          ssh_key="$ssh_dir/gitea"
+          known_hosts="$ssh_dir/known_hosts"
+          printf '%s\n' "$GITEASSHKEY" > "$ssh_key"
+          printf 'gitea.infra.lan.animus.design %s\n' "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBPhcOHN4m8vKN1xb6xULg8p57CM1V0RchcEkJHH3z6k" > "$known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $ssh_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$known_hosts -o GlobalKnownHostsFile=/dev/null"
+
+          nix flake update
+          if git diff --quiet flake.lock; then
+            echo "flake.lock unchanged — nothing to bump."
+            echo "opened=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          branch="flake-update/weekly/$(date -u +%Y%m%d%H%M)"
+          # Align name/email with the gitea-action account so Gitea links the
+          # commit to the bot user.
+          git config user.name "gitea-action"
+          git config user.email "gitea-action@noreply.git.infra.lan.animus.design"
+          git switch -c "$branch"
+          git add flake.lock
+          git commit -m "chore(flake): weekly input bump"
+          git push "https://gitea-action:${GITEA_ACTION_TOKEN}@git.infra.lan.animus.design/animusnull/nixos-base.git" "HEAD:${branch}"
+
+          pr_json=$(curl --fail-with-body -sS -X POST \
+            -H "Authorization: token ${GITEA_ACTION_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "${GITHUB_API_URL}/repos/animusnull/nixos-base/pulls" \
+            -d "{\"title\":\"chore(flake): weekly input bump\",\"head\":\"${branch}\",\"base\":\"main\",\"body\":\"Automated weekly flake input bump.\"}")
+          number=$(jq -er '.number' <<< "$pr_json")
+          url=$(jq -er '.html_url // .url' <<< "$pr_json")
+          echo "opened=true" >> "$GITHUB_OUTPUT"
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "Opened PR #${number}: ${url}"
+
+      # Poll the PR's combined commit status and auto-merge once every
+      # required check is green (~45 min budget). A refused merge (moved head)
+      # fails this step and leaves the PR open for a human.
+      - name: Wait for checks and auto-merge
+        if: steps.pr.outputs.opened == 'true'
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          GITEA_ACTION_TOKEN: ${{ secrets.GITEA_ACTION_TOKEN }}
+        run: |
+          set -euo pipefail
+          deadline=$(( $(date +%s) + 2700 ))
+          while :; do
+            if (( $(date +%s) >= deadline )); then
+              echo "Timed out waiting for checks on PR #${PR_NUMBER} — leaving it open."
+              exit 1
+            fi
+            pr_json=$(curl --fail-with-body -sS -H "Authorization: token ${GITEA_ACTION_TOKEN}" \
+              "${GITHUB_API_URL}/repos/animusnull/nixos-base/pulls/${PR_NUMBER}")
+            head_sha=$(jq -er '.head.sha' <<< "$pr_json")
+            status_json=$(curl --fail-with-body -sS -H "Authorization: token ${GITEA_ACTION_TOKEN}" \
+              "${GITHUB_API_URL}/repos/animusnull/nixos-base/commits/${head_sha}/status")
+            state=$(jq -er '.state' <<< "$status_json")
+            total_count=$(jq -er 'if (.total_count | type) == "number" and .total_count >= 0 then .total_count else error("invalid total_count") end' <<< "$status_json")
+            echo "combined status: ${state} (${total_count} statuses)"
+            case "$state" in
+              success)
+                if (( total_count == 0 )); then
+                  echo "No checks reported for ${head_sha}; waiting."
+                  sleep 30
+                  continue
+                fi
+                # Bind the merge to the head whose checks just passed: Gitea
+                # refuses (409) if the PR head moved since, failing this step
+                # and leaving the PR open for a human.
+                merge_body=$(jq -cn --arg sha "$head_sha" '{do: "squash", head_commit_id: $sha}')
+                if ! curl --fail-with-body -sS -o /dev/null -w 'merge HTTP %{http_code}\n' \
+                  -X POST -H "Authorization: token ${GITEA_ACTION_TOKEN}" \
+                  -H "Content-Type: application/json" \
+                  "${GITHUB_API_URL}/repos/animusnull/nixos-base/pulls/${PR_NUMBER}/merge" \
+                  -d "$merge_body"; then
+                  echo "Merge of PR #${PR_NUMBER} at ${head_sha} refused (head moved or not mergeable) — leaving it open."
+                  exit 1
+                fi
+                echo "Merged PR #${PR_NUMBER} at ${head_sha}."
+                exit 0
+                ;;
+              failure | error)
+                echo "Checks failed for ${head_sha} — leaving PR #${PR_NUMBER} open for a human."
+                exit 1
+                ;;
+            esac
+            sleep 30
+          done
